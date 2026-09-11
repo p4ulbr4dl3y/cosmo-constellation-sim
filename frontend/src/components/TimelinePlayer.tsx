@@ -6,12 +6,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Radio,
-  AlertCircle,
-  CheckCircle,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline, TimelineSlot } from '../types/scenario'
-import { Card, Button } from './ui'
 
 interface TimelinePlayerProps {
   scenario: Scenario
@@ -138,68 +134,67 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
   }
 
   return (
-    <Card noPadding className="p-2.5 flex flex-col gap-2 select-none">
+    <div className="p-2 bg-[#090b10] border border-white/10 rounded-xl flex flex-col gap-1.5 select-none font-mono">
       {/* Top Row: Playback Controls & Time readout */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* Play / Step Buttons */}
-        <div className="flex items-center gap-1.5">
-          <Button
-            size="icon"
-            variant="outline"
+      <div className="flex items-center justify-between gap-2">
+        {/* Play / Step Buttons & Speed */}
+        <div className="flex items-center gap-1">
+          <button
             onClick={() => onTimeChange(0)}
-            title="Перемотать в начало (00:00:00)"
+            title="В начало (00:00:00)"
+            className="w-6 h-6 rounded flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </Button>
+            <RotateCcw className="w-3 h-3" />
+          </button>
 
-          <Button
-            size="icon"
-            variant="outline"
+          <button
             onClick={() => onTimeChange(Math.max(0, currentTime - step_s))}
             title="Шаг назад (-120с)"
+            className="w-6 h-6 rounded flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
-          </Button>
+          </button>
 
-          <Button
-            size="sm"
-            variant={isPlaying ? 'outline' : 'primary'}
+          <button
             onClick={() => setIsPlaying((v) => !v)}
             title={isPlaying ? 'Пауза (Пробел)' : 'Воспроизведение (Пробел)'}
-            className="w-24"
+            className={`h-6 px-2.5 rounded text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              isPlaying
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                : 'bg-white/10 hover:bg-white/15 text-white'
+            }`}
           >
             {isPlaying ? (
               <>
-                <Pause className="w-3.5 h-3.5 fill-current text-[#00f0ff]" />
-                <span className="text-[#00f0ff]">PAUSE</span>
+                <Pause className="w-3 h-3 fill-current" />
+                <span>PAUSE</span>
               </>
             ) : (
               <>
-                <Play className="w-3.5 h-3.5 fill-current" />
+                <Play className="w-3 h-3 fill-current" />
                 <span>PLAY</span>
               </>
             )}
-          </Button>
+          </button>
 
-          <Button
-            size="icon"
-            variant="outline"
+          <button
             onClick={() => onTimeChange(Math.min(horizon_s - step_s, currentTime + step_s))}
             title="Шаг вперед (+120с)"
+            className="w-6 h-6 rounded flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
           >
             <ChevronRight className="w-3.5 h-3.5" />
-          </Button>
+          </button>
 
           {/* Speed Selector */}
-          <div className="flex items-center ml-2 bg-[#080b11] rounded-lg border border-white/10 p-0.5 text-xs font-mono">
+          <div className="flex items-center ml-1 bg-black/50 rounded border border-white/10 p-0.5 text-[10px]">
             {[1, 5, 20, 60].map((spd) => (
               <button
                 key={spd}
                 onClick={() => setPlaybackSpeed(spd)}
-                className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
                   playbackSpeed === spd
-                    ? 'bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/30'
-                    : 'text-slate-400 hover:text-slate-200 border border-transparent'
+                    ? 'bg-white/20 text-white font-bold'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 {spd}x
@@ -209,24 +204,34 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
 
         {/* Current Time Display */}
-        <div className="flex items-center gap-2.5 font-mono">
-          <div className="flex items-center gap-2 bg-[#080b11] border border-white/10 px-2.5 py-1 rounded-lg">
-            <Clock className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-sm font-bold text-slate-100 tracking-wider">
+        <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-1.5 bg-black/40 border border-white/10 px-2 py-0.5 rounded text-[11px]">
+            <Clock className="w-3 h-3 text-slate-400" />
+            <span className="font-bold text-white tracking-wider">
               {formatTime(currentTime)}
             </span>
-            <span className="text-[11px] text-slate-400">
-              / 24:00:00
-            </span>
+            <span className="text-[10px] text-slate-400">/ 24:00:00</span>
           </div>
-          <span className="text-[10px] text-slate-400 hidden sm:inline">
+          <span className="text-[10px] text-slate-400 hidden md:inline">
             T+{currentTime}s (dt={step_s}s)
+          </span>
+        </div>
+
+        {/* Legend */}
+        <div className="flex items-center gap-3 text-[10px] text-slate-400">
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            Связь
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            Обрыв
           </span>
         </div>
       </div>
 
       {/* Main Scrubber Slider */}
-      <div className="relative w-full flex flex-col py-0.5">
+      <div className="relative w-full flex flex-col pt-0.5">
         <input
           type="range"
           min={0}
@@ -234,10 +239,9 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           step={step_s}
           value={currentTime}
           onChange={(e) => onTimeChange(Number(e.target.value))}
-          className="w-full h-1.5 bg-[#141b26] rounded-sm appearance-none cursor-pointer accent-[#00f0ff] focus:outline-none"
+          className="w-full h-1 bg-[#161c28] rounded appearance-none cursor-pointer accent-cyan-400 focus:outline-none"
         />
-        {/* Hour tick marks */}
-        <div className="flex justify-between text-[9px] font-mono text-slate-400 pt-1 select-none">
+        <div className="flex justify-between text-[8px] text-slate-400 select-none px-0.5">
           <span>00:00</span>
           <span>04:00</span>
           <span>08:00</span>
@@ -248,123 +252,97 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
       </div>
 
-      {/* Gantt Availability Diagram */}
-      <div className="flex flex-col gap-1 mt-0.5">
-        <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono uppercase">
-          <span className="font-semibold text-slate-300 tracking-wider flex items-center gap-1.5">
-            <Radio className="w-3 h-3 text-[#00f0ff]" />
-            ДОСТУПНОСТЬ ТРАССЫ (00:00 - 24:00 UTC)
-          </span>
-          <div className="flex items-center gap-3 text-[9px]">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-xs bg-emerald-500" /> СВЯЗЬ ДО ШЛЮЗА
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-xs bg-red-500" /> ПЕРЕРЫВ
-            </span>
-          </div>
-        </div>
+      {/* Gantt Bars for 3 clients */}
+      <div className="relative flex flex-col gap-1 bg-black/40 p-1 rounded-lg border border-white/10">
+        {/* Playhead vertical marker */}
+        <div
+          className="absolute top-0 bottom-0 w-0.5 bg-cyan-400 z-10 pointer-events-none"
+          style={{ left: `calc(${playheadPercent}% + 64px * (1 - ${playheadPercent / 100}))` }}
+        />
 
-        {/* Client Gantt Bars */}
-        <div className="relative flex flex-col gap-1 bg-[#080b11] p-1.5 rounded-lg border border-white/10">
-          {/* Vertical Playhead across all rows */}
-          <div
-            className="absolute top-0 bottom-0 w-0.5 bg-[#00f0ff] z-10 pointer-events-none shadow-[0_0_8px_#00f0ff]"
-            style={{ left: `calc(${playheadPercent}% + 88px * (1 - ${playheadPercent / 100}))` }}
-          />
+        {clients.map((c) => {
+          const tl = timelines[c.id]
+          const isSelected = c.id === selectedClientId
+          const availRatio = tl ? (tl.metrics.availability_ratio * 100).toFixed(1) : '0'
+          const meetsTarget = tl ? tl.metrics.availability_ratio >= scenario.environment.target_availability : false
 
-          {clients.map((c) => {
-            const tl = timelines[c.id]
-            const isSelected = c.id === selectedClientId
-            const availRatio = tl ? (tl.metrics.availability_ratio * 100).toFixed(1) : '0'
-            const meetsTarget = tl ? tl.metrics.availability_ratio >= scenario.environment.target_availability : false
-
-            return (
-              <div
-                key={c.id}
-                className={`flex items-center gap-2 rounded-md transition-colors ${
-                  isSelected ? 'bg-[#00f0ff]/5' : ''
+          return (
+            <div
+              key={c.id}
+              className={`flex items-center gap-1.5 rounded transition-colors ${
+                isSelected ? 'bg-white/5' : ''
+              }`}
+            >
+              {/* Client Pill */}
+              <button
+                onClick={() => onSelectClient(c.id)}
+                className={`w-14 shrink-0 px-1 py-0.5 rounded text-[10px] flex items-center justify-between border transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-200 font-bold'
+                    : 'bg-[#0c1017] border-white/10 text-slate-400 hover:text-slate-200'
                 }`}
               >
-                {/* Client Label & Badge */}
-                <button
-                  onClick={() => onSelectClient(c.id)}
-                  className={`w-20 shrink-0 text-left px-1.5 py-0.5 rounded-md font-mono text-xs flex items-center justify-between border transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300 font-bold'
-                      : 'bg-[#0c1017] border-white/10 text-slate-300 hover:border-white/20'
+                <span>{c.id}</span>
+                <span
+                  className={`text-[9px] ${
+                    meetsTarget ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
-                  <span>{c.id}</span>
-                  <span
-                    className={`text-[9px] font-mono ${
-                      meetsTarget ? 'text-emerald-400' : 'text-amber-400'
-                    }`}
-                  >
-                    {availRatio}%
-                  </span>
-                </button>
+                  {availRatio}%
+                </span>
+              </button>
 
-                {/* The Timeline Bar */}
-                <div
-                  onClick={handleGanttClick}
-                  onMouseMove={(e) => handleGanttMouseMove(e, c.id)}
-                  onMouseLeave={() => setTooltipData(null)}
-                  className="relative flex-1 h-5 bg-[#0c1017] rounded-sm overflow-hidden cursor-pointer flex border border-white/10"
-                >
-                  {tl &&
-                    tl.slots.map((slot, idx) => {
-                      return (
-                        <div
-                          key={idx}
-                          style={{ width: `${100 / totalSlots}%` }}
-                          className={`h-full ${
-                            slot.hasPath
-                              ? 'bg-emerald-500/80 hover:bg-emerald-400'
-                              : 'bg-red-500/80 hover:bg-red-400'
-                          }`}
-                        />
-                      )
-                    })}
-                </div>
+              {/* Gantt Timeline Strip */}
+              <div
+                onClick={handleGanttClick}
+                onMouseMove={(e) => handleGanttMouseMove(e, c.id)}
+                onMouseLeave={() => setTooltipData(null)}
+                className="relative flex-1 h-3.5 bg-[#0c1017] rounded-xs overflow-hidden cursor-pointer flex border border-white/5"
+              >
+                {tl &&
+                  tl.slots.map((slot, idx) => (
+                    <div
+                      key={idx}
+                      style={{ width: `${100 / totalSlots}%` }}
+                      className={`h-full ${
+                        slot.hasPath
+                          ? 'bg-emerald-500/80 hover:bg-emerald-400'
+                          : 'bg-rose-500/80 hover:bg-rose-400'
+                      }`}
+                    />
+                  ))}
               </div>
-            )
-          })}
-        </div>
+            </div>
+          )
+        })}
       </div>
 
       {/* Floating Tooltip */}
       {tooltipData && (
         <div
-          className="fixed z-50 pointer-events-none bg-[#0c1017] text-slate-100 text-xs px-3 py-2 rounded-lg border border-white/15 shadow-2xl backdrop-blur-md transform -translate-x-1/2 -translate-y-full"
+          className="fixed z-50 pointer-events-none bg-[#0c1017]/95 text-slate-100 text-[11px] px-2.5 py-1.5 rounded-lg border border-white/15 shadow-2xl backdrop-blur-md transform -translate-x-1/2 -translate-y-full"
           style={{ left: tooltipData.x, top: tooltipData.y }}
         >
-          <div className="flex items-center gap-2 font-mono font-bold text-cyan-400 border-b border-white/10 pb-1 mb-1">
+          <div className="flex items-center gap-2 font-bold text-cyan-300 border-b border-white/10 pb-1 mb-1">
             <span>{tooltipData.clientId}</span>
             <span>{formatTime(tooltipData.slot.t_s)}</span>
-            <span className="text-[10px] text-slate-400">
-              (t={tooltipData.slot.t_s}s)
+            <span className="text-[9px] text-slate-400">
+              (T+{tooltipData.slot.t_s}s)
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px]">
+          <div className="flex items-center gap-1 text-[10px]">
             {tooltipData.slot.hasPath ? (
-              <>
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-300 font-semibold">
-                  Связь доступна (Хопов: {tooltipData.slot.hops})
-                </span>
-              </>
+              <span className="text-emerald-400 font-semibold">
+                Связь активна (Хопов: {tooltipData.slot.hops})
+              </span>
             ) : (
-              <>
-                <AlertCircle className="w-3.5 h-3.5 text-red-400" />
-                <span className="text-red-300 font-semibold">
-                  Перерыв связи: {tooltipData.slot.reason || 'Нет пути'}
-                </span>
-              </>
+              <span className="text-rose-400 font-semibold">
+                Обрыв: {tooltipData.slot.reason || 'Нет пути'}
+              </span>
             )}
           </div>
         </div>
       )}
-    </Card>
+    </div>
   )
 }

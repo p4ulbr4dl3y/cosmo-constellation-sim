@@ -1,18 +1,13 @@
 import React, { useRef } from 'react'
 import {
-  Radio,
   Upload,
   Download,
   FileCode,
-  CheckCircle2,
-  AlertTriangle,
   RotateCcw,
-  Sparkles,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline } from '../types/scenario'
 import { PRESET_SCENARIOS } from '../data/presets'
 import { exportResultFile } from '../lib/orbit'
-import { Button, Badge } from './ui'
 
 interface HeaderProps {
   currentScenario: Scenario
@@ -107,81 +102,59 @@ export const Header: React.FC<HeaderProps> = ({
   const targetPct = Math.round((currentScenario.environment.target_availability ?? 0.9) * 100)
 
   return (
-    <header className="bg-[#0c1017] border-b border-white/10 px-4 py-2 flex flex-wrap items-center justify-between gap-3 select-none">
-      {/* Brand & Title */}
-      <div className="flex items-center gap-3">
-        <div className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center">
-          <Radio className="w-3.5 h-3.5 text-cyan-400" />
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold tracking-wider text-slate-200 uppercase font-mono">
-              КОСМОХАКАТОН 2026
-            </span>
-            <Badge variant="neutral">cosmo-A-1.0</Badge>
-            {isModified && (
-              <Badge variant="amber" className="flex items-center gap-1">
-                <Sparkles className="w-2.5 h-2.5" /> Модифицирован
-              </Badge>
-            )}
-          </div>
-          <h1 className="text-xs text-slate-400 font-normal">
-            Орбитальное проектирование &amp; доступность связи в Арктике
-          </h1>
-        </div>
+    <header className="h-11 shrink-0 bg-[#090b10] border-b border-white/10 px-3 flex items-center justify-between gap-2 select-none">
+      {/* Brand & Schema */}
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="text-xs font-bold tracking-wider text-slate-200 uppercase font-mono">
+          КОСМОХАКАТОН
+        </span>
+        <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
+          v1.0
+        </span>
+        {isModified && (
+          <span className="text-[10px] font-mono text-amber-400 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            изменен
+          </span>
+        )}
       </div>
 
-      {/* Clean Navigation Tabs */}
-      <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
+      {/* Navigation Tabs */}
+      <div className="flex items-center bg-black/60 p-0.5 rounded-lg border border-white/10 text-xs font-mono">
         <button
           onClick={() => setActiveTab('monitor')}
-          className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
             activeTab === 'monitor'
-              ? 'bg-white/10 text-white border border-white/15 shadow-xs'
-              : 'text-slate-400 hover:text-slate-200 border border-transparent'
+              ? 'bg-white/15 text-white font-semibold shadow-xs'
+              : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              activeTab === 'monitor' ? 'bg-cyan-400' : 'bg-slate-600'
-            }`}
-          />
-          <span>Мониторинг</span>
+          Мониторинг
         </button>
         <button
           onClick={() => setActiveTab('config')}
-          className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
             activeTab === 'config'
-              ? 'bg-white/10 text-white border border-white/15 shadow-xs'
-              : 'text-slate-400 hover:text-slate-200 border border-transparent'
+              ? 'bg-white/15 text-white font-semibold shadow-xs'
+              : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              activeTab === 'config' ? 'bg-cyan-400' : 'bg-slate-600'
-            }`}
-          />
-          <span>Конфигурация</span>
+          Конфигурация
         </button>
         <button
           onClick={() => setActiveTab('compare')}
-          className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
             activeTab === 'compare'
-              ? 'bg-white/10 text-white border border-white/15 shadow-xs'
-              : 'text-slate-400 hover:text-slate-200 border border-transparent'
+              ? 'bg-white/15 text-white font-semibold shadow-xs'
+              : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              activeTab === 'compare' ? 'bg-cyan-400' : 'bg-slate-600'
-            }`}
-          />
-          <span>A/B Сравнение</span>
+          A/B Сравнение
         </button>
       </div>
 
-      {/* Preset Selector & File Actions */}
-      <div className="flex items-center gap-2">
+      {/* Actions & SLA */}
+      <div className="flex items-center gap-1.5 shrink-0">
         {/* Preset dropdown */}
         <select
           value={
@@ -191,7 +164,7 @@ export const Header: React.FC<HeaderProps> = ({
             const preset = PRESET_SCENARIOS.find((p) => p.id === e.target.value)
             if (preset) onSelectPreset(preset.data)
           }}
-          className="bg-[#0c1017] hover:bg-[#121824] border border-white/10 text-xs text-slate-200 font-mono py-1.5 px-2.5 rounded-lg focus:outline-none focus:border-cyan-500/50 transition-colors cursor-pointer"
+          className="bg-[#0c1017] hover:bg-[#121824] border border-white/10 text-[11px] text-slate-200 font-mono py-1 px-2 rounded-md focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
         >
           <option value="" disabled>
             Выбрать пресет...
@@ -211,67 +184,60 @@ export const Header: React.FC<HeaderProps> = ({
           accept=".json"
           className="hidden"
         />
-        <Button
-          size="icon"
-          variant="outline"
+        <button
           onClick={() => fileInputRef.current?.click()}
-          title="Загрузить пользовательский сценарий JSON (cosmo-A-1.0)"
+          title="Загрузить JSON (cosmo-A-1.0)"
+          className="h-7 px-2 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs flex items-center gap-1 transition-colors cursor-pointer"
         >
-          <Upload className="w-3.5 h-3.5 text-slate-300 hover:text-cyan-400" />
-        </Button>
+          <Upload className="w-3.5 h-3.5" />
+        </button>
 
         {/* Reset */}
         {isModified && (
-          <Button
-            size="icon"
-            variant="danger"
+          <button
             onClick={onResetScenario}
-            title="Сбросить к исходному сценарию"
+            title="Сбросить к исходному"
+            className="h-7 px-2 rounded-md bg-red-950/40 hover:bg-red-900/60 border border-red-800/40 text-red-300 text-xs flex items-center transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-          </Button>
+          </button>
         )}
 
         {/* Export Scenario */}
-        <Button
-          size="sm"
-          variant="outline"
+        <button
           onClick={handleExportScenario}
-          title="Экспортировать сценарий (cosmo-A-1.0)"
+          title="Экспортировать входной сценарий (cosmo-A-1.0)"
+          className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-[11px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <FileCode className="w-3.5 h-3.5 text-cyan-400" />
+          <FileCode className="w-3 h-3 text-slate-400" />
           <span>Сценарий</span>
-        </Button>
+        </button>
 
-        {/* Export Result cosmo-A-result-1.0 */}
-        <Button
-          size="sm"
-          variant="primary"
+        {/* Export Result */}
+        <button
           onClick={handleExportResult}
-          title="Экспортировать результат расчёта (cosmo-A-result-1.0)"
+          title="Экспорт cosmo-A-result-1.0"
+          className="h-7 px-2.5 rounded-md bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-200 text-[11px] font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <Download className="w-3.5 h-3.5" />
-          <span>Результат</span>
-          <span className="text-[9px] bg-black/20 px-1 py-0.2 rounded font-mono">1.0</span>
-        </Button>
+          <Download className="w-3 h-3" />
+          <span>Результат 1.0</span>
+        </button>
 
-        {/* Target SLA compliance badge */}
-        <Badge
-          variant={allMeetTarget ? 'emerald' : 'amber'}
-          className="py-1 px-2 text-[11px]"
+        {/* Target SLA pill */}
+        <div
+          className={`h-7 px-2 rounded-md border font-mono text-[11px] flex items-center gap-1.5 ${
+            allMeetTarget
+              ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-300'
+              : 'bg-amber-950/30 border-amber-500/30 text-amber-300'
+          }`}
         >
-          {allMeetTarget ? (
-            <>
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span>SLA ≥{targetPct}% OK</span>
-            </>
-          ) : (
-            <>
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-              <span>SLA &lt;{targetPct}%</span>
-            </>
-          )}
-        </Badge>
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              allMeetTarget ? 'bg-emerald-400' : 'bg-amber-400'
+            }`}
+          />
+          <span>SLA {allMeetTarget ? `≥${targetPct}% OK` : `<${targetPct}%`}</span>
+        </div>
       </div>
     </header>
   )

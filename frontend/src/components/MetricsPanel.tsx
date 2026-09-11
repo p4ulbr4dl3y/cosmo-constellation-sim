@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react'
 import {
   AlertTriangle,
-  Radio,
   ArrowRight,
   CheckCircle2,
   XCircle,
-  HelpCircle,
+  Crosshair,
+  ZapOff,
 } from 'lucide-react'
 import type { Scenario, Snapshot, ClientTimeline } from '../types/scenario'
-import { Card, CardHeader, CardTitle, Badge, StatCard } from './ui'
+import { StatCard } from './ui'
 
 interface MetricsPanelProps {
   scenario: Scenario
@@ -16,6 +16,7 @@ interface MetricsPanelProps {
   timelines: Record<string, ClientTimeline>
   selectedClientId: string
   onSelectClient: (clientId: string) => void
+  onToggleFailure?: (satId: string) => void
 }
 
 /** Human-readable diagnosis & actionable suggestions for network failure */
@@ -70,14 +71,11 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
   timelines,
   selectedClientId,
   onSelectClient,
+  onToggleFailure,
 }) => {
   const targetAvailability = scenario.environment.target_availability ?? 0.9
   const clients = useMemo(
     () => scenario.ground_sites.filter((g) => g.role === 'client'),
-    [scenario.ground_sites]
-  )
-  const gateway = useMemo(
-    () => scenario.ground_sites.find((g) => g.role === 'gateway'),
     [scenario.ground_sites]
   )
 
@@ -97,25 +95,22 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
   // Check gateway status at current simulation step
   const isGatewayOutage = scenario.gateway_outages.some(
-    (o) =>
-      o.gateway_id === (gateway?.id || '') &&
-      o.start_s <= snapshot.t_s &&
-      snapshot.t_s < o.end_s
+    (o) => o.start_s <= snapshot.t_s && snapshot.t_s < o.end_s
   )
 
-  // Calculate approximate path round-trip time in milliseconds (c ≈ 300,000 km/s)
+  // Approximate route latency (RTT) based on geometry
   const routeLatencyMs = useMemo(() => {
     if (activeRoute.length < 2) return null
     let totalDist = 0
     for (let i = 0; i < activeRoute.length - 1; i++) {
       const u = activeRoute[i]
       const v = activeRoute[i + 1]
-      const getCoords = (id: string): [number, number, number] | null => {
-        const sat = snapshot.satellites.find((s) => s.id === id)
+      const getCoords = (nodeId: string): [number, number, number] | null => {
+        const sat = snapshot.satellites.find((s) => s.id === nodeId)
         if (sat) return [sat.x_km, sat.y_km, sat.z_km]
-        const ground = scenario.ground_sites.find((g) => g.id === id)
+        const ground = scenario.ground_sites.find((g) => g.id === nodeId)
         if (ground) {
-          const r = 6378.137
+          const r = 6371
           const latRad = (ground.lat_deg * Math.PI) / 180
           const lonRad = (ground.lon_deg * Math.PI) / 180
           return [
@@ -142,10 +137,14 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
   const diagnosis = getDiagnosis(outageReason, isGatewayOutage)
 
+  // Prime satellite on route (first sat client links to)
+  const primeSatId = activeRoute.find((n) => n.startsWith('S'))
+  const primeSat = primeSatId ? snapshot.satellites.find((s) => s.id === primeSatId) : null
+
   return (
-    <div className="flex flex-col gap-2.5">
-      {/* 1. Concise Client Selection Tabs */}
-      <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#0c1017] border border-white/10 rounded-xl">
+    <div className="h-full flex flex-col gap-2 font-mono text-xs overflow-y-auto">
+      {/* 1. Client Selection Tabs */}
+      <div className="grid grid-cols-3 gap-1 p-1 bg-[#0c1017] border border-white/10 rounded-xl shrink-0">
         {clients.map((c) => {
           const tl = timelines[c.id]
           const m = tl?.metrics
@@ -159,16 +158,16 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             <button
               key={c.id}
               onClick={() => onSelectClient(c.id)}
-              className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg font-mono transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-lg transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-white/10 text-white border border-white/20 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.03] border border-transparent'
+                  ? 'bg-white/15 text-white border border-white/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
               }`}
             >
               <div className="flex items-center gap-1.5 mb-0.5">
                 <span
                   className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                    isOnlineNow ? 'bg-emerald-400' : 'bg-red-400'
+                    isOnlineNow ? 'bg-emerald-400' : 'bg-rose-500'
                   }`}
                 />
                 <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
@@ -187,52 +186,47 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
         })}
       </div>
 
-      {/* 2. Client Details Card */}
-      <Card noPadding className="p-3">
+      {/* 2. Client Details & Route Card */}
+      <div className="flex-1 flex flex-col bg-[#0c1017] p-2.5 rounded-xl border border-white/10 gap-2 overflow-y-auto">
         {/* Header & Gateway Status */}
-        <CardHeader className="pb-2 mb-2.5">
-          <CardTitle>
-            <Radio className="w-3.5 h-3.5 text-cyan-400" />
-            <span>
-              {selectedClient?.id} · {selectedClient?.name?.split('(')[0]?.trim() || selectedClientId}
-            </span>
-          </CardTitle>
-          <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="text-slate-400 text-[10px] uppercase">Шлюз MUR:</span>
-            <Badge variant={isGatewayOutage ? 'red' : 'emerald'}>
+        <div className="flex items-center justify-between pb-1.5 border-b border-white/10 shrink-0">
+          <span className="font-bold text-slate-200 text-xs">
+            {selectedClient?.id} · {selectedClient?.name?.split('(')[0]?.trim() || selectedClientId}
+          </span>
+          <div className="flex items-center gap-1.5 text-[10px]">
+            <span className="text-slate-400">ШЛЮЗ MUR:</span>
+            <span className={isGatewayOutage ? 'text-rose-400 font-bold' : 'text-emerald-400 font-semibold'}>
               {isGatewayOutage ? 'ОТКАЗ' : 'ONLINE'}
-            </Badge>
+            </span>
           </div>
-        </CardHeader>
+        </div>
 
         {/* Current Route or Outage Diagnosis */}
-        <div className="mb-3">
+        <div className="shrink-0">
           {hasRoute ? (
-            <div className="bg-[#080b11] p-2.5 rounded-lg border border-white/10 flex flex-wrap items-center gap-1.5">
+            <div className="bg-black/40 p-2 rounded-lg border border-white/10 flex flex-wrap items-center gap-1.5">
               {activeRoute.map((nodeId, idx) => {
                 const isFirst = idx === 0
                 const isLast = idx === activeRoute.length - 1
 
                 return (
                   <React.Fragment key={idx}>
-                    {/* Node pill */}
                     <div
-                      className={`px-2 py-0.5 rounded-md font-mono text-xs flex items-center gap-1 border ${
+                      className={`px-1.5 py-0.5 rounded text-[11px] font-bold border ${
                         isFirst
-                          ? 'bg-amber-950/60 border-amber-600/60 text-amber-300'
+                          ? 'bg-amber-950/40 border-amber-600/40 text-amber-300'
                           : isLast
-                          ? 'bg-blue-950/60 border-blue-600/60 text-blue-300'
+                          ? 'bg-blue-950/40 border-blue-600/40 text-blue-300'
                           : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
                       }`}
                     >
-                      <span className="font-bold">{nodeId}</span>
+                      {nodeId}
                     </div>
 
-                    {/* Connecting Arrow */}
                     {!isLast && (
-                      <div className="flex items-center text-slate-400">
-                        <ArrowRight className="w-3 h-3 text-cyan-400/80" />
-                        <span className="text-[8px] font-mono text-slate-500 mx-0.5">
+                      <div className="flex items-center text-slate-500">
+                        <ArrowRight className="w-2.5 h-2.5 text-slate-400" />
+                        <span className="text-[8px] mx-0.5 text-slate-400">
                           {idx === 0 ? 'GSL' : idx === activeRoute.length - 2 ? 'GSL' : 'ISL'}
                         </span>
                       </div>
@@ -241,53 +235,51 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 )
               })}
 
-              <div className="ml-auto flex items-center gap-2 font-mono text-[10px]">
+              <div className="ml-auto flex items-center gap-2 text-[10px]">
                 {routeLatencyMs && (
-                  <span className="text-slate-300">
-                    RTT <span className="text-cyan-400 font-semibold">{routeLatencyMs} ms</span>
+                  <span className="text-slate-400">
+                    RTT <span className="text-cyan-300 font-bold">{routeLatencyMs}ms</span>
                   </span>
                 )}
-                <Badge variant="cyan">
+                <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] text-slate-300">
                   {activeRoute.length - 1} {activeRoute.length - 1 === 1 ? 'HOP' : 'HOPS'}
-                </Badge>
+                </span>
               </div>
             </div>
           ) : (
-            <div className="bg-red-950/20 border border-red-900/40 p-2.5 rounded-lg space-y-1.5 font-mono">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-red-300 text-xs font-semibold">
-                  <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                  <span>МАРШРУТ РАЗОРВАН (OFFLINE)</span>
-                </div>
-                <span className="text-[10px] text-slate-500 bg-black/40 px-1.5 py-0.5 rounded border border-white/5">
-                  0 HOPS
+            <div className="bg-rose-950/20 border border-rose-900/40 p-2 rounded-lg space-y-1">
+              <div className="flex items-center justify-between text-rose-400 font-bold text-xs">
+                <span className="flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  МАРШРУТ РАЗОРВАН
                 </span>
+                <span className="text-[9px] bg-black/40 px-1 rounded text-slate-400">0 HOPS</span>
               </div>
               <div className="text-[11px] text-slate-300">
-                <span className="text-red-400 font-semibold">Причина: </span>
-                {diagnosis.title} — {diagnosis.detail}
+                <span className="text-rose-400">Причина: </span>
+                {diagnosis.title}
               </div>
-              <div className="text-[10px] text-slate-400 bg-black/30 p-1.5 rounded border border-white/5">
-                <span className="text-cyan-400 font-semibold">Рекомендация: </span>
+              <div className="text-[10px] text-slate-400 bg-black/40 p-1 rounded">
+                <span className="text-cyan-400">Рекомендация: </span>
                 {diagnosis.recommendation}
               </div>
             </div>
           )}
         </div>
 
-        {/* 3. Compact 2x2 Key Metrics Grid */}
+        {/* 3. 2x2 Key Metrics Grid */}
         {selectedMetrics && (
-          <div className="grid grid-cols-2 gap-2 pt-2.5 border-t border-white/10">
+          <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-white/10 shrink-0">
             <StatCard
               variant="compact"
-              label="Доступность SLA (24ч)"
+              label="Доступность SLA"
               value={`${availPct}%`}
               sublabel={`Цель ≥${targetPct}%`}
               badge={
                 meetsTarget ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                 ) : (
-                  <XCircle className="w-3.5 h-3.5 text-amber-400" />
+                  <XCircle className="w-3 h-3 text-amber-400" />
                 )
               }
             />
@@ -296,7 +288,6 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               label="Видимость КА"
               value={`${(selectedMetrics.visibility_ratio * 100).toFixed(1)}%`}
               sublabel="Угол места ≥10°"
-              badge={<HelpCircle className="w-3.5 h-3.5 text-slate-500" />}
             />
             <StatCard
               variant="compact"
@@ -312,7 +303,67 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             />
           </div>
         )}
-      </Card>
+
+        {/* 4. Active Satellite Telemetry / Failure Injection */}
+        {primeSat ? (
+          <div className="mt-auto bg-black/40 border border-white/10 rounded-lg p-2 flex flex-col gap-1.5 text-[11px]">
+            <div className="flex items-center justify-between border-b border-white/10 pb-1">
+              <div className="flex items-center gap-1.5">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    primeSat.failed ? 'bg-rose-500' : 'bg-emerald-400'
+                  }`}
+                />
+                <span className="font-bold text-white">КА {primeSat.id}</span>
+                <span className="text-[10px] bg-white/10 px-1 rounded text-slate-300">
+                  {primeSat.plane_id}
+                </span>
+                <span className="text-[10px] text-slate-400">BATCH #{primeSat.launch_batch}</span>
+              </div>
+              <span className={primeSat.failed ? 'text-rose-400' : 'text-emerald-400 font-semibold'}>
+                {primeSat.failed ? 'FAIL' : 'ONLINE'}
+              </span>
+            </div>
+
+            <div className="flex justify-between text-[10px] text-slate-400">
+              <span>
+                {Math.abs(primeSat.lat_deg).toFixed(1)}°{primeSat.lat_deg >= 0 ? 'N' : 'S'},{' '}
+                {Math.abs(primeSat.lon_deg).toFixed(1)}°{primeSat.lon_deg >= 0 ? 'E' : 'W'}
+              </span>
+              <span>
+                [{Math.round(primeSat.x_km)}, {Math.round(primeSat.y_km)}, {Math.round(primeSat.z_km)}] KM
+              </span>
+            </div>
+
+            {onToggleFailure && (
+              <button
+                onClick={() => onToggleFailure(primeSat.id)}
+                className={`mt-1 py-1 px-2 rounded text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  primeSat.failed
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                    : 'bg-rose-950/50 hover:bg-rose-900/70 border border-rose-800/60 text-rose-300'
+                }`}
+              >
+                {primeSat.failed ? (
+                  <>
+                    <Crosshair className="w-3 h-3" />
+                    <span>ВОССТАНОВИТЬ КА {primeSat.id}</span>
+                  </>
+                ) : (
+                  <>
+                    <ZapOff className="w-3 h-3" />
+                    <span>ИНИЦИИРОВАТЬ ОТКАЗ КА {primeSat.id}</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="mt-auto bg-black/30 border border-white/5 rounded-lg p-2 text-center text-[10px] text-slate-500">
+            Ожидание радиозахвата космического аппарата
+          </div>
+        )}
+      </div>
     </div>
   )
 }

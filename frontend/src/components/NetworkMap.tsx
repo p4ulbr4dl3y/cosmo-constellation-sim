@@ -1,13 +1,7 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react'
 import {
-  Layers,
-  Globe2,
-  Map as MapIcon,
   Crosshair,
-  Wifi,
-  Eye,
   ZapOff,
-  Compass,
 } from 'lucide-react'
 import type { Scenario, Snapshot } from '../types/scenario'
 import { WORLD_LANDMASSES } from '../data/worldCoastline'
@@ -961,119 +955,107 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
   return (
     <div className="relative w-full h-full flex flex-col bg-[#07090e] select-none overflow-hidden rounded-xl border border-white/10">
-      {/* Unified Map Header Dock */}
-      <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none select-none">
-        {/* Unified Glass Control Bar */}
-        <div className="flex items-center gap-1.5 bg-[#0c1017]/85 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10 shadow-lg pointer-events-auto font-mono text-xs">
-          {/* 2D / 3D Mode Switcher */}
-          <div className="flex items-center bg-black/40 p-0.5 rounded-md border border-white/5">
-            <button
-              onClick={() => setViewMode('2d')}
-              className={`px-2 py-0.5 text-xs font-semibold rounded-sm flex items-center gap-1 transition-all cursor-pointer ${
-                viewMode === '2d'
-                  ? 'bg-white/15 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <MapIcon className="w-3 h-3" />
-              <span>2D</span>
-            </button>
-            <button
-              onClick={() => setViewMode('3d')}
-              className={`px-2 py-0.5 text-xs font-semibold rounded-sm flex items-center gap-1 transition-all cursor-pointer ${
-                viewMode === '3d'
-                  ? 'bg-white/15 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Globe2 className="w-3 h-3" />
-              <span>3D</span>
-            </button>
-          </div>
-
-          <div className="h-3 w-px bg-white/10 mx-0.5" />
-
-          {/* Arctic Focus */}
+      {/* Minimal Map Header Toolbar */}
+      <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#0c1017]/90 backdrop-blur-md px-1.5 py-1 rounded-lg border border-white/10 font-mono text-[11px]">
+        {/* 2D / 3D Mode Switcher */}
+        <div className="flex items-center bg-black/50 p-0.5 rounded border border-white/5">
           <button
-            onClick={focusArctic}
-            title="Сфокусировать вид на Арктике"
-            className="px-2 py-0.5 rounded bg-black/30 hover:bg-white/5 text-slate-300 hover:text-white border border-white/5 text-xs flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <Compass className="w-3 h-3 text-cyan-400" />
-            <span>Арктика</span>
-          </button>
-
-          <div className="h-3 w-px bg-white/10 mx-0.5" />
-
-          {/* Toggles */}
-          <button
-            onClick={() => setShowIsl((v) => !v)}
-            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
-              showIsl
-                ? 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300'
-                : 'bg-black/30 border-white/5 text-slate-400 hover:text-slate-200'
+            onClick={() => setViewMode('2d')}
+            className={`px-2 py-0.5 font-bold rounded-xs transition-all cursor-pointer ${
+              viewMode === '2d'
+                ? 'bg-white/20 text-white'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Layers className="w-3 h-3" />
-            <span>ISL</span>
+            2D
           </button>
-
           <button
-            onClick={() => setShowGroundLinks((v) => !v)}
-            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
-              showGroundLinks
-                ? 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300'
-                : 'bg-black/30 border-white/5 text-slate-400 hover:text-slate-200'
+            onClick={() => setViewMode('3d')}
+            className={`px-2 py-0.5 font-bold rounded-xs transition-all cursor-pointer ${
+              viewMode === '3d'
+                ? 'bg-white/20 text-white'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Wifi className="w-3 h-3" />
-            <span>GSL</span>
-          </button>
-
-          <button
-            onClick={() => setShowLabels((v) => !v)}
-            title="Показать все ID спутников (S01..S48)"
-            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
-              showLabels
-                ? 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300'
-                : 'bg-black/30 border-white/5 text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Eye className="w-3 h-3" />
-            <span>Все ID</span>
-          </button>
-
-          <button
-            onClick={() => setShowUnlaunched((v) => !v)}
-            title="Показывать неразвернутые аппараты (резервные очереди)"
-            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
-              showUnlaunched
-                ? 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300'
-                : 'bg-black/30 border-white/5 text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span>Резерв</span>
+            3D
           </button>
         </div>
 
-        {/* Orbit Plane Legend Pill */}
-        <div className="hidden sm:flex items-center gap-2.5 bg-[#0c1017]/85 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 shadow-lg pointer-events-auto font-mono text-[11px]">
-          <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#00e5ff]" />
-            <span className="text-slate-400 text-[10px]">P1</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#c084fc]" />
-            <span className="text-slate-400 text-[10px]">P2</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#34d399]" />
-            <span className="text-slate-400 text-[10px]">P3</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
-            <span className="text-slate-400 text-[10px]">FAIL</span>
-          </div>
+        <div className="h-3 w-px bg-white/10 mx-0.5" />
+
+        {/* Arctic Focus */}
+        <button
+          onClick={focusArctic}
+          className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
+        >
+          Арктика
+        </button>
+
+        <div className="h-3 w-px bg-white/10 mx-0.5" />
+
+        {/* Layer Toggles */}
+        <button
+          onClick={() => setShowIsl((v) => !v)}
+          className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+            showIsl
+              ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+              : 'bg-white/5 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          ISL
+        </button>
+
+        <button
+          onClick={() => setShowGroundLinks((v) => !v)}
+          className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+            showGroundLinks
+              ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+              : 'bg-white/5 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          GSL
+        </button>
+
+        <button
+          onClick={() => setShowLabels((v) => !v)}
+          className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+            showLabels
+              ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+              : 'bg-white/5 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          ID
+        </button>
+
+        <button
+          onClick={() => setShowUnlaunched((v) => !v)}
+          className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+            showUnlaunched
+              ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+              : 'bg-white/5 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          Резерв
+        </button>
+      </div>
+
+      {/* Orbit Plane Legend in Bottom-Right Corner */}
+      <div className="absolute bottom-2 right-2 z-10 hidden sm:flex items-center gap-2 bg-[#0c1017]/85 backdrop-blur-md px-2 py-0.5 rounded border border-white/10 font-mono text-[10px]">
+        <div className="flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00e5ff]" />
+          <span className="text-slate-400">P1</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#c084fc]" />
+          <span className="text-slate-400">P2</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
+          <span className="text-slate-400">P3</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]" />
+          <span className="text-slate-400">FAIL</span>
         </div>
       </div>
 

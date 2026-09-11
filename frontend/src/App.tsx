@@ -111,7 +111,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans selection:bg-[#00f0ff] selection:text-black">
+    <div className="h-screen w-screen bg-[#07090e] text-slate-100 flex flex-col font-sans select-none overflow-hidden">
       {/* Top Navigation Bar */}
       <Header
         currentScenario={scenario}
@@ -125,13 +125,13 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 p-3 flex flex-col gap-3 max-w-[1600px] w-full mx-auto">
+      <main className="flex-1 min-h-0 p-2 flex flex-col gap-2 overflow-hidden w-full">
         {activeTab === 'monitor' && (
-          <div className="flex-1 flex flex-col gap-3 min-h-[85vh]">
+          <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
             {/* Upper Split: Map (65%) & Metrics (35%) */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-[460px]">
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-2 overflow-hidden">
               {/* Map & Network Visualization */}
-              <div className="lg:col-span-8 min-h-[420px] h-[55vh] lg:h-auto flex">
+              <div className="lg:col-span-8 h-full min-h-0 flex overflow-hidden">
                 <NetworkMap
                   scenario={scenario}
                   snapshot={snapshot}
@@ -142,31 +142,34 @@ export default function App() {
               </div>
 
               {/* Metrics & Active Route Panel */}
-              <div className="lg:col-span-4 flex flex-col">
+              <div className="lg:col-span-4 h-full min-h-0 flex flex-col overflow-hidden">
                 <MetricsPanel
                   scenario={scenario}
                   snapshot={snapshot}
                   timelines={timelines}
                   selectedClientId={selectedClientId}
                   onSelectClient={setSelectedClientId}
+                  onToggleFailure={handleToggleFailure}
                 />
               </div>
             </div>
 
             {/* Bottom Scrubber & Gantt Availability Diagram */}
-            <TimelinePlayer
-              scenario={scenario}
-              currentTime={currentTime}
-              onTimeChange={setCurrentTime}
-              timelines={timelines}
-              selectedClientId={selectedClientId}
-              onSelectClient={setSelectedClientId}
-            />
+            <div className="shrink-0">
+              <TimelinePlayer
+                scenario={scenario}
+                currentTime={currentTime}
+                onTimeChange={setCurrentTime}
+                timelines={timelines}
+                selectedClientId={selectedClientId}
+                onSelectClient={setSelectedClientId}
+              />
+            </div>
           </div>
         )}
 
         {activeTab === 'config' && (
-          <div className="flex-1 py-2">
+          <div className="flex-1 min-h-0 overflow-y-auto p-1">
             <ConfigEditor
               scenario={scenario}
               onUpdateScenario={setScenario}
@@ -178,7 +181,7 @@ export default function App() {
         )}
 
         {activeTab === 'compare' && (
-          <div className="flex-1 py-2">
+          <div className="flex-1 min-h-0 overflow-y-auto p-1">
             <ComparisonView
               currentScenario={scenario}
               variantA={variantA}
