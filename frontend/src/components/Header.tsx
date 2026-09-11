@@ -91,25 +91,12 @@ export const Header: React.FC<HeaderProps> = ({
     URL.revokeObjectURL(url)
   }
 
-  // Calculate overall target compliance
-  const clientTimelines = Object.values(timelines)
-  const allMeetTarget =
-    clientTimelines.length > 0 &&
-    clientTimelines.every(
-      (tl) => tl.metrics.availability_ratio >= currentScenario.environment.target_availability
-    )
-
-  const targetPct = Math.round((currentScenario.environment.target_availability ?? 0.9) * 100)
-
   return (
     <header className="h-11 shrink-0 bg-[#090b10] border-b border-white/10 px-3 flex items-center justify-between gap-2 select-none">
-      {/* Brand & Schema */}
+      {/* Brand */}
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-xs font-bold tracking-wider text-slate-200 uppercase font-mono">
           КОСМОХАКАТОН
-        </span>
-        <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
-          v1.0
         </span>
         {isModified && (
           <span className="text-[10px] font-mono text-amber-400 flex items-center gap-1">
@@ -153,7 +140,7 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
       </div>
 
-      {/* Actions & SLA */}
+      {/* Actions */}
       <div className="flex items-center gap-1.5 shrink-0">
         {/* Preset dropdown */}
         <select
@@ -220,24 +207,8 @@ export const Header: React.FC<HeaderProps> = ({
           className="h-7 px-2.5 rounded-md bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-200 text-[11px] font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
         >
           <Download className="w-3 h-3" />
-          <span>Результат 1.0</span>
+          <span>Результат</span>
         </button>
-
-        {/* Target SLA pill */}
-        <div
-          className={`h-7 px-2 rounded-md border font-mono text-[11px] flex items-center gap-1.5 ${
-            allMeetTarget
-              ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-300'
-              : 'bg-amber-950/30 border-amber-500/30 text-amber-300'
-          }`}
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              allMeetTarget ? 'bg-emerald-400' : 'bg-amber-400'
-            }`}
-          />
-          <span>SLA {allMeetTarget ? `≥${targetPct}% OK` : `<${targetPct}%`}</span>
-        </div>
       </div>
     </header>
   )

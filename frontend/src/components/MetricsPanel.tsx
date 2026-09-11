@@ -2,8 +2,6 @@ import React, { useMemo } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
-  CheckCircle2,
-  XCircle,
   Crosshair,
   ZapOff,
 } from 'lucide-react'
@@ -193,12 +191,11 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
           <span className="font-bold text-slate-200 text-xs">
             {selectedClient?.id} · {selectedClient?.name?.split('(')[0]?.trim() || selectedClientId}
           </span>
-          <div className="flex items-center gap-1.5 text-[10px]">
-            <span className="text-slate-400">ШЛЮЗ MUR:</span>
-            <span className={isGatewayOutage ? 'text-rose-400 font-bold' : 'text-emerald-400 font-semibold'}>
-              {isGatewayOutage ? 'ОТКАЗ' : 'ONLINE'}
+          {isGatewayOutage && (
+            <span className="text-rose-400 font-bold bg-rose-950/50 border border-rose-800/50 px-1.5 py-0.5 rounded text-[10px]">
+              ШЛЮЗ: ТЕХОКНО
             </span>
-          </div>
+          )}
         </div>
 
         {/* Current Route or Outage Diagnosis */}
@@ -235,16 +232,11 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 )
               })}
 
-              <div className="ml-auto flex items-center gap-2 text-[10px]">
-                {routeLatencyMs && (
-                  <span className="text-slate-400">
-                    RTT <span className="text-cyan-300 font-bold">{routeLatencyMs}ms</span>
-                  </span>
-                )}
-                <span className="bg-white/10 px-1.5 py-0.5 rounded text-[10px] text-slate-300">
-                  {activeRoute.length - 1} {activeRoute.length - 1 === 1 ? 'HOP' : 'HOPS'}
-                </span>
-              </div>
+              {routeLatencyMs && (
+                <div className="ml-auto text-slate-400 text-[10px]">
+                  RTT <span className="text-cyan-300 font-bold">{routeLatencyMs}ms</span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="bg-rose-950/20 border border-rose-900/40 p-2 rounded-lg space-y-1">
@@ -275,13 +267,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               label="Доступность SLA"
               value={`${availPct}%`}
               sublabel={`Цель ≥${targetPct}%`}
-              badge={
-                meetsTarget ? (
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                ) : (
-                  <XCircle className="w-3 h-3 text-amber-400" />
-                )
-              }
+              className={meetsTarget ? '' : 'border-amber-500/40 text-amber-300'}
             />
             <StatCard
               variant="compact"
@@ -320,9 +306,11 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 </span>
                 <span className="text-[10px] text-slate-400">BATCH #{primeSat.launch_batch}</span>
               </div>
-              <span className={primeSat.failed ? 'text-rose-400' : 'text-emerald-400 font-semibold'}>
-                {primeSat.failed ? 'FAIL' : 'ONLINE'}
-              </span>
+              {primeSat.failed && (
+                <span className="text-rose-400 font-bold text-[10px] bg-rose-950/50 px-1.5 py-0.2 rounded border border-rose-800/40">
+                  ОТКАЗ
+                </span>
+              )}
             </div>
 
             <div className="flex justify-between text-[10px] text-slate-400">

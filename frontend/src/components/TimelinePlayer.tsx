@@ -204,17 +204,12 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
 
         {/* Current Time Display */}
-        <div className="flex items-center gap-2 text-xs">
-          <div className="flex items-center gap-1.5 bg-black/40 border border-white/10 px-2 py-0.5 rounded text-[11px]">
-            <Clock className="w-3 h-3 text-slate-400" />
-            <span className="font-bold text-white tracking-wider">
-              {formatTime(currentTime)}
-            </span>
-            <span className="text-[10px] text-slate-400">/ 24:00:00</span>
-          </div>
-          <span className="text-[10px] text-slate-400 hidden md:inline">
-            T+{currentTime}s (dt={step_s}s)
+        <div className="flex items-center gap-1.5 bg-black/40 border border-white/10 px-2 py-0.5 rounded text-[11px]">
+          <Clock className="w-3 h-3 text-slate-400" />
+          <span className="font-bold text-white tracking-wider">
+            {formatTime(currentTime)}
           </span>
+          <span className="text-[10px] text-slate-400">/ 24:00:00 UTC</span>
         </div>
 
         {/* Legend */}
