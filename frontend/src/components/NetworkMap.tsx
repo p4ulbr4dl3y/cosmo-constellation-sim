@@ -93,18 +93,16 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     }
   }, [])
 
-  // 2D Projection helper: maps (lon, lat) to canvas coordinates with zoom, pan, and polar padding
+  // 2D Projection helper: maps (lon, lat) to canvas coordinates with zoom and pan
   const project2D = useCallback(
     (lon: number, lat: number, width: number, height: number): [number, number] => {
-      const padY = 16
-      const availH = height - padY * 2
       const cx = width / 2
       const cy = height / 2
       const baseNormX = (lon + 180) / 360
       const baseNormY = (90 - lat) / 180
       const clampedPan = clampPan2D(pan2d, zoom, width, height)
       const x = cx + (baseNormX * width - cx) * zoom + clampedPan.x
-      const y = cy + (padY + baseNormY * availH - cy) * zoom + clampedPan.y
+      const y = cy + (baseNormY * height - cy) * zoom + clampedPan.y
       return [x, y]
     },
     [zoom, pan2d, clampPan2D]
