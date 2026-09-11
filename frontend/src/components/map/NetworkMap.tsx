@@ -259,7 +259,13 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       }
     }
 
-    setHoveredNode(hit)
+    setHoveredNode((prev) => {
+      if (!prev && !hit) return prev
+      if (prev && hit && prev.id === hit.id && prev.type === hit.type && Math.abs(prev.x - hit.x) < 0.5 && Math.abs(prev.y - hit.y) < 0.5) {
+        return prev
+      }
+      return hit
+    })
   }
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {

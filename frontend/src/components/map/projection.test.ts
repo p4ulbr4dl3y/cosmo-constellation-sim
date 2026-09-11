@@ -52,6 +52,30 @@ describe('Map Projection Utils', () => {
       expect(brX).toBeCloseTo(1000, 1)
       expect(brY).toBeCloseTo(500, 1)
     })
+
+    it('preserves true aspect ratio without non-uniform stretching on wide canvas', () => {
+      // Width is 1600, height is 400 -> 2:1 map is 800x400
+      const [p1x, p1y] = project2D(0, 0, 1600, 400, 1, { x: 0, y: 0 })
+      const [p2x] = project2D(30, 0, 1600, 400, 1, { x: 0, y: 0 })
+      const [, p2y] = project2D(0, 30, 1600, 400, 1, { x: 0, y: 0 })
+
+      expect(p1x).toBeCloseTo(800, 1)
+      expect(p1y).toBeCloseTo(200, 1)
+
+      const scaleX = Math.abs(p2x - p1x)
+      const scaleY = Math.abs(p1y - p2y)
+      // 30 deg lon must equal 30 deg lat in pixels (no polygon squashing/stretching)
+      expect(scaleX).toBeCloseTo(scaleY, 2)
+    })
+
+    it('projects coordinates linearly beyond -180 and 180 deg for seamless grid continuation', () => {
+      const [x180] = project2D(180, 0, 1000, 500, 1, { x: 0, y: 0 })
+      const [x210] = project2D(210, 0, 1000, 500, 1, { x: 0, y: 0 })
+      const [x0] = project2D(0, 0, 1000, 500, 1, { x: 0, y: 0 })
+      const [x30] = project2D(30, 0, 1000, 500, 1, { x: 0, y: 0 })
+
+      expect(x210 - x180).toBeCloseTo(x30 - x0, 2)
+    })
   })
 
   describe('project3D', () => {
@@ -173,6 +197,22 @@ describe('Map Projection Utils', () => {
       expect(ctx.moveTo).toHaveBeenCalledTimes(2)
       expect(ctx.lineTo).toHaveBeenCalledTimes(2)
       expect(ctx.stroke).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('isArtificialAntimeridianEdge', () => {
+    it('detects antimeridian boundary cuts at +-180', async () => {
+      const { isArtificialAntimeridianEdge } = await import('./render2D')
+      expect(isArtificialAntimeridianEdge([180, 68.96], [180, 64.98])).toBe(true)
+      expect(isArtificialAntimeridianEdge([-180, 64.98], [-180, 68.96])).toBe(true)
+      expect(isArtificialAntimeridianEdge([180, -84.71], [180, -90])).toBe(true)
+      expect(isArtificialAntimeridianEdge([180, -90], [-180, -90])).toBe(true)
+    })
+
+    it('preserves natural coastline edges', async () => {
+      const { isArtificialAntimeridianEdge } = await import('./render2D')
+      expect(isArtificialAntimeridianEdge([178.6, 69.4], [180, 68.96])).toBe(false)
+      expect(isArtificialAntimeridianEdge([140, 50], [141, 51])).toBe(false)
     })
   })
 })

@@ -2,6 +2,7 @@ import { WORLD_LANDMASSES } from '../../data/worldCoastline'
 import type { Snapshot } from '../../types/scenario'
 import { drawBadgesWithLayout } from './badges'
 import {
+  clampPan2D,
   defaultPlaneColor,
   drawLine2DWithAntimeridian,
   planeColors,
@@ -37,6 +38,21 @@ export interface Render2DOptions {
   selectedClientId: string
   inspectedSatId: string | null
   hoveredNode: HoveredNodeInfo | null
+}
+
+export function isArtificialAntimeridianEdge(
+  p1: [number, number],
+  p2: [number, number]
+): boolean {
+  // Points lying on the artificial antimeridian cut (+-180)
+  if (Math.abs(Math.abs(p1[0]) - 180) < 0.01 && Math.abs(Math.abs(p2[0]) - 180) < 0.01) {
+    return true
+  }
+  // Points lying along the South Pole (-90)
+  if (Math.abs(p1[1] - -90) < 0.01 && Math.abs(p2[1] - -90) < 0.01) {
+    return true
+  }
+  return false
 }
 
 export function render2DMap(options: Render2DOptions): void {
@@ -77,42 +93,66 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.fillStyle = 'rgba(148, 163, 184, 0.4)'
   ctx.font = '9px monospace'
 
-  // Longitude lines every 30 deg + labels
-  for (let lon = -180; lon <= 180; lon += 30) {
-    const [x, yTop] = project2D(lon, 90, width, height, zoom, pan2d)
-    const [, yBot] = project2D(lon, -90, width, height, zoom, pan2d)
-    ctx.beginPath()
-    ctx.moveTo(x, yTop)
-    ctx.lineTo(x, yBot)
-    ctx.stroke()
-    if (lon !== -180 && lon !== 180 && yBot >= 0 && yBot <= height + 20) {
-      ctx.fillText(`${lon}°`, x + 3, Math.min(height - 6, yBot - 4))
+  // Step size in pixels for 30 deg
+  const [x0, y0] = project2D(0, 0, width, height, zoom, pan2d)
+  const [x30] = project2D(30, 0, width, height, zoom, pan2d)
+  const [, y30] = project2D(0, 30, width, height, zoom, pan2d)
+  const [, yBot] = project2D(0, -90, width, height, zoom, pan2d)
+  const stepX = Math.abs(x30 - x0)
+  const stepY = Math.abs(y0 - y30)
+
+  // Longitude lines: continue across entire viewport width (0..width) and height (0..height)
+  if (stepX > 0) {
+    const kMinX = Math.floor((0 - x0) / stepX) - 1
+    const kMaxX = Math.ceil((width - x0) / stepX) + 1
+    const labelY = Math.min(height - 6, Math.max(16, yBot - 4))
+    for (let k = kMinX; k <= kMaxX; k++) {
+      const x = x0 + k * stepX
+      if (x < -1 || x > width + 1) continue
+      ctx.beginPath()
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x, height)
+      ctx.stroke()
+
+      const normLon = ((k * 30) % 360 + 540) % 360 - 180
+      ctx.fillText(`${normLon}°`, x + 3, labelY)
     }
   }
 
-  // Latitude lines every 30 deg + labels
-  for (let lat = -60; lat <= 80; lat += 30) {
-    const [xLeft, y] = project2D(-180, lat, width, height, zoom, pan2d)
-    const [xRight] = project2D(180, lat, width, height, zoom, pan2d)
-    ctx.beginPath()
-    ctx.moveTo(xLeft, y)
-    ctx.lineTo(xRight, y)
-    ctx.stroke()
-    const latLabel = lat > 0 ? `${lat}°N` : lat < 0 ? `${Math.abs(lat)}°S` : '0°'
-    if (y >= 10 && y <= height - 5) {
-      ctx.fillText(latLabel, Math.max(8, xLeft + 6), y - 3)
+  // Latitude lines: continue across entire viewport width (0..width) and height (0..height)
+  if (stepY > 0) {
+    const kMinY = Math.floor((y0 - height) / stepY) - 1
+    const kMaxY = Math.ceil((y0 - 0) / stepY) + 1
+    for (let k = kMinY; k <= kMaxY; k++) {
+      const y = y0 - k * stepY
+      if (y < -1 || y > height + 1) continue
+      if (k === 0) continue // Equator drawn below with accent color
+
+      ctx.beginPath()
+      ctx.moveTo(0, y)
+      ctx.lineTo(width, y)
+      ctx.stroke()
+
+      const lat = k * 30
+      if (lat >= -80 && lat <= 80) {
+        const latLabel = lat > 0 ? `${lat}°N` : `${Math.abs(lat)}°S`
+        if (y >= 10 && y <= height - 5) {
+          ctx.fillText(latLabel, 8, y - 3)
+        }
+      }
     }
   }
 
-  // Equator line
-  const [eqX1, eqY] = project2D(-180, 0, width, height, zoom, pan2d)
-  const [eqX2] = project2D(180, 0, width, height, zoom, pan2d)
+  // Equator line: spans full viewport width
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)'
   ctx.lineWidth = 1.5
   ctx.beginPath()
-  ctx.moveTo(eqX1, eqY)
-  ctx.lineTo(eqX2, eqY)
+  ctx.moveTo(0, y0)
+  ctx.lineTo(width, y0)
   ctx.stroke()
+  if (y0 >= 10 && y0 <= height - 5) {
+    ctx.fillText('0°', 8, y0 - 3)
+  }
 
   // Northern Sea Route / Arctic Operation Zone (65°N - 85°N, 30°E - 180°E)
   const [nsrX1, nsrY2] = project2D(30, 65, width, height, zoom, pan2d)
@@ -122,22 +162,21 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)'
   ctx.strokeRect(nsrX1, nsrY1, nsrX2 - nsrX1, nsrY2 - nsrY1)
 
-  // Arctic Circle (66.5°N)
-  const [arcX1, arcticY] = project2D(-180, 66.56, width, height, zoom, pan2d)
-  const [arcX2] = project2D(180, 66.56, width, height, zoom, pan2d)
+  // Arctic Circle (66.5°N): spans full viewport width
+  const [, arcticY] = project2D(0, 66.56, width, height, zoom, pan2d)
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)'
   ctx.lineWidth = 1
   ctx.setLineDash([4, 4])
   ctx.beginPath()
-  ctx.moveTo(arcX1, arcticY)
-  ctx.lineTo(arcX2, arcticY)
+  ctx.moveTo(0, arcticY)
+  ctx.lineTo(width, arcticY)
   ctx.stroke()
   ctx.setLineDash([])
 
   // Arctic circle label
   const arcticLabel = 'СЕВЕРНЫЙ ПОЛЯРНЫЙ КРУГ // 66.5°N'
   ctx.font = 'bold 8.5px monospace'
-  const arcLabelX = Math.max(28, arcX1 + 36)
+  const arcLabelX = 28
   const arcLabelY = arcticY - 4
   const arcLabelW = ctx.measureText(arcticLabel).width
   ctx.fillStyle = 'rgba(7, 12, 22, 0.75)'
@@ -147,21 +186,59 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.fillStyle = 'rgba(56, 189, 248, 0.85)'
   ctx.fillText(arcticLabel, arcLabelX, arcLabelY)
 
-  // Draw Landmasses
+  // Determine visible longitude wrap offsets (-360, 0, +360, etc.)
+  const mapW = Math.min(width, height * 2)
+  const scale = mapW / 360
+  const cx = width / 2
+  const clampedPan = clampPan2D(pan2d, zoom, width, height)
+  const minVisibleLon = (0 - cx - clampedPan.x) / (scale * zoom)
+  const maxVisibleLon = (width - cx - clampedPan.x) / (scale * zoom)
+
+  const minOffset = Math.floor((minVisibleLon + 180) / 360) * 360
+  const maxOffset = Math.ceil((maxVisibleLon - 180) / 360) * 360
+
+  const visibleOffsets: number[] = []
+  for (let offset = minOffset; offset <= maxOffset; offset += 360) {
+    visibleOffsets.push(offset)
+  }
+  if (visibleOffsets.length === 0) {
+    visibleOffsets.push(0)
+  }
+
+  // Draw Landmasses with seamless antimeridian wrapping across viewport
   ctx.fillStyle = '#111a2c'
   ctx.strokeStyle = '#1d2d47'
   ctx.lineWidth = 1
 
-  for (const land of WORLD_LANDMASSES) {
-    ctx.beginPath()
-    for (let i = 0; i < land.points.length; i++) {
-      const [lon, lat] = land.points[i]
-      const [px, py] = project2D(lon, lat, width, height, zoom, pan2d)
-      if (i === 0) ctx.moveTo(px, py)
-      else ctx.lineTo(px, py)
+  for (const offset of visibleOffsets) {
+    // 1. Fill landmass polygons
+    for (const land of WORLD_LANDMASSES) {
+      ctx.beginPath()
+      for (let i = 0; i < land.points.length; i++) {
+        const [lon, lat] = land.points[i]
+        const [px, py] = project2D(lon + offset, lat, width, height, zoom, pan2d)
+        if (i === 0) ctx.moveTo(px, py)
+        else ctx.lineTo(px, py)
+      }
+      ctx.closePath()
+      ctx.fill()
     }
-    ctx.closePath()
-    ctx.fill()
+
+    // 2. Stroke real coastlines (skipping artificial antimeridian / pole cuts)
+    ctx.beginPath()
+    for (const land of WORLD_LANDMASSES) {
+      const pts = land.points
+      for (let i = 0; i < pts.length; i++) {
+        const p1 = pts[i]
+        const p2 = pts[(i + 1) % pts.length]
+        if (isArtificialAntimeridianEdge(p1, p2)) continue
+
+        const [x1, y1] = project2D(p1[0] + offset, p1[1], width, height, zoom, pan2d)
+        const [x2, y2] = project2D(p2[0] + offset, p2[1], width, height, zoom, pan2d)
+        ctx.moveTo(x1, y1)
+        ctx.lineTo(x2, y2)
+      }
+    }
     ctx.stroke()
   }
 

@@ -127,6 +127,7 @@ export interface TimelineSlot {
   hasPath: boolean
   isVisible: boolean
   hops: number
+  path?: string[]
   reason?: string
   failureCode?: string
 }

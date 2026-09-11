@@ -5,6 +5,23 @@ import { drawBadgesWithLayout } from './badges'
 import { defaultPlaneColor, isSegmentVisible3D, planeColors, project3D } from './projection'
 import type { BadgeLayoutItem, HoveredNodeInfo } from './types'
 
+// Static Cartesian 3D coordinates on unit sphere * R_EARTH for 0-allocation, 0-trig rendering
+interface PrecomputedLandmass {
+  points: Array<{ gx: number; gy: number; gz: number }>
+}
+
+const PRECOMPUTED_LANDMASSES: PrecomputedLandmass[] = WORLD_LANDMASSES.map((land) => ({
+  points: land.points.map(([lon, lat]) => {
+    const latRad = (lat * Math.PI) / 180
+    const lonRad = (lon * Math.PI) / 180
+    return {
+      gx: R_EARTH * Math.cos(latRad) * Math.cos(lonRad),
+      gy: R_EARTH * Math.cos(latRad) * Math.sin(lonRad),
+      gz: R_EARTH * Math.sin(latRad),
+    }
+  }),
+}))
+
 export interface Render3DOptions {
   ctx: CanvasRenderingContext2D
   width: number
@@ -105,7 +122,7 @@ export function render3DGlobe(options: Render3DOptions): void {
   const sinX = Math.sin(globeRotX)
   const scale = globeRadius / R_EARTH
 
-  for (const land of WORLD_LANDMASSES) {
+  for (const land of PRECOMPUTED_LANDMASSES) {
     const pts = land.points
     const n = pts.length
     let allFront = true
@@ -121,13 +138,10 @@ export function render3DGlobe(options: Render3DOptions): void {
     }> = []
 
     for (let i = 0; i < n; i++) {
-      const lon = pts[i][0]
-      const lat = pts[i][1]
-      const latRad = (lat * Math.PI) / 180
-      const lonRad = (lon * Math.PI) / 180
-      const gx = R_EARTH * Math.cos(latRad) * Math.cos(lonRad)
-      const gy = R_EARTH * Math.cos(latRad) * Math.sin(lonRad)
-      const gz = R_EARTH * Math.sin(latRad)
+      const pt = pts[i]
+      const gx = pt.gx
+      const gy = pt.gy
+      const gz = pt.gz
 
       const x1 = cosY * gx + sinY * gy
       const y1 = -sinY * gx + cosY * gy

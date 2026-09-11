@@ -17,6 +17,43 @@ interface TimelinePlayerProps {
   onSelectClient: (clientId: string) => void
 }
 
+interface ClientGanttStripProps {
+  clientId: string
+  slots?: TimelineSlot[]
+  totalSlots: number
+  onMouseMove: (e: React.MouseEvent<HTMLDivElement>, clientId: string) => void
+  onMouseLeave: () => void
+}
+
+const ClientGanttStrip = React.memo(function ClientGanttStrip({
+  clientId,
+  slots,
+  totalSlots,
+  onMouseMove,
+  onMouseLeave,
+}: ClientGanttStripProps) {
+  const slotWidth = totalSlots > 0 ? `${100 / totalSlots}%` : '0%'
+  return (
+    <div
+      onMouseMove={(e) => onMouseMove(e, clientId)}
+      onMouseLeave={onMouseLeave}
+      className="relative w-full h-4.5 bg-[#0b1017] rounded-xs overflow-hidden flex border border-[#1a2636]/60"
+    >
+      {slots?.map((slot, idx) => (
+        <div
+          key={idx}
+          style={{ width: slotWidth }}
+          className={`h-full ${
+            slot.hasPath
+              ? 'bg-emerald-600/40 hover:bg-emerald-500/60'
+              : 'bg-rose-500 hover:bg-rose-400'
+          }`}
+        />
+      ))}
+    </div>
+  )
+})
+
 export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
   scenario,
   currentTime,
@@ -150,29 +187,33 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
     { value: 60, label: '60x' },
   ]
 
-  const handleGanttMouseMove = (
-    e: React.MouseEvent<HTMLDivElement>,
-    clientId: string
-  ) => {
-    if (isDragging) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const hoverX = e.clientX - rect.left
-    const fraction = Math.max(0, Math.min(1, hoverX / rect.width))
-    const hoveredSlotIdx = Math.min(
-      totalSlots - 1,
-      Math.max(0, Math.floor(fraction * totalSlots))
-    )
+  const handleGanttMouseMove = React.useCallback(
+    (e: React.MouseEvent<HTMLDivElement>, clientId: string) => {
+      if (isDragging) return
+      const rect = e.currentTarget.getBoundingClientRect()
+      const hoverX = e.clientX - rect.left
+      const fraction = Math.max(0, Math.min(1, hoverX / rect.width))
+      const hoveredSlotIdx = Math.min(
+        totalSlots - 1,
+        Math.max(0, Math.floor(fraction * totalSlots))
+      )
 
-    const tl = timelines[clientId]
-    if (tl && tl.slots[hoveredSlotIdx]) {
-      setTooltipData({
-        clientId,
-        slot: tl.slots[hoveredSlotIdx],
-        x: e.clientX,
-        y: rect.top - 8,
-      })
-    }
-  }
+      const tl = timelines[clientId]
+      if (tl && tl.slots[hoveredSlotIdx]) {
+        setTooltipData({
+          clientId,
+          slot: tl.slots[hoveredSlotIdx],
+          x: e.clientX,
+          y: rect.top - 8,
+        })
+      }
+    },
+    [isDragging, totalSlots, timelines]
+  )
+
+  const handleGanttMouseLeave = React.useCallback(() => {
+    setTooltipData(null)
+  }, [])
 
   return (
     <div className="p-2 bg-[#0b1017] border border-[#1a2636] rounded-md flex flex-col gap-1.5 select-none font-mono">
@@ -317,30 +358,16 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           </div>
 
           {/* Gantt Strips */}
-          {clients.map((c) => {
-            const tl = timelines[c.id]
-            return (
-              <div
-                key={c.id}
-                onMouseMove={(e) => handleGanttMouseMove(e, c.id)}
-                onMouseLeave={() => setTooltipData(null)}
-                className="relative w-full h-4.5 bg-[#0b1017] rounded-xs overflow-hidden flex border border-[#1a2636]/60"
-              >
-                {tl &&
-                  tl.slots.map((slot, idx) => (
-                    <div
-                      key={idx}
-                      style={{ width: `${100 / totalSlots}%` }}
-                      className={`h-full ${
-                        slot.hasPath
-                          ? 'bg-emerald-600/40 hover:bg-emerald-500/60'
-                          : 'bg-rose-500 hover:bg-rose-400'
-                      }`}
-                    />
-                  ))}
-              </div>
-            )
-          })}
+          {clients.map((c) => (
+            <ClientGanttStrip
+              key={c.id}
+              clientId={c.id}
+              slots={timelines[c.id]?.slots}
+              totalSlots={totalSlots}
+              onMouseMove={handleGanttMouseMove}
+              onMouseLeave={handleGanttMouseLeave}
+            />
+          ))}
         </div>
       </div>
 

@@ -55,6 +55,25 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
   const [newGwStart, setNewGwStart] = useState<number>(10800) // 03:00
   const [newGwEnd, setNewGwEnd] = useState<number>(21600) // 06:00
 
+  const debounceTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const debouncedUpdateScenario = (next: Scenario) => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      onUpdateScenario(next)
+    }, 150)
+  }
+
+  React.useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
+
   const handleLaunchStageChange = (stage: number) => {
     const next = { ...draft, design: { ...draft.design, launch_stage: stage } }
     setDraft(next)
@@ -70,7 +89,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
     })
     const next = { ...draft, design: { ...draft.design, planes: nextPlanes } }
     setDraft(next)
-    onUpdateScenario(next)
+    debouncedUpdateScenario(next)
   }
 
   const handleEnvChange = (field: 'isl_range_km' | 'min_elevation_deg' | 'altitude_km', value: number) => {
@@ -82,7 +101,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
       },
     }
     setDraft(next)
-    onUpdateScenario(next)
+    debouncedUpdateScenario(next)
   }
 
   // 1-Click disable satellite on active route
