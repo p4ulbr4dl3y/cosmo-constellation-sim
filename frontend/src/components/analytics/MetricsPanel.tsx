@@ -318,7 +318,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 className={`mt-1 h-7 font-sans ${
                   primeSat.failed
                     ? 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/30 text-emerald-200'
-                    : 'hover:bg-rose-500/15 hover:border-rose-500/30 hover:text-rose-300'
+                    : 'bg-rose-950/20 border-rose-500/30 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/60'
                 }`}
               >
                 <span>

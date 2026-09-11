@@ -86,9 +86,9 @@ export const MapSatelliteHUD: React.FC<MapSatelliteHUDProps> = ({
         <button
           onClick={() => onToggleFailure(satellite.id)}
           className={`w-full h-7 px-2 rounded-md text-xs font-mono font-medium flex items-center justify-center transition-all cursor-pointer border ${
-            satellite.failed
-              ? 'bg-emerald-600/30 hover:bg-emerald-600/50 border-emerald-500/40 text-emerald-200'
-              : 'bg-white/5 hover:bg-rose-950/40 border-zinc-800 hover:border-rose-800/50 text-zinc-300 hover:text-rose-300'
+              satellite.failed
+                ? 'bg-emerald-600/30 hover:bg-emerald-600/50 border-emerald-500/40 text-emerald-200'
+                : 'bg-rose-950/20 border-rose-500/30 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/60'
           }`}
         >
           {satellite.failed ? 'Восстановить связь' : 'Имитировать отказ КА'}

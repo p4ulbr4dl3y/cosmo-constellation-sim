@@ -135,9 +135,17 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.setLineDash([])
 
   // Arctic circle label
-  ctx.fillStyle = 'rgba(56, 189, 248, 0.9)'
-  ctx.font = 'bold 9px monospace'
-  ctx.fillText('СЕВЕРНЫЙ ПОЛЯРНЫЙ КРУГ // 66.5°N', Math.max(10, arcX1 + 10), arcticY - 4)
+  const arcticLabel = 'СЕВЕРНЫЙ ПОЛЯРНЫЙ КРУГ // 66.5°N'
+  ctx.font = 'bold 8.5px monospace'
+  const arcLabelX = Math.max(28, arcX1 + 36)
+  const arcLabelY = arcticY - 4
+  const arcLabelW = ctx.measureText(arcticLabel).width
+  ctx.fillStyle = 'rgba(7, 12, 22, 0.75)'
+  ctx.fillRect(arcLabelX - 4, arcLabelY - 8, arcLabelW + 8, 11)
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)'
+  ctx.strokeRect(arcLabelX - 4, arcLabelY - 8, arcLabelW + 8, 11)
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.85)'
+  ctx.fillText(arcticLabel, arcLabelX, arcLabelY)
 
   // Draw Landmasses
   ctx.fillStyle = '#111a2c'
