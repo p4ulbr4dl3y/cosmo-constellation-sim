@@ -6,7 +6,8 @@ import {
   ZapOff,
 } from 'lucide-react'
 import type { Scenario, Snapshot, ClientTimeline } from '../../types/scenario'
-import { StatCard } from '../ui'
+import { StatCard, Badge, Button, ClientSelector } from '../ui'
+import { formatDurationHuman } from '../../lib/formatters'
 
 interface MetricsPanelProps {
   scenario: Scenario
@@ -27,8 +28,8 @@ function getDiagnosis(reason?: string, isGatewayOutage?: boolean) {
   ) {
     return {
       title: 'Терминал вне зоны радиовидимости',
-      detail: 'Над выбранным терминалом отсутствуют активные КА с углом места ≥ 10°.',
-      recommendation: 'Ожидайте пролета очередного спутника или увеличьте число КА в группировке.',
+      detail: 'Над терминалом нет активных КА с углом места ≥ 10°.',
+      recommendation: 'Ожидание пролета КА или увеличение числа КА в группировке.',
     }
   }
 
@@ -36,8 +37,8 @@ function getDiagnosis(reason?: string, isGatewayOutage?: boolean) {
   if (reason && (reason.includes('Шлюз отключен') || reason.includes('gateway_offline'))) {
     return {
       title: 'Технологическое окно шлюза',
-      detail: 'Опорный наземный шлюз временно отключен согласно регламенту обслуживания.',
-      recommendation: 'Дождитесь завершения планового технологического окна шлюза.',
+      detail: 'Опорный наземный шлюз временно отключен согласно регламенту.',
+      recommendation: 'Ожидание завершения регламентных работ на шлюзе.',
     }
   }
 
@@ -48,8 +49,8 @@ function getDiagnosis(reason?: string, isGatewayOutage?: boolean) {
   ) {
     return {
       title: 'Нет КА над шлюзом',
-      detail: 'В радиовидимости опорного шлюза Мурманск отсутствуют спутники с углом места ≥ 10°.',
-      recommendation: 'Ожидайте захода КА орбитальной плоскости в приполярный сектор Мурманска.',
+      detail: 'В радиовидимости шлюза отсутствуют КА с углом места ≥ 10°.',
+      recommendation: 'Ожидание захода КА орбитальной плоскости в зону шлюза.',
     }
   }
 
@@ -60,8 +61,8 @@ function getDiagnosis(reason?: string, isGatewayOutage?: boolean) {
   ) {
     return {
       title: 'Разрыв межспутникового сегмента',
-      detail: 'Граф межспутниковых линий (ISL) рассоединен, сквозной путь до шлюза отсутствует.',
-      recommendation: 'Проверьте состояние отказавших КА или скорректируйте лимит дальности ISL.',
+      detail: 'Граф межспутниковых линий (ISL) рассоединен, маршрут отсутствует.',
+      recommendation: 'Проверка отказавших КА или корректировка лимита дальности ISL.',
     }
   }
 
@@ -69,15 +70,15 @@ function getDiagnosis(reason?: string, isGatewayOutage?: boolean) {
   if (isGatewayOutage) {
     return {
       title: 'Технологическое окно шлюза',
-      detail: 'Опорный наземный шлюз временно отключен согласно регламенту обслуживания.',
-      recommendation: 'Дождитесь завершения планового технологического окна шлюза.',
+      detail: 'Опорный наземный шлюз временно отключен согласно регламенту.',
+      recommendation: 'Ожидание завершения регламентных работ на шлюзе.',
     }
   }
 
   return {
     title: 'Маршрут не построен',
-    detail: reason || 'Сетевой путь между клиентом и опорным шлюзом временно разорван.',
-    recommendation: 'Ожидайте изменения взаимной орбитальной геометрии группировки.',
+    detail: reason || 'Сетевой путь между клиентом и опорным шлюзом разорван.',
+    recommendation: 'Ожидание изменения взаимного положения КА.',
   }
 }
 
@@ -170,67 +171,33 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
   return (
     <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto">
-      {/* 1. Client Selection Tabs */}
-      <div className="grid grid-cols-3 gap-1 p-1 bg-[#0c1017] border border-white/[0.08] rounded-lg shrink-0">
-        {clients.map((c) => {
-          const tl = timelines[c.id]
-          const m = tl?.metrics
-          const isSelected = c.id === selectedClientId
-          const clientAvail = m ? (m.availability_ratio * 100).toFixed(1) : '0.0'
-          const clientMeetsTarget = m ? m.availability_ratio >= targetAvailability : false
-          const clientRoute = snapshot.routes[c.id] || []
-          const isOnlineNow = clientRoute.length > 0
-
-          return (
-            <button
-              key={c.id}
-              onClick={() => onSelectClient(c.id)}
-              className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-md transition-all cursor-pointer ${
-                isSelected
-                  ? 'bg-white/12 text-white border border-white/20 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent'
-              }`}
-            >
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <span
-                  className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                    isOnlineNow ? 'bg-emerald-400' : 'bg-rose-500'
-                  }`}
-                />
-                <span className={`text-xs font-semibold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
-                  {c.id}
-                </span>
-              </div>
-              <span
-                className={`text-[10px] font-mono font-medium ${
-                  clientMeetsTarget ? 'text-emerald-400' : 'text-amber-400'
-                }`}
-              >
-                {clientAvail}%
-              </span>
-            </button>
-          )
-        })}
-      </div>
+      {/* 1. Client Switcher Header */}
+      <ClientSelector
+        clients={clients}
+        selectedClientId={selectedClientId}
+        onSelectClient={onSelectClient}
+        timelines={timelines}
+        targetAvailability={targetAvailability}
+        routes={snapshot.routes}
+        variant="grid"
+      />
 
       {/* 2. Client Details & Route Card */}
-      <div className="flex-1 flex flex-col bg-[#0c1017] p-2.5 rounded-lg border border-white/[0.08] gap-2 overflow-y-auto">
+      <div className="flex-1 flex flex-col bg-[#121215] p-2.5 rounded-lg border border-zinc-800 gap-2 overflow-y-auto">
         {/* Header & Gateway Status */}
-        <div className="flex items-center justify-between pb-1.5 border-b border-white/[0.08] shrink-0">
-          <span className="font-semibold text-slate-200 text-xs">
+        <div className="flex items-center justify-between pb-1.5 border-b border-zinc-800 shrink-0">
+          <span className="font-semibold text-zinc-200 text-xs">
             {selectedClient?.id} · {selectedClient?.name?.split('(')[0]?.trim() || selectedClientId}
           </span>
           {isGatewayOutage && (
-            <span className="text-rose-300 font-medium bg-rose-500/15 border border-rose-500/30 px-1.5 py-0.5 rounded text-[10px]">
-              Шлюз: техокно
-            </span>
+            <Badge variant="red">Шлюз: техокно</Badge>
           )}
         </div>
 
         {/* Current Route or Outage Diagnosis */}
         <div className="shrink-0">
           {hasRoute ? (
-            <div className="bg-[#090d14] p-2 rounded-md border border-white/[0.08] flex flex-wrap items-center gap-1.5">
+            <div className="bg-[#0d0d10] p-2 rounded-md border border-zinc-800 flex flex-wrap items-center gap-1.5">
               {activeRoute.map((nodeId, idx) => {
                 const isFirst = idx === 0
                 const isLast = idx === activeRoute.length - 1
@@ -240,7 +207,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                     <div
                       className={`px-1.5 py-0.5 rounded text-[11px] font-mono border ${
                         isFirst || isLast
-                          ? 'bg-white/[0.04] border-white/10 text-slate-300 font-medium'
+                          ? 'bg-white/[0.04] border-white/10 text-zinc-300 font-medium'
                           : 'bg-white/12 border-white/20 text-white font-semibold shadow-2xs'
                       }`}
                     >
@@ -248,9 +215,9 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                     </div>
 
                     {!isLast && (
-                      <div className="flex items-center text-slate-500">
-                        <ArrowRight className="w-3 h-3 text-slate-500" />
-                        <span className="text-[8px] mx-0.5 text-slate-400 font-mono">
+                      <div className="flex items-center text-zinc-500">
+                        <ArrowRight className="w-3 h-3 text-zinc-500" />
+                        <span className="text-[8px] mx-0.5 text-zinc-400 font-mono">
                           {idx === 0 ? 'GSL' : idx === activeRoute.length - 2 ? 'GSL' : 'ISL'}
                         </span>
                       </div>
@@ -260,8 +227,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               })}
 
               {routeLatencyMs && (
-                <div className="ml-auto text-slate-400 text-[10px] font-mono">
-                  RTT <span className="text-slate-200 font-semibold">{routeLatencyMs} мс</span>
+                <div className="ml-auto text-zinc-400 text-[10px] font-mono">
+                  RTT <span className="text-zinc-200 font-semibold">{routeLatencyMs} мс</span>
                 </div>
               )}
             </div>
@@ -272,13 +239,13 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                   <AlertTriangle className="w-3.5 h-3.5" />
                   Маршрут разорван
                 </span>
-                <span className="text-[9px] bg-black/40 px-1 rounded text-slate-400 font-mono">0 хопов</span>
+                <span className="text-[9px] bg-black/40 px-1 rounded text-zinc-400 font-mono">0 хопов</span>
               </div>
-              <div className="text-[11px] text-slate-300">
+              <div className="text-[11px] text-zinc-300">
                 <span className="text-rose-400 font-medium">Причина: </span>
                 {diagnosis.title}
               </div>
-              <div className="text-[10px] text-slate-400 bg-black/40 p-1.5 rounded">
+              <div className="text-[10px] text-zinc-400 bg-black/40 p-1.5 rounded">
                 <span className="text-sky-300 font-medium">Рекомендация: </span>
                 {diagnosis.recommendation}
               </div>
@@ -288,7 +255,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
         {/* 3. 2x2 Key Metrics Grid */}
         {selectedMetrics && (
-          <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-white/[0.08] shrink-0">
+          <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-zinc-800 shrink-0">
             <StatCard
               variant="compact"
               label="Доступность SLA"
@@ -305,7 +272,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             <StatCard
               variant="compact"
               label="Макс. перерыв (Max Gap)"
-              value={`${Math.round(selectedMetrics.max_gap_s / 60)} мин`}
+              value={formatDurationHuman(selectedMetrics.max_gap_s)}
               sublabel={`макс. ${selectedMetrics.max_gap_s}с`}
             />
             <StatCard
@@ -319,8 +286,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
         {/* 4. Active Satellite Telemetry / Failure Injection */}
         {primeSat ? (
-          <div className="mt-auto bg-[#090d14] border border-white/[0.08] rounded-md p-2 flex flex-col gap-1.5 text-[11px]">
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-1">
+          <div className="mt-auto bg-[#0d0d10] border border-zinc-800 rounded-md p-2 flex flex-col gap-1.5 text-[11px]">
+            <div className="flex items-center justify-between border-b border-zinc-800/60 pb-1">
               <div className="flex items-center gap-1.5">
                 <span
                   className={`w-2 h-2 rounded-full ${
@@ -328,19 +295,17 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                   }`}
                 />
                 <span className="font-semibold text-white">КА {primeSat.id}</span>
-                <span className="text-[10px] bg-white/[0.06] px-1 rounded text-slate-300 font-mono">
+                <span className="text-[10px] bg-white/[0.06] px-1 rounded text-zinc-300 font-mono">
                   {primeSat.plane_id}
                 </span>
-                <span className="text-[10px] text-slate-400 font-sans">Партия #{primeSat.launch_batch}</span>
+                <span className="text-[10px] text-zinc-400 font-sans">Партия #{primeSat.launch_batch}</span>
               </div>
               {primeSat.failed && (
-                <span className="text-rose-300 font-medium text-[10px] bg-rose-500/15 px-1.5 py-0.5 rounded border border-rose-500/30">
-                  Отказ
-                </span>
+                <Badge variant="red">Отказ</Badge>
               )}
             </div>
 
-            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+            <div className="flex justify-between text-[10px] text-zinc-400 font-mono">
               <span>
                 {Math.abs(primeSat.lat_deg).toFixed(1)}°{primeSat.lat_deg >= 0 ? ' с.ш.' : ' ю.ш.'},{' '}
                 {Math.abs(primeSat.lon_deg).toFixed(1)}°{primeSat.lon_deg >= 0 ? ' в.д.' : ' з.д.'}
@@ -351,12 +316,15 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             </div>
 
             {onToggleFailure && (
-              <button
+              <Button
+                type="button"
+                variant={primeSat.failed ? 'accent' : 'outline'}
+                size="sm"
                 onClick={() => onToggleFailure(primeSat.id)}
-                className={`mt-1 h-7 px-2.5 rounded-md text-xs font-sans font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
+                className={`mt-1 h-7 font-sans ${
                   primeSat.failed
                     ? 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/30 text-emerald-200'
-                    : 'bg-white/[0.04] hover:bg-rose-500/15 border-white/[0.08] hover:border-rose-500/30 text-slate-300 hover:text-rose-300'
+                    : 'hover:bg-rose-500/15 hover:border-rose-500/30 hover:text-rose-300'
                 }`}
               >
                 {primeSat.failed ? (
@@ -370,11 +338,11 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                     <span>Имитировать отказ КА</span>
                   </>
                 )}
-              </button>
+              </Button>
             )}
           </div>
         ) : (
-          <div className="mt-auto bg-[#090d14] border border-white/[0.06] rounded-md p-2 text-center text-[11px] text-slate-500 font-sans">
+          <div className="mt-auto bg-[#0d0d10] border border-zinc-800/60 rounded-md p-2 text-center text-[11px] text-zinc-500 font-sans">
             Ожидание радиозахвата космического аппарата
           </div>
         )}

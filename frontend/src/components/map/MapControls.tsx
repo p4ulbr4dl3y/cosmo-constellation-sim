@@ -1,6 +1,7 @@
 import React from 'react'
 import { Compass, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
 import type { MapViewMode } from './types'
+import { SegmentedControl, Button } from '../ui'
 
 export interface MapControlsProps {
   viewMode: MapViewMode
@@ -41,125 +42,132 @@ export const MapControls: React.FC<MapControlsProps> = ({
   const isMaxZoom = viewMode === '2d' ? zoom >= 4.0 : zoom >= 3.0
 
   return (
-    <div className="flex-shrink-0 flex items-center justify-between gap-2 bg-[#0c1017] px-2.5 py-1.5 border-b border-white/[0.08] font-sans text-xs z-10">
+    <div className="flex-shrink-0 flex items-center justify-between gap-2 bg-[#121215] px-2.5 py-1.5 border-b border-zinc-800 font-sans text-xs z-10">
       <div className="flex flex-wrap items-center gap-1.5">
         {/* 2D / 3D Mode Switcher */}
-        <div className="flex items-center bg-white/[0.04] p-0.5 rounded-md border border-white/[0.08]">
-          <button
-            onClick={() => onSetViewMode('2d')}
-            className={`px-2 py-0.5 font-medium rounded text-xs transition-all cursor-pointer ${
-              viewMode === '2d' ? 'bg-white/15 text-white shadow-xs' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            2D
-          </button>
-          <button
-            onClick={() => onSetViewMode('3d')}
-            className={`px-2 py-0.5 font-medium rounded text-xs transition-all cursor-pointer ${
-              viewMode === '3d' ? 'bg-white/15 text-white shadow-xs' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            3D
-          </button>
-        </div>
+        <SegmentedControl
+          options={[
+            { value: '2d', label: '2D' },
+            { value: '3d', label: '3D' },
+          ]}
+          value={viewMode}
+          onChange={onSetViewMode}
+          size="sm"
+        />
 
         <div className="h-3 w-px bg-white/10 mx-0.5" />
 
         {/* Arctic Focus */}
-        <button
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
           onClick={onFocusArctic}
           title="Сфокусировать 3D-глобус на Арктике"
-          className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
+          className="h-6 px-2 text-xs gap-1"
         >
           <Compass className="w-3 h-3 text-sky-400" />
           <span>Арктика</span>
-        </button>
+        </Button>
 
         <div className="h-3 w-px bg-white/10 mx-0.5" />
 
         {/* Zoom Controls */}
-        <div className="flex items-center bg-white/[0.04] p-0.5 rounded-md border border-white/[0.08] gap-0.5">
-          <button
+        <div className="flex items-center bg-white/[0.04] p-0.5 rounded-md border border-zinc-800 gap-0.5">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={onZoomOut}
             disabled={isMinZoom}
             title="Отдалить карту"
-            className={`p-1 rounded transition-colors ${
+            className={`w-6 h-6 p-1 ${
               isMinZoom
-                ? 'text-slate-600 cursor-not-allowed'
-                : 'text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer'
+                ? 'text-zinc-600 cursor-not-allowed'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer'
             }`}
           >
             <ZoomOut className="w-3 h-3" />
-          </button>
-          <span className="px-1 text-[10px] text-slate-300 min-w-[32px] text-center font-mono font-medium">
+          </Button>
+          <span className="px-1 text-[10px] text-zinc-300 min-w-[32px] text-center font-mono font-medium">
             {Math.round(zoom * 100)}%
           </span>
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={onZoomIn}
             disabled={isMaxZoom}
             title="Приблизить карту"
-            className={`p-1 rounded transition-colors ${
+            className={`w-6 h-6 p-1 ${
               isMaxZoom
-                ? 'text-slate-600 cursor-not-allowed'
-                : 'text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer'
+                ? 'text-zinc-600 cursor-not-allowed'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer'
             }`}
           >
             <ZoomIn className="w-3 h-3" />
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={onResetView}
             title="Сбросить масштаб и положение (100%)"
-            className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="w-6 h-6 p-1 hover:bg-white/10 text-zinc-400 hover:text-white"
           >
             <RotateCcw className="w-3 h-3" />
-          </button>
+          </Button>
         </div>
 
         <div className="h-3 w-px bg-white/10 mx-0.5" />
 
         {/* Layer Toggles */}
-        <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10 gap-0.5">
+        <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-zinc-800 gap-0.5">
           <button
+            type="button"
             onClick={onToggleIsl}
             title="Межспутниковые линии (ISL)"
-            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-              showIsl ? 'bg-white/20 text-white font-medium' : 'text-slate-400 hover:text-slate-200'
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer text-xs ${
+              showIsl ? 'bg-white/20 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             ISL
           </button>
 
           <button
+            type="button"
             onClick={onToggleGroundLinks}
             title="Линии Земля-Спутник (GSL)"
-            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer text-xs ${
               showGroundLinks
                 ? 'bg-white/20 text-white font-medium'
-                : 'text-slate-400 hover:text-slate-200'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             GSL
           </button>
 
           <button
+            type="button"
             onClick={onToggleLabels}
             title="Номера спутников (ID)"
-            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer text-xs ${
               showLabels
                 ? 'bg-white/20 text-white font-medium'
-                : 'text-slate-400 hover:text-slate-200'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             ID
           </button>
 
           <button
+            type="button"
             onClick={onToggleUnlaunched}
             title="Спутники последующих этапов"
-            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer text-xs ${
               showUnlaunched
                 ? 'bg-white/20 text-white font-medium'
-                : 'text-slate-400 hover:text-slate-200'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             Резерв
@@ -168,22 +176,22 @@ export const MapControls: React.FC<MapControlsProps> = ({
       </div>
 
       {/* Orbit Plane Legend in Header */}
-      <div className="hidden sm:flex items-center gap-2 bg-black/40 px-2 py-1 rounded-md border border-white/10 font-mono text-[10px]">
+      <div className="hidden sm:flex items-center gap-2 bg-black/40 px-2 py-1 rounded-md border border-zinc-800 font-mono text-[10px]">
         <div className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-[#00e5ff]" />
-          <span className="text-slate-400">P1</span>
+          <span className="text-zinc-400">P1</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-[#c084fc]" />
-          <span className="text-slate-400">P2</span>
+          <span className="text-zinc-400">P2</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
-          <span className="text-slate-400">P3</span>
+          <span className="text-zinc-400">P3</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-          <span className="text-slate-400">ОТКАЗ</span>
+          <span className="text-zinc-400">ОТКАЗ</span>
         </div>
       </div>
     </div>

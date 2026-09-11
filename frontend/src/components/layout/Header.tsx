@@ -10,6 +10,7 @@ import {
 import type { Scenario, ClientTimeline } from '../../types/scenario'
 import { PRESET_SCENARIOS } from '../../data/presets'
 import { exportResultFile } from '../../lib/orbit'
+import { Button, Badge, SegmentedControl } from '../ui'
 
 interface HeaderProps {
   currentScenario: Scenario
@@ -51,58 +52,68 @@ export const Header: React.FC<HeaderProps> = ({
     }
   }, [isPresetOpen])
 
+  const [fileError, setFileError] = useState<string | null>(null)
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     const reader = new FileReader()
-    reader.onload = (evt) => {
+    reader.onload = (event) => {
       try {
-        const json = JSON.parse(evt.target?.result as string)
-        if (!json || typeof json !== 'object' || json.schema_version !== 'cosmo-A-1.0') {
-          alert('Ошибка: неподдерживаемая версия схемы. Требуется cosmo-A-1.0')
-          return
+        const text = event.target?.result as string
+        const parsed = JSON.parse(text)
+
+        // Strict JSON validation against schema
+        if (!parsed.meta || parsed.meta.format !== 'cosmo-A-1.0') {
+          throw new Error('Некорректный формат: ожидается cosmo-A-1.0')
         }
-        if (
-          !json.environment ||
-          typeof json.environment !== 'object' ||
-          !json.design ||
-          typeof json.design !== 'object' ||
-          !Array.isArray(json.design.planes) ||
-          !Array.isArray(json.design.satellites) ||
-          !Array.isArray(json.ground_sites) ||
-          json.ground_sites.length === 0
-        ) {
-          alert('Ошибка структуры файла cosmo-A-1.0')
-          return
+        if (!parsed.planes || !Array.isArray(parsed.planes) || parsed.planes.length === 0) {
+          throw new Error('Отсутствуют орбитальные плоскости (planes)')
         }
-        const normalized: Scenario = {
-          ...json,
-          failures: Array.isArray(json.failures) ? json.failures : [],
-          gateway_outages: Array.isArray(json.gateway_outages) ? json.gateway_outages : [],
+        if (!parsed.ground_sites || !Array.isArray(parsed.ground_sites)) {
+          throw new Error('Отсутствуют наземные станции (ground_sites)')
         }
-        onLoadCustomJson(normalized)
-      } catch {
-        alert('Некорректный JSON файл')
+        if (!parsed.environment || !parsed.environment.horizon_s) {
+          throw new Error('Отсутствуют параметры симуляции (environment)')
+        }
+
+        setFileError(null)
+        onLoadCustomJson(parsed as Scenario)
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Ошибка парсинга JSON файла'
+        setFileError(message)
+        setTimeout(() => setFileError(null), 5000)
       }
     }
+    reader.onerror = () => {
+      setFileError('Не удалось прочитать файл')
+      setTimeout(() => setFileError(null), 5000)
+    }
     reader.readAsText(file)
+
+    // Reset input so re-uploading same file triggers change
     e.target.value = ''
   }
 
+  // Export results adhering to cosmo-A-result-1.0
   const handleExportResult = () => {
-    const result = exportResultFile(currentScenario, timelines)
-    const blob = new Blob([JSON.stringify(result, null, 2)], {
-      type: 'application/json',
-    })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${currentScenario.meta.id}_result_${Date.now()}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    try {
+      const resultObj = exportResultFile(currentScenario, timelines)
+      const blob = new Blob([JSON.stringify(resultObj, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${currentScenario.meta.id}_result.json`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('Ошибка экспорта результатов:', err)
+      alert('Ошибка формирования файла результатов')
+    }
   }
 
+  // Export current raw scenario config (cosmo-A-1.0)
   const handleExportScenario = () => {
     const jsonStr = JSON.stringify(currentScenario, null, 2)
     const blob = new Blob([jsonStr], {
@@ -116,87 +127,91 @@ export const Header: React.FC<HeaderProps> = ({
     URL.revokeObjectURL(url)
   }
 
+  const tabOptions: Array<{
+    value: 'monitor' | 'config' | 'compare' | 'report'
+    label: React.ReactNode
+  }> = [
+    { value: 'monitor', label: <span>Мониторинг</span> },
+    { value: 'config', label: <span>Конфигурация</span> },
+    {
+      value: 'compare',
+      label: (
+        <>
+          <span className="hidden sm:inline">A/B Сравнение</span>
+          <span className="sm:hidden">A/B</span>
+        </>
+      ),
+    },
+    {
+      value: 'report',
+      label: (
+        <>
+          <span className="hidden sm:inline">Аналитика & Рекомендации</span>
+          <span className="sm:hidden">Аналитика</span>
+        </>
+      ),
+    },
+  ]
+
+  const currentPresetLabel =
+    PRESET_SCENARIOS.find((p) => p.data.meta.id === currentScenario.meta.id)?.label ||
+    'Пресеты...'
+
   return (
-    <header className="h-11 shrink-0 bg-[#0c1017] border-b border-white/[0.08] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
+    <header className="h-11 shrink-0 bg-[#121215] border-b border-zinc-800 px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
       {/* Navigation Tabs */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        <div className="flex items-center bg-white/[0.03] p-0.5 rounded-lg border border-white/[0.08] text-xs font-sans shrink-0">
-          <button
-            onClick={() => setActiveTab('monitor')}
-            className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-              activeTab === 'monitor'
-                ? 'bg-white/12 text-white font-medium shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span>Мониторинг</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('config')}
-            className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-              activeTab === 'config'
-                ? 'bg-white/12 text-white font-medium shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span>Конфигурация</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('compare')}
-            className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-              activeTab === 'compare'
-                ? 'bg-white/12 text-white font-medium shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span className="hidden sm:inline">A/B Сравнение</span>
-            <span className="sm:hidden">A/B</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('report')}
-            className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-              activeTab === 'report'
-                ? 'bg-white/12 text-white font-medium shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <span className="hidden sm:inline">Аналитика & Рекомендации</span>
-            <span className="sm:hidden">Аналитика</span>
-          </button>
-        </div>
+        <SegmentedControl
+          options={tabOptions}
+          value={activeTab}
+          onChange={setActiveTab}
+          size="md"
+        />
 
         {isModified && (
-          <span className="text-[10px] font-mono text-amber-400 flex items-center gap-1 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="hidden sm:inline">изменен</span>
-          </span>
+          <Badge variant="amber" className="hidden sm:inline-flex gap-1.5 animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span>изменен</span>
+          </Badge>
         )}
       </div>
+
+      {/* File error notification */}
+      {fileError && (
+        <div className="absolute top-12 right-4 z-50 bg-[#180d11] border border-rose-500/40 text-rose-300 text-xs px-3 py-2 rounded-md shadow-xl flex items-center gap-2">
+          <span>{fileError}</span>
+          <button
+            type="button"
+            onClick={() => setFileError(null)}
+            className="text-rose-400 hover:text-rose-200 cursor-pointer text-sm font-bold ml-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
         {/* Custom Preset Dropdown */}
         <div className="relative" ref={dropdownRef}>
-          <button
+          <Button
             type="button"
+            variant={isPresetOpen ? 'primary' : 'outline'}
+            size="sm"
             onClick={() => setIsPresetOpen(!isPresetOpen)}
-            className={`h-7 px-2 sm:px-2.5 bg-white/[0.04] hover:bg-white/[0.08] border ${
-              isPresetOpen ? 'border-cyan-500/40 bg-white/[0.08]' : 'border-white/[0.08]'
-            } text-xs text-slate-200 font-mono rounded-md flex items-center justify-between gap-1.5 transition-colors cursor-pointer max-w-[130px] sm:max-w-[180px] md:max-w-[220px]`}
+            className="font-mono max-w-[130px] sm:max-w-[180px] md:max-w-[220px] justify-between"
           >
-            <span className="truncate text-[11px]">
-              {PRESET_SCENARIOS.find((p) => p.data.meta.id === currentScenario.meta.id)?.label || 'Пресеты...'}
-            </span>
+            <span className="truncate text-[11px]">{currentPresetLabel}</span>
             <ChevronDown
-              className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-150 ${
+              className={`w-3.5 h-3.5 text-zinc-400 shrink-0 transition-transform duration-150 ${
                 isPresetOpen ? 'rotate-180 text-white' : ''
               }`}
             />
-          </button>
+          </Button>
 
           {isPresetOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-64 bg-[#0c1017] border border-white/15 rounded-lg shadow-2xl py-1 z-50 backdrop-blur-md">
-              <div className="px-2.5 py-1 text-[10px] font-mono text-slate-500 uppercase tracking-wider border-b border-white/[0.06] mb-1">
+            <div className="absolute right-0 top-full mt-1.5 w-64 bg-[#121215] border border-zinc-700/80 rounded-lg shadow-2xl py-1 z-50 backdrop-blur-md">
+              <div className="px-2.5 py-1 text-[10px] font-mono text-zinc-500 uppercase tracking-wider border-b border-zinc-800 mb-1">
                 Выберите сценарий
               </div>
               {PRESET_SCENARIOS.map((p) => {
@@ -212,7 +227,7 @@ export const Header: React.FC<HeaderProps> = ({
                     className={`w-full text-left px-2.5 py-1.5 text-xs font-mono flex items-center justify-between gap-2 transition-colors cursor-pointer ${
                       isSelected
                         ? 'bg-white/[0.08] text-white font-medium'
-                        : 'text-slate-300 hover:text-white hover:bg-white/[0.04]'
+                        : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
@@ -239,44 +254,54 @@ export const Header: React.FC<HeaderProps> = ({
           accept=".json"
           className="hidden"
         />
-        <button
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
           onClick={() => fileInputRef.current?.click()}
           title="Загрузить JSON (cosmo-A-1.0)"
-          className="h-7 w-7 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
         >
           <Upload className="w-3.5 h-3.5" />
-        </button>
+        </Button>
 
         {/* Reset */}
         {isModified && (
-          <button
+          <Button
+            type="button"
+            variant="danger"
+            size="icon"
             onClick={onResetScenario}
             title="Сбросить к исходному"
-            className="h-7 w-7 rounded-md bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-200 flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         )}
 
         {/* Export Scenario */}
-        <button
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
           onClick={handleExportScenario}
           title="Экспортировать входной сценарий (cosmo-A-1.0)"
-          className="h-7 w-7 xl:w-auto px-0 xl:px-2.5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs font-sans flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
+          className="w-8 sm:w-auto px-0 sm:px-2.5"
         >
-          <FileCode className="w-3.5 h-3.5 text-slate-400" />
-          <span className="hidden xl:inline">Сценарий</span>
-        </button>
+          <FileCode className="w-3.5 h-3.5 text-zinc-400" />
+          <span className="hidden sm:inline">Сценарий</span>
+        </Button>
 
         {/* Export Result */}
-        <button
+        <Button
+          type="button"
+          variant="accent"
+          size="sm"
           onClick={handleExportResult}
           title="Экспорт cosmo-A-result-1.0"
-          className="h-7 w-7 xl:w-auto px-0 xl:px-2.5 rounded-md bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-200 text-xs font-sans font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
+          className="w-8 sm:w-auto px-0 sm:px-2.5"
         >
           <Download className="w-3.5 h-3.5 text-sky-300" />
-          <span className="hidden xl:inline">Результат</span>
-        </button>
+          <span className="hidden sm:inline">Результат</span>
+        </Button>
       </div>
     </header>
   )

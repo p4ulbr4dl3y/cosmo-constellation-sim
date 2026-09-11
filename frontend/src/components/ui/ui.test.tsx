@@ -1,9 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { renderToString } from 'react-dom/server'
 import { Badge } from './Badge'
 import { Button } from './Button'
 import { Card, CardHeader, CardTitle } from './Card'
 import { StatCard } from './StatCard'
+import { SegmentedControl } from './SegmentedControl'
+import { ClientSelector } from './ClientSelector'
 
 describe('UI Primitives (Server Rendered Strings)', () => {
   describe('Badge', () => {
@@ -61,7 +63,7 @@ describe('UI Primitives (Server Rendered Strings)', () => {
 
     it('supports noPadding option and subtle variant', () => {
       const html = renderToString(<Card variant="subtle" noPadding>Content</Card>)
-      expect(html).toContain('bg-[#090d14]')
+      expect(html).toContain('bg-[#0d0d10]')
       expect(html).not.toContain('p-3 sm:p-4')
     })
   })
@@ -112,6 +114,61 @@ describe('UI Primitives (Server Rendered Strings)', () => {
         <StatCard label="Error Rate" value="1.2%" trend="down" trendLabel="-2.1%" />
       )
       expect(htmlDown).toContain('-2.1%')
+    })
+  })
+
+  describe('SegmentedControl', () => {
+    it('renders options with active option highlighted', () => {
+      const options = [
+        { value: '2d', label: '2D' },
+        { value: '3d', label: '3D' },
+      ]
+      const html = renderToString(
+        <SegmentedControl options={options} value="3d" onChange={vi.fn()} size="sm" />
+      )
+      expect(html).toContain('2D')
+      expect(html).toContain('3D')
+      expect(html).toContain('bg-white/15')
+    })
+  })
+
+  describe('ClientSelector', () => {
+    const clients = [
+      { id: 'C65', name: 'Terminal 65' },
+      { id: 'C70', name: 'Terminal 70' },
+    ]
+
+    it('renders horizontal pills by default', () => {
+      const html = renderToString(
+        <ClientSelector clients={clients} selectedClientId="C65" onSelectClient={vi.fn()} />
+      )
+      expect(html).toContain('C65')
+      expect(html).toContain('C70')
+    })
+
+    it('renders vertical direction', () => {
+      const html = renderToString(
+        <ClientSelector
+          clients={clients}
+          selectedClientId="C70"
+          onSelectClient={vi.fn()}
+          direction="vertical"
+        />
+      )
+      expect(html).toContain('flex-col')
+    })
+
+    it('renders grid variant', () => {
+      const html = renderToString(
+        <ClientSelector
+          clients={clients}
+          selectedClientId="C65"
+          onSelectClient={vi.fn()}
+          variant="grid"
+        />
+      )
+      expect(html).toContain('grid grid-cols-3')
+      expect(html).toContain('C65')
     })
   })
 })

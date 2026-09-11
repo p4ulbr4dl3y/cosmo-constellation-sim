@@ -25,7 +25,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   if (variant === 'accent') {
     return (
       <div
-        className={`bg-sky-950/20 text-slate-100 rounded-lg p-3 sm:p-4 flex flex-col justify-between border border-sky-500/35 shadow-[0_0_15px_rgba(56,189,248,0.05)] transition-all ${className}`}
+        className={`bg-sky-950/20 text-zinc-100 rounded-lg p-3 sm:p-4 flex flex-col justify-between border border-sky-500/35 shadow-[0_0_15px_rgba(56,189,248,0.05)] transition-all ${className}`}
         {...props}
       >
         <div className="flex items-start justify-between gap-2">
@@ -61,15 +61,15 @@ export const StatCard: React.FC<StatCardProps> = ({
   if (variant === 'compact') {
     return (
       <div
-        className={`bg-[#090d14] border border-white/[0.06] rounded-md p-2 font-mono ${className}`}
+        className={`bg-[#0d0d10] border border-zinc-800/60 rounded-md p-2 font-mono ${className}`}
         {...props}
       >
-        <div className="text-[9px] uppercase tracking-wider text-slate-400 block mb-0.5">
+        <div className="text-[9px] uppercase tracking-wider text-zinc-400 block mb-0.5">
           {label}
         </div>
         <div className="flex items-baseline justify-between gap-1">
-          <span className="text-xs font-bold text-slate-100">{value}</span>
-          {sublabel && <span className="text-[9px] text-slate-500">{sublabel}</span>}
+          <span className="text-xs font-bold text-zinc-100">{value}</span>
+          {sublabel && <span className="text-[9px] text-zinc-500">{sublabel}</span>}
         </div>
       </div>
     )
@@ -77,16 +77,16 @@ export const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div
-      className={`bg-[#0c1017] border border-white/[0.08] rounded-lg p-3 sm:p-4 flex flex-col justify-between hover:border-white/20 transition-all ${className}`}
+      className={`bg-[#121215] border border-zinc-800 rounded-lg p-3 sm:p-4 flex flex-col justify-between hover:border-zinc-700 transition-all ${className}`}
       {...props}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <span className="text-xs font-medium text-slate-400 font-sans uppercase tracking-wider block">
+          <span className="text-xs font-medium text-zinc-400 font-sans uppercase tracking-wider block">
             {label}
           </span>
           {sublabel && (
-            <span className="text-[11px] text-slate-500 font-mono mt-0.5 block">
+            <span className="text-[11px] text-zinc-500 font-mono mt-0.5 block">
               {sublabel}
             </span>
           )}
@@ -94,7 +94,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         {badge}
       </div>
       <div className="mt-2.5 flex items-baseline justify-between gap-2">
-        <span className="text-2xl font-semibold tracking-tight font-mono text-slate-100">
+        <span className="text-2xl font-semibold tracking-tight font-mono text-zinc-100">
           {value}
         </span>
         {trend && (
@@ -104,7 +104,7 @@ export const StatCard: React.FC<StatCardProps> = ({
                 ? 'text-sky-400'
                 : trend === 'down'
                 ? 'text-rose-400'
-                : 'text-slate-400'
+                : 'text-zinc-400'
             }`}
           >
             {trend === 'up' && <TrendingUp className="w-3.5 h-3.5" />}

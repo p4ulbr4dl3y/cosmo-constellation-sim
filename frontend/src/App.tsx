@@ -95,7 +95,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen bg-[#07090e] text-slate-100 flex flex-col font-sans select-none overflow-hidden">
+    <div className="h-screen w-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans select-none overflow-hidden">
       {/* Top Navigation Bar */}
       <Header
         currentScenario={scenario}

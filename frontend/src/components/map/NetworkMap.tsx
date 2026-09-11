@@ -266,7 +266,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     ctx.scale(dpr, dpr)
 
     // Background cosmic deep space
-    ctx.fillStyle = '#07090e'
+    ctx.fillStyle = '#09090b'
     ctx.fillRect(0, 0, width, height)
 
     // Subtle star dust
@@ -353,7 +353,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   }, [inspectedSatId, snapshot.edges])
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-[#07090e] select-none overflow-hidden rounded-lg border border-white/[0.08]">
+    <div className="relative w-full h-full flex flex-col bg-[#09090b] select-none overflow-hidden rounded-lg border border-zinc-800">
       <MapControls
         viewMode={viewMode}
         onSetViewMode={handleSetViewMode}

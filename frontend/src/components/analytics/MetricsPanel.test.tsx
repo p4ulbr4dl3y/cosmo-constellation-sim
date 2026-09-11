@@ -184,7 +184,7 @@ describe('MetricsPanel Component', () => {
     expect(screen.getByText('Терминал вне зоны радиовидимости')).toBeDefined()
     expect(
       screen.getByText(
-        'Ожидайте пролета очередного спутника или увеличьте число КА в группировке.'
+        'Ожидание пролета КА или увеличение числа КА в группировке.'
       )
     ).toBeDefined()
   })
@@ -208,7 +208,7 @@ describe('MetricsPanel Component', () => {
 
     expect(screen.getByText('Технологическое окно шлюза')).toBeDefined()
     expect(
-      screen.getByText('Дождитесь завершения планового технологического окна шлюза.')
+      screen.getByText('Ожидание завершения регламентных работ на шлюзе.')
     ).toBeDefined()
   })
 
@@ -231,7 +231,7 @@ describe('MetricsPanel Component', () => {
 
     expect(screen.getByText('Нет КА над шлюзом')).toBeDefined()
     expect(
-      screen.getByText('Ожидайте захода КА орбитальной плоскости в приполярный сектор Мурманска.')
+      screen.getByText('Ожидание захода КА орбитальной плоскости в зону шлюза.')
     ).toBeDefined()
   })
 
@@ -255,7 +255,7 @@ describe('MetricsPanel Component', () => {
     expect(screen.getByText('Разрыв межспутникового сегмента')).toBeDefined()
     expect(
       screen.getByText(
-        'Проверьте состояние отказавших КА или скорректируйте лимит дальности ISL.'
+        'Проверка отказавших КА или корректировка лимита дальности ISL.'
       )
     ).toBeDefined()
   })
