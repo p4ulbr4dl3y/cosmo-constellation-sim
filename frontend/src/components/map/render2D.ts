@@ -309,7 +309,7 @@ export function render2DMap(options: Render2DOptions): void {
       ctx.stroke()
     }
 
-    const labelText = isGateway ? 'G_MUR · ШЛЮЗ' : g.id
+    const labelText = isGateway ? 'G_MUR (шлюз)' : g.id
     badges2D.push({
       id: g.id,
       text: labelText,

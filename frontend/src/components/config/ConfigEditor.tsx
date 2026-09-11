@@ -152,7 +152,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col gap-2 font-mono text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
+    <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
       {/* Top Action Bar */}
       <div className="bg-[#0b1017] px-3 py-2 rounded-md border border-[#1a2636] flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2">

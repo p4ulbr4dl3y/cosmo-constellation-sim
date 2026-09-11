@@ -418,7 +418,7 @@ export function render3DGlobe(options: Render3DOptions): void {
     ctx.lineWidth = 1
     ctx.stroke()
 
-    const labelText = isGateway ? 'G_MUR · ШЛЮЗ' : g.id
+    const labelText = isGateway ? 'G_MUR (шлюз)' : g.id
     const depthOpacity = Math.max(0.15, Math.min(1, (p.depth + 40) / 140))
     badges3D.push({
       id: g.id,

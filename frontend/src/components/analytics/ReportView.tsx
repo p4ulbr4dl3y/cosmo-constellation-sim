@@ -30,15 +30,15 @@ export const ReportView: React.FC<ReportViewProps> = ({
   }, [timelines, currentScenario?.environment.target_availability])
 
   return (
-    <div className="h-full flex flex-col gap-2 font-mono text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
+    <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
       {/* 1. Header & Quick Context */}
       <div className="bg-[#0b1017] px-3 py-2 rounded-md border border-[#1a2636] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-semibold text-zinc-100 text-xs">
             Аналитический отчёт и синтез рекомендаций
           </span>
-          <Badge variant="neutral">Кейс 2 · Арктика</Badge>
-          <Badge variant="neutral">48 КА · 3 плоскости</Badge>
+          <Badge variant="neutral">Кейс 2 (Арктика)</Badge>
+          <Badge variant="neutral">48 КА, 3 плоскости</Badge>
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
@@ -73,7 +73,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               size="sm"
               title="Открыть документацию в docs/RECOMMENDATIONS.md"
             >
-              <span>docs/ ↗</span>
+              <span>Документация</span>
             </Button>
           </a>
         </div>
@@ -102,7 +102,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 </div>
               </div>
               <div className="text-[10px] text-zinc-400 mt-2">
-                1 плоскость · разрывы связи
+                1 плоскость, частые разрывы
               </div>
             </div>
 
@@ -119,7 +119,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 </div>
               </div>
               <div className="text-[10px] text-zinc-400 mt-2">
-                2 плоскости · окна без связи
+                2 плоскости, периодические окна
               </div>
             </div>
 
@@ -136,7 +136,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 </div>
               </div>
               <div className="text-[10px] text-emerald-400 mt-2 font-medium">
-                3 плоскости · норма SLA
+                3 плоскости, целевой SLA
               </div>
             </div>
           </div>
@@ -160,7 +160,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               <div className="flex-1">
                 <div className="font-semibold text-zinc-200">Одиночный шлюз Мурманск (G_MUR)</div>
                 <div className="text-zinc-400 text-[11px] mt-0.5 leading-tight">
-                  Вызывает <span className="text-rose-400 font-medium">58.5% всех остаточных отказов</span> (24 шага no_gateway_satellite). При аварии станции доступность падает до 0%.
+                  100% клиентского трафика зависит от 1 станции. Плановое техокно 4ч (шаги 120..240) обнуляет доступность всей сети.
                 </div>
               </div>
             </div>
@@ -200,7 +200,6 @@ export const ReportView: React.FC<ReportViewProps> = ({
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Резервный шлюз</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 text-zinc-400 font-mono">#01</span>
                 </div>
                 <p className="text-zinc-400 text-[11px] leading-relaxed">
                   Размещение 2-го шлюза в восточном секторе (Тикси 71.6°N или Анадырь 64.7°N). Устраняет единую точку отказа (SPOF).
@@ -208,7 +207,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               </div>
               <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
                 <span className="text-zinc-400">Прирост SLA:</span>
-                <span className="text-emerald-400 font-bold font-mono">98.1% → 99.7%</span>
+                <span className="text-emerald-400 font-bold font-mono">98.1% до 99.7%</span>
               </div>
             </div>
 
@@ -217,7 +216,6 @@ export const ReportView: React.FC<ReportViewProps> = ({
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Порог ISL ≥ 2800 км</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 text-zinc-400 font-mono">#02</span>
                 </div>
                 <p className="text-zinc-400 text-[11px] leading-relaxed">
                   Энергетический потенциал межспутникового линка радио/лазер не менее 2800 км для устойчивости сетки на высоких широтах.
@@ -234,7 +232,6 @@ export const ReportView: React.FC<ReportViewProps> = ({
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Фазировка Walker Delta</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 text-zinc-400 font-mono">#03</span>
                 </div>
                 <p className="text-zinc-400 text-[11px] leading-relaxed">
                   Сдвиг истинной аномалии между соседними плоскостями на ΔM = 7.5°. Исключает регулярные слепые пятна между витками.
@@ -251,7 +248,6 @@ export const ReportView: React.FC<ReportViewProps> = ({
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Кольцевой Rerouting</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 text-zinc-400 font-mono">#04</span>
                 </div>
                 <p className="text-zinc-400 text-[11px] leading-relaxed">
                   Автоматическое замыкание трафика по кольцу плоскости при разрыве межплоскостного линка с субсекундной сходимостью.

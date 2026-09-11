@@ -100,7 +100,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col gap-2 font-mono text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
+    <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
       {/* Action Header */}
       <div className="bg-[#0b1017] px-2.5 sm:px-3 py-2 rounded-md border border-[#1a2636] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -115,7 +115,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             variant="outline"
             size="sm"
             onClick={() => onSetVariantA(currentScenario)}
-            className="flex-1 sm:flex-initial font-mono"
+            className="flex-1 sm:flex-initial"
             title="Зафиксировать текущую конфигурацию как Вариант A"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
@@ -127,7 +127,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             variant="outline"
             size="sm"
             onClick={() => onSetVariantB(currentScenario)}
-            className="flex-1 sm:flex-initial font-mono"
+            className="flex-1 sm:flex-initial"
             title="Зафиксировать текущую конфигурацию как Вариант B"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
@@ -148,18 +148,18 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             {variantA && (
               <button
                 onClick={() => onLoadVariantIntoEditor(variantA)}
-                className="text-[10px] text-cyan-300 hover:underline cursor-pointer"
+                className="text-[11px] text-cyan-300 hover:underline cursor-pointer font-medium"
               >
-                Загрузить в симулятор ↗
+                Загрузить в симулятор
               </button>
             )}
           </div>
           {variantA ? (
             <div className="space-y-1 text-zinc-300 text-[11px]">
-              <div className="text-white font-bold text-xs">{variantA.meta.title}</div>
+              <div className="text-white font-semibold text-xs">{variantA.meta.title}</div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Очередь запуска:</span>
-                <span className={stageDiff ? 'text-cyan-300 font-bold' : 'text-zinc-200'}>
+                <span className={stageDiff ? 'text-cyan-300 font-semibold' : 'text-zinc-200'}>
                   Этап {variantA.design.launch_stage} (
                   {variantA.design.satellites.filter(
                     (s) => s.launch_batch <= variantA.design.launch_stage
@@ -169,13 +169,13 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               </div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Дальность ISL:</span>
-                <span className={islDiff ? 'text-cyan-300 font-bold' : 'text-zinc-200'}>
+                <span className={islDiff ? 'text-cyan-300 font-semibold' : 'text-zinc-200'}>
                   {variantA.environment.isl_range_km} км
                 </span>
               </div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Отказы КА:</span>
-                <span className={failDiff ? 'text-amber-400 font-bold' : 'text-zinc-200'}>
+                <span className={failDiff ? 'text-amber-400 font-semibold' : 'text-zinc-200'}>
                   {variantA.failures?.length ?? 0}
                 </span>
               </div>
@@ -197,9 +197,9 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             {variantB && (
               <button
                 onClick={() => onLoadVariantIntoEditor(variantB)}
-                className="text-[10px] text-purple-300 hover:underline cursor-pointer"
+                className="text-[11px] text-purple-300 hover:underline cursor-pointer font-medium"
               >
-                Загрузить в симулятор ↗
+                Загрузить в симулятор
               </button>
             )}
           </div>
