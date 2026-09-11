@@ -177,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('report')}
           className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
             activeTab === 'report'
-              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 font-medium shadow-sm'
+              ? 'bg-white/12 text-white font-medium shadow-sm'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
