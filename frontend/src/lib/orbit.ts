@@ -37,15 +37,33 @@ export function getGroundPositions(scenario: Scenario): GroundPos[] {
 }
 
 export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
-  const { environment, design, ground_sites, failures, gateway_outages } = scenario
-  const r = R_EARTH + environment.altitude_km
+  if (!scenario || typeof scenario !== 'object') {
+    return { t_s, satellites: [], edges: [], elevations: {}, routes: {}, outageReasons: {} }
+  }
+  const environment = scenario.environment || {
+    altitude_km: 550,
+    inclination_deg: 87,
+    earth_angle0_deg: 0,
+    horizon_s: 86400,
+    step_s: 120,
+    min_elevation_deg: 10,
+    isl_range_km: 3000,
+    target_availability: 0.9,
+  }
+  const design = scenario.design || { launch_stage: 3, planes: [], satellites: [] }
+  const ground_sites = Array.isArray(scenario.ground_sites) ? scenario.ground_sites : []
+  const failures = Array.isArray(scenario.failures) ? scenario.failures : []
+  const gateway_outages = Array.isArray(scenario.gateway_outages) ? scenario.gateway_outages : []
+
+  const r = R_EARTH + (environment.altitude_km || 550)
   const n = Math.sqrt(MU / Math.pow(r, 3))
-  const inc = (environment.inclination_deg * Math.PI) / 180
-  const th = (environment.earth_angle0_deg * Math.PI) / 180 + OMEGA * t_s
+  const inc = ((environment.inclination_deg ?? 87) * Math.PI) / 180
+  const th = ((environment.earth_angle0_deg ?? 0) * Math.PI) / 180 + OMEGA * t_s
   const cosTh = Math.cos(th)
   const sinTh = Math.sin(th)
 
-  const planeMap = new Map(design.planes.map((p) => [p.id, p]))
+  const planes = Array.isArray(design.planes) ? design.planes : []
+  const planeMap = new Map(planes.map((p) => [p.id, p]))
 
   const activeFailures = new Set<string>()
   for (const f of failures) {
@@ -294,9 +312,22 @@ export function calculateFullTimeline(scenario: Scenario): {
   timelines: Record<string, ClientTimeline>
   allSnapshots?: Map<number, Snapshot>
 } {
-  const { environment, ground_sites } = scenario
-  const step_s = environment.step_s
-  const horizon_s = environment.horizon_s
+  if (!scenario || typeof scenario !== 'object') {
+    return { timelines: {} }
+  }
+  const environment = scenario.environment || {
+    altitude_km: 550,
+    inclination_deg: 87,
+    earth_angle0_deg: 0,
+    horizon_s: 86400,
+    step_s: 120,
+    min_elevation_deg: 10,
+    isl_range_km: 3000,
+    target_availability: 0.9,
+  }
+  const ground_sites = Array.isArray(scenario.ground_sites) ? scenario.ground_sites : []
+  const step_s = Math.max(1, environment.step_s || 120)
+  const horizon_s = Math.max(step_s, environment.horizon_s || 86400)
   const totalSlots = Math.floor(horizon_s / step_s)
 
   const clients = ground_sites.filter((g) => g.role === 'client')

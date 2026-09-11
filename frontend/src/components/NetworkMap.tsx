@@ -256,7 +256,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   ])
 
   // --- 2D RENDER FUNCTION ---
-  const render2DMap = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+  function render2DMap(ctx: CanvasRenderingContext2D, width: number, height: number) {
     // Ocean background
     ctx.fillStyle = '#0b1322'
     ctx.fillRect(0, 0, width, height)
@@ -580,7 +580,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   }
 
   // --- 3D ORTHOGRAPHIC GLOBE RENDER FUNCTION ---
-  const render3DGlobe = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+  function render3DGlobe(ctx: CanvasRenderingContext2D, width: number, height: number) {
     const cx = width / 2
     const cy = height / 2
     const globeRadius = Math.min(width, height) * 0.42

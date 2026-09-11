@@ -44,8 +44,19 @@ export const Header: React.FC<HeaderProps> = ({
     reader.onload = (evt) => {
       try {
         const json = JSON.parse(evt.target?.result as string)
-        if (json.schema_version !== 'cosmo-A-1.0') {
+        if (!json || typeof json !== 'object' || json.schema_version !== 'cosmo-A-1.0') {
           alert('Ошибка: неподдерживаемая версия схемы. Требуется cosmo-A-1.0')
+          return
+        }
+        if (
+          !json.environment ||
+          typeof json.environment !== 'object' ||
+          !json.design ||
+          typeof json.design !== 'object' ||
+          !Array.isArray(json.ground_sites) ||
+          json.ground_sites.length === 0
+        ) {
+          alert('Ошибка: поврежденный файл сценария. Отсутствуют обязательные разделы: environment, design или ground_sites.')
           return
         }
         onLoadCustomJson(json)

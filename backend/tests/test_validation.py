@@ -87,3 +87,17 @@ def test_invalid_outage_satellite_id():
     s["failures"] = [{"satellite_id": "NON_EXISTENT", "start_s": 0, "end_s": 120}]
     errors = validate_scenario(s)
     assert any("неизвестный satellite_id" in e for e in errors)
+
+
+def test_non_dict_collection_items():
+    path = get_preset_path("01_full_constellation.json")
+    s = json.loads(path.read_text(encoding="utf-8"))
+    s["design"]["planes"].append("not-a-dict")
+    s["design"]["satellites"].append(123)
+    s["ground_sites"].append(None)
+    s["failures"].append("fail")
+    s["gateway_outages"].append(True)
+    errors = validate_scenario(s)
+    assert any("должен быть объектом" in e for e in errors)
+    assert len(errors) >= 5
+

@@ -30,7 +30,7 @@ export default function App() {
 
   // Try fetching scenarios from backend API if available
   useEffect(() => {
-    fetch('/api/scenarios')
+    fetch('/api/presets')
       .then((res) => {
         if (res.ok) return res.json()
         return null
@@ -38,7 +38,7 @@ export default function App() {
       .then((data) => {
         if (data && Array.isArray(data) && data.length > 0) {
           // Backend API is online!
-          console.log('Backend /api/scenarios connected:', data)
+          console.log('Backend /api/presets connected:', data)
         }
       })
       .catch(() => {

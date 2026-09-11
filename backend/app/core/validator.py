@@ -119,6 +119,9 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
             errors.append("Список орбитальных плоскостей 'planes' пуст или отсутствует.")
         else:
             for idx, p in enumerate(planes):
+                if not isinstance(p, dict):
+                    errors.append(f"Элемент #{idx} в 'planes' должен быть объектом (dict).")
+                    continue
                 pid = p.get("id")
                 if not pid or not isinstance(pid, str):
                     errors.append(f"Плоскость #{idx} имеет некорректный id: {pid}")
@@ -139,6 +142,9 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
             errors.append("Список спутников 'satellites' пуст или отсутствует.")
         else:
             for idx, sat in enumerate(sats):
+                if not isinstance(sat, dict):
+                    errors.append(f"Элемент #{idx} в 'satellites' должен быть объектом (dict).")
+                    continue
                 sid = sat.get("id")
                 if not sid or not isinstance(sid, str):
                     errors.append(f"Спутник #{idx} имеет некорректный id: {sid}")
@@ -174,6 +180,9 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
         errors.append("Список наземных пунктов 'ground_sites' пуст или отсутствует.")
     else:
         for idx, g in enumerate(ground):
+            if not isinstance(g, dict):
+                errors.append(f"Элемент #{idx} в 'ground_sites' должен быть объектом (dict).")
+                continue
             gid = g.get("id")
             if not gid or not isinstance(gid, str):
                 errors.append(f"Наземный пункт #{idx} имеет некорректный id: {gid}")
@@ -222,6 +231,9 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
         errors.append("Поле 'failures' должно быть списком.")
     else:
         for idx, f in enumerate(failures):
+            if not isinstance(f, dict):
+                errors.append(f"Элемент #{idx} в 'failures' должен быть объектом (dict).")
+                continue
             sid = f.get("satellite_id")
             if sid not in sat_ids:
                 errors.append(
@@ -242,6 +254,9 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
         errors.append("Поле 'gateway_outages' должно быть списком.")
     else:
         for idx, f in enumerate(gw_outages):
+            if not isinstance(f, dict):
+                errors.append(f"Элемент #{idx} в 'gateway_outages' должен быть объектом (dict).")
+                continue
             gid = f.get("gateway_id")
             if gid not in gateway_ids:
                 errors.append(
