@@ -15,6 +15,10 @@ router = APIRouter(tags=["analysis"])
 
 def find_recommendations_doc() -> Path | None:
     candidates = [
+        Path.cwd() / "docs" / "RECOMMENDATIONS.md",
+        Path.cwd().parent / "docs" / "RECOMMENDATIONS.md",
+        Path(__file__).resolve().parents[4] / "docs" / "RECOMMENDATIONS.md",
+        Path(__file__).resolve().parents[3] / "docs" / "RECOMMENDATIONS.md",
         Path.cwd() / "docs_md" / "RECOMMENDATIONS.md",
         Path.cwd().parent / "docs_md" / "RECOMMENDATIONS.md",
         Path(__file__).resolve().parents[4] / "docs_md" / "RECOMMENDATIONS.md",

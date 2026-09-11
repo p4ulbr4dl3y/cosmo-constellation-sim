@@ -81,7 +81,7 @@ case_2_satellite_constellation/
 │   │   ├── lib/orbit.test.ts      # Vitest test suite
 │   │   └── types/scenario.ts      # TypeScript interfaces
 │   └── vite.config.ts             # Relative base './' and /api proxy
-├── docs_md/                       # Specifications, recommendations, pdf/, assets/
+├── docs/                          # Specifications, recommendations, pdf/, assets/
 ├── Данные/                        # 4 benchmark scenario datasets (01..04)
 ├── Расчетный модуль/             # Reference physics module (geometry.py)
 └── .github/workflows/deploy.yml   # Multi-job CI/CD pipeline

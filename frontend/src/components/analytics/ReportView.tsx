@@ -216,12 +216,12 @@ export const ReportView: React.FC = () => {
           </div>
         </div>
         <a
-          href="https://github.com/p4ulbr4dl3y/cosmo-constellation-sim/blob/main/docs_md/RECOMMENDATIONS.md"
+          href="https://github.com/p4ulbr4dl3y/cosmo-constellation-sim/blob/main/docs/RECOMMENDATIONS.md"
           target="_blank"
           rel="noreferrer"
           className="shrink-0 px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-xs font-mono text-slate-200 transition-colors flex items-center gap-1"
         >
-          <span>Полный отчет в docs_md/</span>
+          <span>Полный отчет в docs/</span>
           <ArrowRight className="w-3 h-3" />
         </a>
       </div>

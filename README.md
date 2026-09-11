@@ -4,7 +4,7 @@
 > 
 > 🌐 **Live Demo (VPS)**: [https://state3407.space/cosmo/](https://state3407.space/cosmo/) (зеркало: [https://state3407.space/cosmo-constellation-sim/](https://state3407.space/cosmo-constellation-sim/))
 
-![Mission Control Dashboard](docs_md/assets/frontend_verified.png)
+![Mission Control Dashboard](docs/assets/frontend_verified.png)
 
 ## 📌 Возможности
 - **Физико-геометрическое ядро**: точный расчет положений КА на круговой орбите $h=550$ км, наклонение $i=87^\circ$, вращение Земли, ISL-линки (видимость и дальность), углы возвышения наземных станций ($\ge 10^\circ$).
@@ -17,7 +17,7 @@
   - Модуль A/B сравнения с расчетом дельты параметров и метрик SLA.
 - **Инженерный анализ и рекомендации**:
   - Интерактивная вкладка в UI «Аналитика & Рекомендации» с матрицей рисков и обоснованием проектных решений.
-  - Подробный аналитический отчет: [`docs_md/RECOMMENDATIONS.md`](docs_md/RECOMMENDATIONS.md) (соответствие критериям 1–3, до 35 баллов).
+  - Подробный аналитический отчет: [`docs/RECOMMENDATIONS.md`](docs/RECOMMENDATIONS.md) (соответствие критериям 1–3, до 35 баллов).
 - **Стандарты данных и CLI**:
   - Полная поддержка формата сценариев `cosmo-A-1.0`.
   - Выгрузка результатов в формате `cosmo-A-result-1.0`.
