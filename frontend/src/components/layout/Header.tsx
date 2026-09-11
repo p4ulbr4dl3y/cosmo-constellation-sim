@@ -117,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <header className="h-11 shrink-0 bg-[#0c1017] border-b border-white/[0.08] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none overflow-x-auto scrollbar-none">
+    <header className="h-11 shrink-0 bg-[#0c1017] border-b border-white/[0.08] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
       {/* Navigation Tabs */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <div className="flex items-center bg-white/[0.03] p-0.5 rounded-lg border border-white/[0.08] text-xs font-sans shrink-0">
