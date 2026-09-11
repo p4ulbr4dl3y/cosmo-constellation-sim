@@ -19,13 +19,13 @@ interface NetworkMapProps {
   onToggleFailure: (satId: string) => void
 }
 
-// Plane color palette
+// Plane color palette (celestial harmony, distinct from status green/red)
 const planeColors: Record<string, { stroke: string; glow: string; fill: string }> = {
-  P1: { stroke: '#00e5ff', glow: 'rgba(0, 229, 255, 0.4)', fill: '#00b4d8' },
-  P2: { stroke: '#c084fc', glow: 'rgba(192, 132, 252, 0.4)', fill: '#a855f7' },
-  P3: { stroke: '#34d399', glow: 'rgba(52, 211, 153, 0.4)', fill: '#10b981' },
+  P1: { stroke: '#38bdf8', glow: 'rgba(56, 189, 248, 0.35)', fill: '#0284c7' },
+  P2: { stroke: '#a78bfa', glow: 'rgba(167, 139, 250, 0.35)', fill: '#8b5cf6' },
+  P3: { stroke: '#fbbf24', glow: 'rgba(251, 191, 36, 0.35)', fill: '#f59e0b' },
 }
-const defaultPlaneColor = { stroke: '#60a5fa', glow: 'rgba(96, 165, 250, 0.4)', fill: '#3b82f6' }
+const defaultPlaneColor = { stroke: '#94a3b8', glow: 'rgba(148, 163, 184, 0.35)', fill: '#64748b' }
 
 export const NetworkMap: React.FC<NetworkMapProps> = ({
   scenario,
@@ -1414,24 +1414,24 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   const isMaxZoom = viewMode === '2d' ? zoom >= 4.0 : zoom >= 3.0
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-[#07090e] select-none overflow-hidden rounded-xl border border-white/10">
+    <div className="relative w-full h-full flex flex-col bg-[#07090e] select-none overflow-hidden rounded-lg border border-white/[0.08]">
       {/* Dedicated Map Header Toolbar */}
-      <div className="flex-shrink-0 flex items-center justify-between gap-2 bg-[#0c1017] px-2.5 py-1.5 border-b border-white/10 font-mono text-[11px] z-10">
+      <div className="flex-shrink-0 flex items-center justify-between gap-2 bg-[#0c1017] px-2.5 py-1.5 border-b border-white/[0.08] font-sans text-xs z-10">
         <div className="flex flex-wrap items-center gap-1.5">
           {/* 2D / 3D Mode Switcher */}
-          <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10">
+          <div className="flex items-center bg-white/[0.04] p-0.5 rounded-md border border-white/[0.08]">
             <button
               onClick={() => handleSetViewMode('2d')}
-              className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
-                viewMode === '2d' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-slate-200'
+              className={`px-2 py-0.5 font-medium rounded text-xs transition-all cursor-pointer ${
+                viewMode === '2d' ? 'bg-white/15 text-white shadow-xs' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               2D
             </button>
             <button
               onClick={() => handleSetViewMode('3d')}
-              className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
-                viewMode === '3d' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-slate-200'
+              className={`px-2 py-0.5 font-medium rounded text-xs transition-all cursor-pointer ${
+                viewMode === '3d' ? 'bg-white/15 text-white shadow-xs' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               3D
@@ -1444,16 +1444,16 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           <button
             onClick={focusArctic}
             title="Сфокусировать 3D-глобус на Арктике"
-            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer text-xs"
           >
-            <Compass className="w-3 h-3 text-cyan-400" />
+            <Compass className="w-3 h-3 text-sky-400" />
             <span>Арктика</span>
           </button>
 
           <div className="h-3 w-px bg-white/10 mx-0.5" />
 
           {/* Zoom Controls */}
-          <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10 gap-0.5">
+          <div className="flex items-center bg-white/[0.04] p-0.5 rounded-md border border-white/[0.08] gap-0.5">
             <button
               onClick={zoomOut}
               disabled={isMinZoom}
@@ -1466,7 +1466,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
             >
               <ZoomOut className="w-3 h-3" />
             </button>
-            <span className="px-1 text-[10px] text-slate-300 min-w-[32px] text-center font-medium">
+            <span className="px-1 text-[10px] text-slate-300 min-w-[32px] text-center font-mono font-medium">
               {Math.round(zoom * 100)}%
             </span>
             <button

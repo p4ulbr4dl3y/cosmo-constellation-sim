@@ -3,16 +3,17 @@
 @theme {
   --color-brand-bg: #07090e;
   --color-brand-card: #0c1017;
-  --color-brand-card-subtle: #080b11;
+  --color-brand-card-subtle: #090d14;
   --color-brand-border: #182232;
-  --color-brand-border-focus: #00f0ff;
+  --color-brand-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-brand-border-focus: #38bdf8;
   
-  --color-brand-cyan: #00f0ff;
-  --color-brand-cyan-hover: #38bdf8;
-  --color-brand-cyan-dim: rgba(0, 240, 255, 0.12);
-  --color-brand-cyan-border: rgba(0, 240, 255, 0.35);
+  --color-brand-cyan: #38bdf8;
+  --color-brand-cyan-hover: #7dd3fc;
+  --color-brand-cyan-dim: rgba(56, 189, 248, 0.1);
+  --color-brand-cyan-border: rgba(56, 189, 248, 0.28);
 
-  --color-brand-muted: #8b9bb4;
+  --color-brand-muted: #94a3b8;
   --color-brand-dim: #475569;
 }
 
@@ -34,8 +35,8 @@
   }
 
   ::selection {
-    background-color: #00f0ff;
-    color: #000000;
+    background-color: rgba(56, 189, 248, 0.25);
+    color: #ffffff;
   }
 
   code, kbd, samp, pre, .font-mono {
@@ -43,19 +44,12 @@
   }
 }
 
-/* Technical grid background pattern */
+/* Technical subtle grid background pattern */
 .bg-grid-tech {
   background-size: 24px 24px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-}
-
-.radar-sweep {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at center, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
 }
 
 /* Custom crisp technical scrollbar */

@@ -11,13 +11,13 @@ export const Badge: React.FC<BadgeProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    cyan: 'bg-[#00f0ff]/12 text-[#00f0ff] border-[#00f0ff]/35',
-    lime: 'bg-[#00f0ff]/12 text-[#00f0ff] border-[#00f0ff]/35',
-    emerald: 'bg-emerald-950/60 text-emerald-300 border-emerald-700/60',
-    amber: 'bg-amber-950/60 text-amber-300 border-amber-700/60',
-    red: 'bg-rose-950/60 text-rose-300 border-rose-700/60',
-    blue: 'bg-blue-950/60 text-blue-300 border-blue-700/60',
-    neutral: 'bg-white/5 text-slate-300 border-white/10',
+    cyan: 'bg-sky-500/10 text-sky-300 border-sky-500/30',
+    lime: 'bg-lime-500/10 text-lime-300 border-lime-500/30',
+    emerald: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
+    amber: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
+    red: 'bg-rose-500/10 text-rose-300 border-rose-500/30',
+    blue: 'bg-blue-500/10 text-blue-300 border-blue-500/30',
+    neutral: 'bg-white/[0.04] text-slate-300 border-white/10',
   }[variant]
 
   return (

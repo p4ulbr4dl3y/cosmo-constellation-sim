@@ -151,9 +151,9 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
   const primeSat = primeSatId ? snapshot.satellites.find((s) => s.id === primeSatId) : null
 
   return (
-    <div className="h-full flex flex-col gap-2 font-mono text-xs overflow-y-auto">
+    <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto">
       {/* 1. Client Selection Tabs */}
-      <div className="grid grid-cols-3 gap-1 p-1 bg-[#0c1017] border border-white/10 rounded-xl shrink-0">
+      <div className="grid grid-cols-3 gap-1 p-1 bg-[#0c1017] border border-white/[0.08] rounded-lg shrink-0">
         {clients.map((c) => {
           const tl = timelines[c.id]
           const m = tl?.metrics
@@ -167,10 +167,10 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             <button
               key={c.id}
               onClick={() => onSelectClient(c.id)}
-              className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-lg transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-md transition-all cursor-pointer ${
                 isSelected
-                  ? 'bg-white/15 text-white border border-white/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
+                  ? 'bg-white/12 text-white border border-white/20 shadow-xs'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent'
               }`}
             >
               <div className="flex items-center gap-1.5 mb-0.5">
@@ -179,12 +179,12 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                     isOnlineNow ? 'bg-emerald-400' : 'bg-rose-500'
                   }`}
                 />
-                <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                <span className={`text-xs font-semibold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
                   {c.id}
                 </span>
               </div>
               <span
-                className={`text-[10px] font-semibold ${
+                className={`text-[10px] font-mono font-medium ${
                   clientMeetsTarget ? 'text-emerald-400' : 'text-amber-400'
                 }`}
               >
@@ -196,15 +196,15 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
       </div>
 
       {/* 2. Client Details & Route Card */}
-      <div className="flex-1 flex flex-col bg-[#0c1017] p-2.5 rounded-xl border border-white/10 gap-2 overflow-y-auto">
+      <div className="flex-1 flex flex-col bg-[#0c1017] p-2.5 rounded-lg border border-white/[0.08] gap-2 overflow-y-auto">
         {/* Header & Gateway Status */}
-        <div className="flex items-center justify-between pb-1.5 border-b border-white/10 shrink-0">
-          <span className="font-bold text-slate-200 text-xs">
+        <div className="flex items-center justify-between pb-1.5 border-b border-white/[0.08] shrink-0">
+          <span className="font-semibold text-slate-200 text-xs">
             {selectedClient?.id} · {selectedClient?.name?.split('(')[0]?.trim() || selectedClientId}
           </span>
           {isGatewayOutage && (
-            <span className="text-rose-400 font-bold bg-rose-950/50 border border-rose-800/50 px-1.5 py-0.5 rounded text-[10px]">
-              ШЛЮЗ: ТЕХОКНО
+            <span className="text-rose-300 font-medium bg-rose-500/15 border border-rose-500/30 px-1.5 py-0.5 rounded text-[10px]">
+              Шлюз: техокно
             </span>
           )}
         </div>
@@ -212,7 +212,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
         {/* Current Route or Outage Diagnosis */}
         <div className="shrink-0">
           {hasRoute ? (
-            <div className="bg-black/40 p-2 rounded-lg border border-white/10 flex flex-wrap items-center gap-1.5">
+            <div className="bg-[#090d14] p-2 rounded-md border border-white/[0.08] flex flex-wrap items-center gap-1.5">
               {activeRoute.map((nodeId, idx) => {
                 const isFirst = idx === 0
                 const isLast = idx === activeRoute.length - 1
@@ -222,8 +222,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                     <div
                       className={`px-1.5 py-0.5 rounded text-[11px] font-mono border ${
                         isFirst || isLast
-                          ? 'bg-white/5 border-white/10 text-slate-300 font-medium'
-                          : 'bg-white/15 border-white/25 text-white font-bold'
+                          ? 'bg-white/[0.04] border-white/10 text-slate-300 font-medium'
+                          : 'bg-white/12 border-white/20 text-white font-semibold shadow-2xs'
                       }`}
                     >
                       {nodeId}
@@ -243,25 +243,25 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
               {routeLatencyMs && (
                 <div className="ml-auto text-slate-400 text-[10px] font-mono">
-                  RTT <span className="text-slate-200 font-bold">{routeLatencyMs} мс</span>
+                  RTT <span className="text-slate-200 font-semibold">{routeLatencyMs} мс</span>
                 </div>
               )}
             </div>
           ) : (
-            <div className="bg-rose-950/20 border border-rose-900/40 p-2 rounded-lg space-y-1">
-              <div className="flex items-center justify-between text-rose-400 font-bold text-xs">
+            <div className="bg-rose-950/20 border border-rose-900/40 p-2 rounded-md space-y-1">
+              <div className="flex items-center justify-between text-rose-400 font-medium text-xs">
                 <span className="flex items-center gap-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
-                  МАРШРУТ РАЗОРВАН
+                  Маршрут разорван
                 </span>
-                <span className="text-[9px] bg-black/40 px-1 rounded text-slate-400">0 хопов</span>
+                <span className="text-[9px] bg-black/40 px-1 rounded text-slate-400 font-mono">0 хопов</span>
               </div>
               <div className="text-[11px] text-slate-300">
-                <span className="text-rose-400">Причина: </span>
+                <span className="text-rose-400 font-medium">Причина: </span>
                 {diagnosis.title}
               </div>
-              <div className="text-[10px] text-slate-400 bg-black/40 p-1 rounded">
-                <span className="text-cyan-400">Рекомендация: </span>
+              <div className="text-[10px] text-slate-400 bg-black/40 p-1.5 rounded">
+                <span className="text-sky-300 font-medium">Рекомендация: </span>
                 {diagnosis.recommendation}
               </div>
             </div>
@@ -270,7 +270,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
         {/* 3. 2x2 Key Metrics Grid */}
         {selectedMetrics && (
-          <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-white/10 shrink-0">
+          <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-white/[0.08] shrink-0">
             <StatCard
               variant="compact"
               label="Доступность SLA"
@@ -301,28 +301,28 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
         {/* 4. Active Satellite Telemetry / Failure Injection */}
         {primeSat ? (
-          <div className="mt-auto bg-black/40 border border-white/10 rounded-lg p-2 flex flex-col gap-1.5 text-[11px]">
-            <div className="flex items-center justify-between border-b border-white/10 pb-1">
+          <div className="mt-auto bg-[#090d14] border border-white/[0.08] rounded-md p-2 flex flex-col gap-1.5 text-[11px]">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-1">
               <div className="flex items-center gap-1.5">
                 <span
                   className={`w-2 h-2 rounded-full ${
                     primeSat.failed ? 'bg-rose-500' : 'bg-emerald-400'
                   }`}
                 />
-                <span className="font-bold text-white">КА {primeSat.id}</span>
-                <span className="text-[10px] bg-white/10 px-1 rounded text-slate-300">
+                <span className="font-semibold text-white">КА {primeSat.id}</span>
+                <span className="text-[10px] bg-white/[0.06] px-1 rounded text-slate-300 font-mono">
                   {primeSat.plane_id}
                 </span>
-                <span className="text-[10px] text-slate-400">Партия #{primeSat.launch_batch}</span>
+                <span className="text-[10px] text-slate-400 font-sans">Партия #{primeSat.launch_batch}</span>
               </div>
               {primeSat.failed && (
-                <span className="text-rose-400 font-bold text-[10px] bg-rose-950/50 px-1.5 py-0.5 rounded border border-rose-800/40">
-                  ОТКАЗ
+                <span className="text-rose-300 font-medium text-[10px] bg-rose-500/15 px-1.5 py-0.5 rounded border border-rose-500/30">
+                  Отказ
                 </span>
               )}
             </div>
 
-            <div className="flex justify-between text-[10px] text-slate-400">
+            <div className="flex justify-between text-[10px] text-slate-400 font-mono">
               <span>
                 {Math.abs(primeSat.lat_deg).toFixed(1)}°{primeSat.lat_deg >= 0 ? ' с.ш.' : ' ю.ш.'},{' '}
                 {Math.abs(primeSat.lon_deg).toFixed(1)}°{primeSat.lon_deg >= 0 ? ' в.д.' : ' з.д.'}
@@ -335,10 +335,10 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             {onToggleFailure && (
               <button
                 onClick={() => onToggleFailure(primeSat.id)}
-                className={`mt-1 h-7 px-2.5 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
+                className={`mt-1 h-7 px-2.5 rounded-md text-xs font-sans font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
                   primeSat.failed
-                    ? 'bg-emerald-600/30 hover:bg-emerald-600/50 border-emerald-500/40 text-emerald-200'
-                    : 'bg-white/5 hover:bg-rose-950/40 border-white/10 hover:border-rose-800/50 text-slate-300 hover:text-rose-300'
+                    ? 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/30 text-emerald-200'
+                    : 'bg-white/[0.04] hover:bg-rose-500/15 border-white/[0.08] hover:border-rose-500/30 text-slate-300 hover:text-rose-300'
                 }`}
               >
                 {primeSat.failed ? (
@@ -356,7 +356,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             )}
           </div>
         ) : (
-          <div className="mt-auto bg-black/30 border border-white/5 rounded-lg p-2 text-center text-[10px] text-slate-500">
+          <div className="mt-auto bg-[#090d14] border border-white/[0.06] rounded-md p-2 text-center text-[11px] text-slate-500 font-sans">
             Ожидание радиозахвата космического аппарата
           </div>
         )}

@@ -185,21 +185,21 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           <button
             onClick={() => setIsPlaying((v) => !v)}
             title={isPlaying ? 'Пауза (Пробел)' : 'Воспроизведение (Пробел)'}
-            className={`h-7 px-2.5 rounded-md text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer border ${
+            className={`h-7 px-3 rounded-md text-xs font-sans font-medium flex items-center gap-1.5 transition-colors cursor-pointer border ${
               isPlaying
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                : 'bg-white/10 hover:bg-white/15 border-white/15 text-white'
+                ? 'bg-sky-500/15 text-sky-200 border-sky-500/35 shadow-sm'
+                : 'bg-white/[0.08] hover:bg-white/[0.12] border-white/15 text-white'
             }`}
           >
             {isPlaying ? (
               <>
                 <Pause className="w-3.5 h-3.5 fill-current" />
-                <span>ПАУЗА</span>
+                <span>Пауза</span>
               </>
             ) : (
               <>
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>СТАРТ</span>
+                <span>Старт</span>
               </>
             )}
           </button>
@@ -207,20 +207,20 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           <button
             onClick={() => onTimeChange(Math.min(horizon_s - step_s, currentTime + step_s))}
             title="Шаг вперед (+120с)"
-            className="h-7 w-7 rounded-md flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="h-7 w-7 rounded-md flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer"
           >
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
 
           {/* Speed Selector */}
-          <div className="flex items-center ml-1 bg-white/5 rounded-md border border-white/10 p-0.5 text-xs h-7">
+          <div className="flex items-center ml-1 bg-white/[0.04] rounded-md border border-white/[0.08] p-0.5 text-xs h-7">
             {[1, 5, 20, 60].map((spd) => (
               <button
                 key={spd}
                 onClick={() => setPlaybackSpeed(spd)}
                 className={`px-1.5 h-full rounded text-[11px] font-mono transition-colors cursor-pointer ${
                   playbackSpeed === spd
-                    ? 'bg-white/20 text-white font-medium'
+                    ? 'bg-white/15 text-white font-medium shadow-xs'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -231,29 +231,29 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
 
         {/* Current Time Display */}
-        <div className="h-7 flex items-center gap-1.5 bg-[#0c1017] border border-white/10 px-2.5 rounded-md text-xs font-mono">
+        <div className="h-7 flex items-center gap-1.5 bg-[#0c1017] border border-white/[0.08] px-2.5 rounded-md text-xs font-mono">
           <Clock className="w-3.5 h-3.5 text-slate-400" />
-          <span className="font-bold text-white tracking-wider">
+          <span className="font-semibold text-white tracking-wider">
             {formatTime(currentTime)}
           </span>
-          <span className="text-[11px] text-slate-400">/ 24:00:00 UTC</span>
+          <span className="text-[11px] text-slate-500">/ 24:00:00 UTC</span>
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-3 text-xs text-slate-400 font-mono">
+        <div className="flex items-center gap-3 text-xs text-slate-400 font-sans">
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/70" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500/80" />
             Связь
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
             Обрыв
           </span>
         </div>
       </div>
 
       {/* Gantt & Timeline Scrubber Area */}
-      <div className="flex gap-1.5 bg-black/40 p-2 rounded-lg border border-white/10">
+      <div className="flex gap-1.5 bg-[#090d14] p-2 rounded-lg border border-white/[0.08]">
         {/* Left Column: Client Pills */}
         <div className="w-14 shrink-0 flex flex-col gap-1.5">
           <div className="h-3.5 flex items-center justify-center text-[9px] text-slate-400 font-mono">
@@ -273,13 +273,13 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                 onClick={() => onSelectClient(c.id)}
                 className={`h-4.5 px-1 rounded text-[10px] flex items-center justify-between border transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-white/15 border-white/30 text-white font-bold'
-                    : 'bg-[#0c1017] border-white/10 text-slate-400 hover:text-slate-200'
+                    ? 'bg-white/15 border-white/30 text-white font-medium shadow-xs'
+                    : 'bg-[#0c1017] border-white/[0.06] text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <span>{c.id}</span>
                 <span
-                  className={`text-[9px] ${
+                  className={`text-[9px] font-mono ${
                     meetsTarget ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
@@ -300,11 +300,11 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         >
           {/* Vertical Playhead Cursor spanning through ruler and all 3 Gantt bars */}
           <div
-            className="absolute top-0 bottom-0 w-px bg-cyan-400 pointer-events-none z-20"
+            className="absolute top-0 bottom-0 w-px bg-sky-400 pointer-events-none z-20"
             style={{ left: `${playheadPercent}%` }}
           >
             {/* Precision top needle marker */}
-            <div className="w-2 h-2 -translate-x-[3.5px] -translate-y-0.5 rotate-45 bg-cyan-400" />
+            <div className="w-2 h-2 -translate-x-[3.5px] -translate-y-0.5 rotate-45 bg-sky-400" />
           </div>
 
           {/* Time Ruler */}
