@@ -1139,24 +1139,24 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           </div>
 
           {/* Action button */}
-          <div className="mt-2.5 pt-2 border-t border-white/10">
+          <div className="mt-2 pt-2 border-t border-white/10">
             <button
               onClick={() => onToggleFailure(inspectedSat.id)}
-              className={`w-full py-1.5 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`w-full h-7 px-2 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
                 inspectedSat.failed
-                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-semibold'
-                  : 'bg-red-950/60 hover:bg-red-900/80 border border-red-800/60 text-red-300'
+                  ? 'bg-emerald-600/30 hover:bg-emerald-600/50 border-emerald-500/40 text-emerald-200'
+                  : 'bg-white/5 hover:bg-rose-950/40 border-white/10 hover:border-rose-800/50 text-slate-300 hover:text-rose-300'
               }`}
             >
               {inspectedSat.failed ? (
                 <>
                   <Crosshair className="w-3.5 h-3.5" />
-                  <span>ВОССТАНОВИТЬ СВЯЗЬ</span>
+                  <span>Восстановить связь</span>
                 </>
               ) : (
                 <>
                   <ZapOff className="w-3.5 h-3.5" />
-                  <span>ИНИЦИИРОВАТЬ ОТКАЗ</span>
+                  <span>Имитировать отказ КА</span>
                 </>
               )}
             </button>

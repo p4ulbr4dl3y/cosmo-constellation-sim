@@ -326,21 +326,21 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             {onToggleFailure && (
               <button
                 onClick={() => onToggleFailure(primeSat.id)}
-                className={`mt-1 py-1 px-2 rounded text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                className={`mt-1 h-7 px-2.5 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
                   primeSat.failed
-                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                    : 'bg-rose-950/50 hover:bg-rose-900/70 border border-rose-800/60 text-rose-300'
+                    ? 'bg-emerald-600/30 hover:bg-emerald-600/50 border-emerald-500/40 text-emerald-200'
+                    : 'bg-white/5 hover:bg-rose-950/40 border-white/10 hover:border-rose-800/50 text-slate-300 hover:text-rose-300'
                 }`}
               >
                 {primeSat.failed ? (
                   <>
-                    <Crosshair className="w-3 h-3" />
-                    <span>ВОССТАНОВИТЬ КА {primeSat.id}</span>
+                    <Crosshair className="w-3.5 h-3.5" />
+                    <span>Восстановить связь</span>
                   </>
                 ) : (
                   <>
-                    <ZapOff className="w-3 h-3" />
-                    <span>ИНИЦИИРОВАТЬ ОТКАЗ КА {primeSat.id}</span>
+                    <ZapOff className="w-3.5 h-3.5" />
+                    <span>Имитировать отказ КА</span>
                   </>
                 )}
               </button>
