@@ -57,7 +57,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           isPositive ? 'text-emerald-400' : 'text-amber-400'
         }`}
       >
-        {isPositive ? `+${diff.toFixed(1)}%` : `${diff.toFixed(1)}%`}
+        {isPositive ? `+${Math.abs(diff).toFixed(1)}%` : `-${Math.abs(diff).toFixed(1)}%`}
       </span>
     )
   }
@@ -82,6 +82,19 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         }`}
       >
         {isBetter ? `-${absFormatted}` : `+${absFormatted}`}
+      </span>
+    )
+  }
+
+  const renderDeltaHops = (hopsA: number, hopsB: number) => {
+    const diff = hopsB - hopsA
+    if (Math.abs(diff) < 0.05) {
+      return <span className="text-zinc-400 font-mono">0.0</span>
+    }
+    const absVal = Math.abs(diff).toFixed(1)
+    return (
+      <span className="text-zinc-400 font-mono">
+        {diff > 0 ? `+${absVal}` : `-${absVal}`}
       </span>
     )
   }
@@ -240,18 +253,18 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           </div>
 
           <div className="overflow-x-auto flex-1">
-            <table className="w-full text-left text-xs min-w-[560px]">
+            <table className="w-full text-xs min-w-[560px]">
               <thead>
                 <tr className="bg-[#09090c] text-zinc-400 border-b border-white/10 text-[10px] uppercase">
-                  <th className="py-2 px-3">Терминал</th>
-                  <th className="py-2 px-3">Параметр</th>
-                  <th className="py-2 px-3 text-cyan-300">Вариант A</th>
-                  <th className="py-2 px-3 text-purple-300">Вариант B</th>
-                  <th className="py-2 px-3">Дельта (B - A)</th>
-                  <th className="py-2 px-3">Статус SLA (B)</th>
+                  <th className="py-2 px-3 text-left">Терминал</th>
+                  <th className="py-2 px-3 text-left">Параметр</th>
+                  <th className="py-2 px-3 text-right text-cyan-300">Вариант A</th>
+                  <th className="py-2 px-3 text-right text-purple-300">Вариант B</th>
+                  <th className="py-2 px-3 text-right">Дельта (B - A)</th>
+                  <th className="py-2 px-4 text-left">Статус SLA (B)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody>
                 {clients.map((c) => {
                   const mA = resultA.timelines[c.id]?.metrics
                   const mB = resultB.timelines[c.id]?.metrics
@@ -263,23 +276,23 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                   return (
                     <React.Fragment key={c.id}>
                       {/* Row 1: Availability */}
-                      <tr className="hover:bg-white/[0.02]">
-                        <td className="py-2 px-3 font-bold text-zinc-200" rowSpan={3}>
+                      <tr className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                        <td className="py-2 px-3 font-bold text-zinc-200 border-r border-white/[0.04] align-middle" rowSpan={3}>
                           {c.id} ({c.lat_deg}° с.ш.)
                         </td>
                         <td className="py-1.5 px-3 text-zinc-300">
                           Доступность SLA
                         </td>
-                        <td className="py-1.5 px-3 text-zinc-300">
+                        <td className="py-1.5 px-3 text-right text-zinc-300 font-mono tabular-nums">
                           {(mA.availability_ratio * 100).toFixed(1)}%
                         </td>
-                        <td className="py-1.5 px-3 text-white font-bold">
+                        <td className="py-1.5 px-3 text-right text-white font-bold font-mono tabular-nums">
                           {(mB.availability_ratio * 100).toFixed(1)}%
                         </td>
-                        <td className="py-1.5 px-3">
+                        <td className="py-1.5 px-3 text-right font-mono tabular-nums">
                           {renderDeltaPct(mA.availability_ratio, mB.availability_ratio)}
                         </td>
-                        <td className="py-1.5 px-3 align-middle" rowSpan={3}>
+                        <td className="py-1.5 px-4 align-middle border-l border-white/[0.04]" rowSpan={3}>
                           <span className="inline-flex items-center gap-1.5 font-mono text-[11px]">
                             <span
                               className={`w-1.5 h-1.5 rounded-full ${
@@ -294,28 +307,28 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                       </tr>
 
                       {/* Row 2: Max Gap */}
-                      <tr className="hover:bg-white/[0.02]">
+                      <tr className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                         <td className="py-1.5 px-3 text-zinc-400">Макс. перерыв (Max Gap)</td>
-                        <td className="py-1.5 px-3 text-zinc-300">
+                        <td className="py-1.5 px-3 text-right text-zinc-300 font-mono tabular-nums">
                           {formatDurationHuman(mA.max_gap_s)}
                         </td>
-                        <td className="py-1.5 px-3 text-zinc-200 font-medium">
+                        <td className="py-1.5 px-3 text-right text-zinc-200 font-medium font-mono tabular-nums">
                           {formatDurationHuman(mB.max_gap_s)}
                         </td>
-                        <td className="py-1.5 px-3">
+                        <td className="py-1.5 px-3 text-right font-mono tabular-nums">
                           {renderDeltaTime(mA.max_gap_s, mB.max_gap_s)}
                         </td>
                       </tr>
 
                       {/* Row 3: Hops */}
-                      <tr className="hover:bg-white/[0.02]">
+                      <tr className="border-b border-white/10 hover:bg-white/[0.02]">
                         <td className="py-1.5 px-3 text-zinc-400">Среднее хопов</td>
-                        <td className="py-1.5 px-3 text-zinc-300">{mA.avg_hops.toFixed(1)}</td>
-                        <td className="py-1.5 px-3 text-zinc-200 font-medium">
+                        <td className="py-1.5 px-3 text-right text-zinc-300 font-mono tabular-nums">{mA.avg_hops.toFixed(1)}</td>
+                        <td className="py-1.5 px-3 text-right text-zinc-200 font-medium font-mono tabular-nums">
                           {mB.avg_hops.toFixed(1)}
                         </td>
-                        <td className="py-1.5 px-3 text-zinc-400">
-                          {(mB.avg_hops - mA.avg_hops) > 0 ? `+${(mB.avg_hops - mA.avg_hops).toFixed(1)}` : (mB.avg_hops - mA.avg_hops).toFixed(1)}
+                        <td className="py-1.5 px-3 text-right font-mono tabular-nums">
+                          {renderDeltaHops(mA.avg_hops, mB.avg_hops)}
                         </td>
                       </tr>
                     </React.Fragment>
