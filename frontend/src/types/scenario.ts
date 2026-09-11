@@ -109,7 +109,13 @@ export interface ResultExport {
   }
   effective_scenario: Scenario
   routes: RouteRecord[]
+  metrics?: Record<string, ClientMetrics>
   summary_metrics?: Record<string, ClientMetrics>
+  summary?: {
+    mean_availability: number
+    mean_hops: number
+    all_clients_meet_sla: boolean
+  }
 }
 
 export interface TimelineSlot {

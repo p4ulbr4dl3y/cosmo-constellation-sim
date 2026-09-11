@@ -21,6 +21,14 @@ interface NetworkMapProps {
   onToggleFailure: (satId: string) => void
 }
 
+// Plane color palette
+const planeColors: Record<string, { stroke: string; glow: string; fill: string }> = {
+  P1: { stroke: '#00e5ff', glow: 'rgba(0, 229, 255, 0.4)', fill: '#00b4d8' },
+  P2: { stroke: '#c084fc', glow: 'rgba(192, 132, 252, 0.4)', fill: '#a855f7' },
+  P3: { stroke: '#34d399', glow: 'rgba(52, 211, 153, 0.4)', fill: '#10b981' },
+}
+const defaultPlaneColor = { stroke: '#60a5fa', glow: 'rgba(96, 165, 250, 0.4)', fill: '#3b82f6' }
+
 export const NetworkMap: React.FC<NetworkMapProps> = ({
   scenario,
   snapshot,
@@ -49,19 +57,18 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
   // Precomputed ground positions
   const groundPositions = useMemo(() => getGroundPositions(scenario), [scenario])
+  const groundIds = useMemo(() => new Set(groundPositions.map((g) => g.id)), [groundPositions])
+  const gatewayIds = useMemo(
+    () => new Set(groundPositions.filter((g) => g.role === 'gateway').map((g) => g.id)),
+    [groundPositions]
+  )
 
   // Active route for selected client
   const activeRoute = useMemo(() => {
     return snapshot.routes[selectedClientId] || []
   }, [snapshot.routes, selectedClientId])
 
-  // Plane color palette
-  const planeColors: Record<string, { stroke: string; glow: string; fill: string }> = {
-    P1: { stroke: '#00e5ff', glow: 'rgba(0, 229, 255, 0.4)', fill: '#00b4d8' },
-    P2: { stroke: '#c084fc', glow: 'rgba(192, 132, 252, 0.4)', fill: '#a855f7' },
-    P3: { stroke: '#34d399', glow: 'rgba(52, 211, 153, 0.4)', fill: '#10b981' },
-  }
-  const defaultPlaneColor = { stroke: '#60a5fa', glow: 'rgba(96, 165, 250, 0.4)', fill: '#3b82f6' }
+
 
   // 2D Projection helper: maps (lon, lat) to canvas coordinates
   const project2D = useCallback((lon: number, lat: number, width: number, height: number): [number, number] => {
@@ -169,7 +176,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         if (viewMode === '2d') {
           ;[px, py] = project2D(s.lon_deg, s.lat_deg, width, height)
         } else {
-          const p = project3D(s.x_km, s.y_km, s.z_km, (R_EARTH + scenario.environment.altitude_km) / R_EARTH, width, height, globeRotX, globeRotY)
+          const p = project3D(s.x_km, s.y_km, s.z_km, 1.0, width, height, globeRotX, globeRotY)
           px = p.x
           py = p.y
           vis = p.visible
@@ -231,29 +238,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.fillRect(sx, sy, 1, 1)
     }
 
-    if (viewMode === '2d') {
-      // Draw 2D Equirectangular Earth map
-      render2DMap(ctx, width, height)
-    } else {
-      // Draw 3D Orthographic Globe
-      render3DGlobe(ctx, width, height)
-    }
-  }, [
-    viewMode,
-    snapshot,
-    scenario,
-    selectedClientId,
-    showIsl,
-    showGroundLinks,
-    showLabels,
-    showUnlaunched,
-    globeRotX,
-    globeRotY,
-    activeRoute,
-    groundPositions,
-    project2D,
-    project3D,
-  ])
+
 
   // --- 2D RENDER FUNCTION ---
   function render2DMap(ctx: CanvasRenderingContext2D, width: number, height: number) {
@@ -358,7 +343,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.lineWidth = 1
       for (const [u, v] of snapshot.edges) {
         // Skip ground edges here
-        if (u.startsWith('C') || u.startsWith('G') || v.startsWith('C') || v.startsWith('G')) continue
+        if (groundIds.has(u) || groundIds.has(v)) continue
 
         const p1 = satPosMap.get(u)
         const p2 = satPosMap.get(v)
@@ -380,8 +365,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.lineWidth = 1
       ctx.setLineDash([2, 3])
       for (const [u, v] of snapshot.edges) {
-        const isGroundU = u.startsWith('C') || u.startsWith('G')
-        const isGroundV = v.startsWith('C') || v.startsWith('G')
+        const isGroundU = groundIds.has(u)
+        const isGroundV = groundIds.has(v)
         if (!isGroundU && !isGroundV) continue
 
         const p1 = isGroundU ? groundPosMap.get(u) : satPosMap.get(u)
@@ -391,7 +376,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         if (Math.abs(p1[0] - p2[0]) > width * 0.5) continue
 
         const groundId = isGroundU ? u : v
-        const isGateway = groundId === 'G_MUR'
+        const isGateway = gatewayIds.has(groundId)
         const isSelectedClient = groundId === selectedClientId
 
         if (isSelectedClient) {
@@ -706,12 +691,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
     // 3D Projected Satellites
     const sat3DMap = new Map<string, { x: number; y: number; visible: boolean }>()
-    const rOrbit = (R_EARTH + scenario.environment.altitude_km) / R_EARTH
 
     for (const s of snapshot.satellites) {
       sat3DMap.set(
         s.id,
-        project3D(s.x_km, s.y_km, s.z_km, rOrbit, width, height, globeRotX, globeRotY)
+        project3D(s.x_km, s.y_km, s.z_km, 1.0, width, height, globeRotX, globeRotY)
       )
     }
 
@@ -728,7 +712,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     if (showIsl) {
       ctx.lineWidth = 1
       for (const [u, v] of snapshot.edges) {
-        if (u.startsWith('C') || u.startsWith('G') || v.startsWith('C') || v.startsWith('G')) continue
+        if (groundIds.has(u) || groundIds.has(v)) continue
         const p1 = sat3DMap.get(u)
         const p2 = sat3DMap.get(v)
         if (!p1 || !p2 || (!p1.visible && !p2.visible)) continue
@@ -746,8 +730,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.lineWidth = 1
       ctx.setLineDash([2, 3])
       for (const [u, v] of snapshot.edges) {
-        const isGroundU = u.startsWith('C') || u.startsWith('G')
-        const isGroundV = v.startsWith('C') || v.startsWith('G')
+        const isGroundU = groundIds.has(u)
+        const isGroundV = groundIds.has(v)
         if (!isGroundU && !isGroundV) continue
 
         const p1 = isGroundU ? ground3DMap.get(u) : sat3DMap.get(u)
@@ -829,7 +813,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     for (const sat of snapshot.satellites) {
       if (!showUnlaunched && !sat.active && !sat.failed) continue
       const p = sat3DMap.get(sat.id)
-      if (!p) continue
+      if (!p || !p.visible) continue
 
       const pCol = planeColors[sat.plane_id] || defaultPlaneColor
       const isOnRoute = activeRoute.includes(sat.id)
@@ -863,6 +847,33 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       }
     }
   }
+
+    if (viewMode === '2d') {
+      // Draw 2D Equirectangular Earth map
+      render2DMap(ctx, width, height)
+    } else {
+      // Draw 3D Orthographic Globe
+      render3DGlobe(ctx, width, height)
+    }
+  }, [
+    viewMode,
+    snapshot,
+    scenario,
+    selectedClientId,
+    showIsl,
+    showGroundLinks,
+    showLabels,
+    showUnlaunched,
+    globeRotX,
+    globeRotY,
+    activeRoute,
+    groundPositions,
+    groundIds,
+    gatewayIds,
+    project2D,
+    project3D,
+    inspectedSatId,
+  ])
 
   // Find detailed data for inspected satellite
   const inspectedSat = inspectedSatId

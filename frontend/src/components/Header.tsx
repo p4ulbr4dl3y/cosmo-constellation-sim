@@ -242,30 +242,35 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Target SLA compliance badge */}
-        <div
-          className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-mono border ${
-            allMeetTarget
-              ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/60'
-              : 'bg-amber-950/60 text-amber-300 border-amber-700/60'
-          }`}
-          title={
-            allMeetTarget
-              ? 'Все клиенты удовлетворяют целевой доступности >= 90%'
-              : 'Некоторые клиенты не достигают 90% доступности'
-          }
-        >
-          {allMeetTarget ? (
-            <>
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span>SLA ≥90% OK</span>
-            </>
-          ) : (
-            <>
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-              <span>SLA &lt;90%</span>
-            </>
-          )}
-        </div>
+        {(() => {
+          const targetPct = Math.round((currentScenario.environment.target_availability ?? 0.9) * 100)
+          return (
+            <div
+              className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-mono border ${
+                allMeetTarget
+                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-700/60'
+                  : 'bg-amber-950/60 text-amber-300 border-amber-700/60'
+              }`}
+              title={
+                allMeetTarget
+                  ? `Все клиенты удовлетворяют целевой доступности >= ${targetPct}%`
+                  : `Некоторые клиенты не достигают ${targetPct}% доступности`
+              }
+            >
+              {allMeetTarget ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>SLA ≥{targetPct}% OK</span>
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                  <span>SLA &lt;{targetPct}%</span>
+                </>
+              )}
+            </div>
+          )
+        })()}
       </div>
     </header>
   )

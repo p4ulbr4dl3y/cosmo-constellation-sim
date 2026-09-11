@@ -27,12 +27,12 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
   activeRouteSats,
   currentTime,
 }) => {
-  const [draft, setDraft] = useState<Scenario>(JSON.parse(JSON.stringify(scenario)))
-
-  // Sync draft when scenario changes externally
-  React.useEffect(() => {
+  const [draft, setDraft] = useState<Scenario>(() => JSON.parse(JSON.stringify(scenario)))
+  const [prevScenario, setPrevScenario] = useState(scenario)
+  if (scenario !== prevScenario) {
+    setPrevScenario(scenario)
     setDraft(JSON.parse(JSON.stringify(scenario)))
-  }, [scenario])
+  }
 
   // New failure form inputs
   const [newFailSat, setNewFailSat] = useState<string>(draft.design.satellites[0]?.id || 'S01')

@@ -248,7 +248,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                   const mB = resultB.timelines[c.id]?.metrics
                   if (!mA || !mB) return null
 
-                  const meetsSlaB = mB.availability_ratio >= 0.9
+                  const targetAvailB = variantB?.environment.target_availability ?? 0.9
+                  const meetsSlaB = mB.availability_ratio >= targetAvailB
 
                   return (
                     <React.Fragment key={c.id}>

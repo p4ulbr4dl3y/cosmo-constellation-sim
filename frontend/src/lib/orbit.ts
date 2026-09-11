@@ -36,6 +36,144 @@ export function getGroundPositions(scenario: Scenario): GroundPos[] {
   })
 }
 
+interface PQItem {
+  pri: number
+  sec: number
+  curr: string
+  path: string[]
+  totalDist: number
+}
+
+class MinHeap {
+  private data: PQItem[] = []
+
+  push(item: PQItem) {
+    this.data.push(item)
+    this.bubbleUp(this.data.length - 1)
+  }
+
+  pop(): PQItem | undefined {
+    if (this.data.length === 0) return undefined
+    const top = this.data[0]
+    const bottom = this.data.pop()!
+    if (this.data.length > 0) {
+      this.data[0] = bottom
+      this.sinkDown(0)
+    }
+    return top
+  }
+
+  get length(): number {
+    return this.data.length
+  }
+
+  private compare(a: PQItem, b: PQItem): number {
+    if (a.pri !== b.pri) return a.pri - b.pri
+    return a.sec - b.sec
+  }
+
+  private bubbleUp(idx: number) {
+    while (idx > 0) {
+      const parentIdx = (idx - 1) >> 1
+      if (this.compare(this.data[idx], this.data[parentIdx]) < 0) {
+        const tmp = this.data[idx]
+        this.data[idx] = this.data[parentIdx]
+        this.data[parentIdx] = tmp
+        idx = parentIdx
+      } else {
+        break
+      }
+    }
+  }
+
+  private sinkDown(idx: number) {
+    const len = this.data.length
+    while (true) {
+      let smallest = idx
+      const left = (idx << 1) + 1
+      const right = left + 1
+
+      if (left < len && this.compare(this.data[left], this.data[smallest]) < 0) {
+        smallest = left
+      }
+      if (right < len && this.compare(this.data[right], this.data[smallest]) < 0) {
+        smallest = right
+      }
+      if (smallest !== idx) {
+        const tmp = this.data[idx]
+        this.data[idx] = this.data[smallest]
+        this.data[smallest] = tmp
+        idx = smallest
+      } else {
+        break
+      }
+    }
+  }
+}
+
+export function findRouteDijkstra(
+  adj: Map<string, Array<[string, number]>>,
+  clientId: string,
+  onlineGateways: Set<string>,
+  allClients: Set<string>,
+  metric: 'hops' | 'distance' = 'hops'
+): { path: string[]; distance: number } {
+  if (onlineGateways.size === 0 || !adj.has(clientId)) {
+    return { path: [], distance: 0 }
+  }
+
+  const bestCost = new Map<string, [number, number]>()
+  const pq = new MinHeap()
+
+  pq.push({ pri: 0, sec: 0, curr: clientId, path: [clientId], totalDist: 0 })
+  bestCost.set(clientId, [0, 0])
+
+  while (pq.length > 0) {
+    const item = pq.pop()!
+    const { pri, sec, curr, path, totalDist } = item
+
+    if (onlineGateways.has(curr) && curr !== clientId) {
+      if (path.length >= 3) {
+        return { path, distance: totalDist }
+      }
+    }
+
+    const recorded = bestCost.get(curr)
+    if (recorded) {
+      if (pri > recorded[0] || (pri === recorded[0] && sec > recorded[1])) {
+        continue
+      }
+    }
+
+    const neighbors = adj.get(curr) || []
+    for (const [nxt, d] of neighbors) {
+      if (allClients.has(nxt) && nxt !== clientId) continue
+      if (onlineGateways.has(nxt) && path.length < 2) continue
+      if (path.includes(nxt)) continue
+
+      const newHops = path.length
+      const newDist = totalDist + d
+
+      const newPri = metric === 'hops' ? newHops : newDist
+      const newSec = metric === 'hops' ? newDist : newHops
+
+      const curBest = bestCost.get(nxt)
+      if (!curBest || newPri < curBest[0] || (newPri === curBest[0] && newSec < curBest[1])) {
+        bestCost.set(nxt, [newPri, newSec])
+        pq.push({
+          pri: newPri,
+          sec: newSec,
+          curr: nxt,
+          path: [...path, nxt],
+          totalDist: newDist,
+        })
+      }
+    }
+  }
+
+  return { path: [], distance: 0 }
+}
+
 export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
   if (!scenario || typeof scenario !== 'object') {
     return { t_s, satellites: [], edges: [], elevations: {}, routes: {}, outageReasons: {} }
@@ -140,22 +278,22 @@ export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
   const islRangeSq = islRange * islRange
   const rEarthSq = R_EARTH * R_EARTH
 
-  // Adjacency for pathfinding: nodeId -> array of neighbor ids
-  const adj = new Map<string, string[]>()
-  const addEdge = (u: string, v: string) => {
+  // Adjacency for pathfinding: nodeId -> array of [neighborId, distance]
+  const adj = new Map<string, Array<[string, number]>>()
+  const addEdge = (u: string, v: string, dist: number) => {
     let listU = adj.get(u)
     if (!listU) {
       listU = []
       adj.set(u, listU)
     }
-    listU.push(v)
+    listU.push([v, dist])
 
     let listV = adj.get(v)
     if (!listV) {
       listV = []
       adj.set(v, listV)
     }
-    listV.push(u)
+    listV.push([u, dist])
   }
 
   const numSats = satSnapshots.length
@@ -172,7 +310,7 @@ export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
       const dz = s2.z_km - s1.z_km
       const distSq = dx * dx + dy * dy + dz * dz
 
-      if (distSq <= islRangeSq) {
+      if (distSq < islRangeSq) {
         // Line-of-sight check: distance from Earth center to segment
         const denom = distSq
         const num = -(s1.x_km * dx + s1.y_km * dy + s1.z_km * dz)
@@ -186,7 +324,7 @@ export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
         if (closestSq > rEarthSq) {
           const dist = Math.sqrt(distSq)
           edges.push([s1.id, s2.id, dist])
-          addEdge(s1.id, s2.id)
+          addEdge(s1.id, s2.id, dist)
         }
       }
     }
@@ -218,12 +356,17 @@ export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
 
       if (elDeg >= minEl && isGatewayActive) {
         edges.push([g.id, s.id, dl])
-        addEdge(g.id, s.id)
+        addEdge(g.id, s.id, dl)
       }
     }
   }
 
-  // Find shortest route for each client to any active gateway (BFS)
+  // Find shortest route for each client to any active gateway (Dijkstra)
+  const allClients = new Set<string>(groundPositions.filter((g) => g.role === 'client').map((g) => g.id))
+  const onlineGateways = new Set<string>(
+    groundPositions.filter((gw) => gw.role === 'gateway' && activeGateways.has(gw.id)).map((gw) => gw.id)
+  )
+
   const routes: Record<string, string[]> = {}
   const outageReasons: Record<string, string> = {}
 
@@ -237,60 +380,29 @@ export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
     const clientHasVisible = visibleSats.length > 0
 
     // Check gateway status
-    let anyGatewayActive = false
+    const anyGatewayActive = onlineGateways.size > 0
     let anyGatewayVisible = false
-    for (const gw of groundPositions) {
-      if (gw.role === 'gateway' && activeGateways.has(gw.id)) {
-        anyGatewayActive = true
-        const gwVisible = Object.entries(elevations[gw.id] || {}).some(
-          ([, el]) => el >= minEl
-        )
-        if (gwVisible) anyGatewayVisible = true
-      }
-    }
-
-    // BFS from client
-    const queue: string[] = [g.id]
-    const visited = new Set<string>([g.id])
-    const parentMap = new Map<string, string>()
-    let targetGateway: string | null = null
-
-    while (queue.length > 0) {
-      const curr = queue.shift()!
-      if (activeGateways.has(curr)) {
-        targetGateway = curr
+    for (const gwId of onlineGateways) {
+      const gwVisible = Object.entries(elevations[gwId] || {}).some(
+        ([, el]) => el >= minEl
+      )
+      if (gwVisible) {
+        anyGatewayVisible = true
         break
       }
-
-      const neighbors = adj.get(curr) || []
-      for (const next of neighbors) {
-        if (!visited.has(next)) {
-          // Ground nodes cannot relay traffic
-          const isGround = groundPositions.some((gp) => gp.id === next)
-          if (isGround && !activeGateways.has(next)) {
-            continue
-          }
-          visited.add(next)
-          parentMap.set(next, curr)
-          queue.push(next)
-        }
-      }
     }
 
-    if (targetGateway) {
-      const path: string[] = []
-      let curr: string | undefined = targetGateway
-      while (curr) {
-        path.unshift(curr)
-        curr = parentMap.get(curr)
-      }
+    const { path } = findRouteDijkstra(adj, g.id, onlineGateways, allClients, 'hops')
+
+    if (path.length > 0) {
       routes[g.id] = path
     } else {
       routes[g.id] = []
-      if (!anyGatewayActive) {
-        outageReasons[g.id] = 'Шлюз отключен (Gateway outage)'
-      } else if (!clientHasVisible) {
+      // Precedence: 1. no client sat -> 2. gateway offline -> 3. no gateway sat -> 4. isl disconnected
+      if (!clientHasVisible) {
         outageReasons[g.id] = `Нет спутников над ${g.id} (уг. места < ${minEl}°)`
+      } else if (!anyGatewayActive) {
+        outageReasons[g.id] = 'Шлюз отключен (Gateway outage)'
       } else if (!anyGatewayVisible) {
         outageReasons[g.id] = `Нет спутников над шлюзом (уг. места < ${minEl}°)`
       } else {
@@ -442,6 +554,19 @@ export function exportResultFile(
     summary_metrics[id] = tl.metrics
   }
 
+  const clientVals = Object.values(summary_metrics)
+  const meanAvail =
+    clientVals.length > 0
+      ? clientVals.reduce((acc, m) => acc + m.availability_ratio, 0) / clientVals.length
+      : 0
+  const meanHops =
+    clientVals.length > 0
+      ? clientVals.reduce((acc, m) => acc + m.avg_hops, 0) / clientVals.length
+      : 0
+  const targetAvail = scenario.environment.target_availability ?? 0.9
+  const allMeetSla =
+    clientVals.length > 0 && clientVals.every((m) => m.availability_ratio >= targetAvail)
+
   return {
     schema_version: 'cosmo-A-result-1.0',
     meta: {
@@ -450,6 +575,12 @@ export function exportResultFile(
     },
     effective_scenario: scenario,
     routes,
+    metrics: summary_metrics,
     summary_metrics,
+    summary: {
+      mean_availability: meanAvail,
+      mean_hops: meanHops,
+      all_clients_meet_sla: allMeetSla,
+    },
   }
 }

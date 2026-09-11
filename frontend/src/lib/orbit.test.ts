@@ -67,9 +67,21 @@ describe('Orbit Calculation Library', () => {
     expect(s1.active).toBe(false)
   })
 
-  it('handles gateway outage events properly in snapshot', () => {
+  it('diagnoses no_client_satellite before gateway outage when no sat visible over client', () => {
     const scenarioWithGwOutage: Scenario = {
       ...sampleScenario,
+      gateway_outages: [{ gateway_id: 'GW', start_s: 0, end_s: 240 }],
+    }
+    const snap = calculateSnapshot(scenarioWithGwOutage, 120)
+    expect(snap.routes['CL']).toEqual([])
+    expect(snap.outageReasons['CL']).toContain('Нет спутников над CL')
+  })
+
+  it('diagnoses gateway outage when client sees satellites but gateway is offline', () => {
+    // min_elevation_deg = -90 ensures all satellites are visible
+    const scenarioWithGwOutage: Scenario = {
+      ...sampleScenario,
+      environment: { ...sampleScenario.environment, min_elevation_deg: -90 },
       gateway_outages: [{ gateway_id: 'GW', start_s: 0, end_s: 240 }],
     }
     const snap = calculateSnapshot(scenarioWithGwOutage, 120)
@@ -82,5 +94,17 @@ describe('Orbit Calculation Library', () => {
     expect(timelines['CL']).toBeDefined()
     expect(timelines['CL'].slots).toHaveLength(3) // 360 / 120 = 3
     expect(timelines['CL'].metrics.total_slots).toBe(3)
+  })
+
+  it('finds optimal route using Dijkstra (minimizing hops then distance)', () => {
+    // Both CL and GW see sats when min_elevation is permissive
+    const routingScenario: Scenario = {
+      ...sampleScenario,
+      environment: { ...sampleScenario.environment, min_elevation_deg: -90, isl_range_km: 15000 },
+    }
+    const snap = calculateSnapshot(routingScenario, 0)
+    expect(snap.routes['CL'].length).toBeGreaterThanOrEqual(3) // [CL, Sat..., GW]
+    expect(snap.routes['CL'][0]).toBe('CL')
+    expect(snap.routes['CL'][snap.routes['CL'].length - 1]).toBe('GW')
   })
 })
