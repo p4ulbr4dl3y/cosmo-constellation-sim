@@ -128,13 +128,13 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 min-h-0 p-2 flex flex-col gap-2 overflow-hidden w-full">
+      <main className="flex-1 min-h-0 p-1.5 sm:p-2 flex flex-col gap-2 overflow-hidden w-full">
         {activeTab === 'monitor' && (
-          <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
+          <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto lg:overflow-hidden pr-0.5">
             {/* Upper Split: Map (65%) & Metrics (35%) */}
-            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-2 overflow-hidden">
+            <div className="shrink-0 lg:shrink lg:flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-2">
               {/* Map & Network Visualization */}
-              <div className="lg:col-span-8 h-full min-h-0 flex overflow-hidden">
+              <div className="lg:col-span-8 h-[290px] sm:h-[380px] lg:h-full min-h-[250px] lg:min-h-0 flex overflow-hidden rounded-xl border border-white/10">
                 <NetworkMap
                   scenario={scenario}
                   snapshot={snapshot}
@@ -145,7 +145,7 @@ export default function App() {
               </div>
 
               {/* Metrics & Active Route Panel */}
-              <div className="lg:col-span-4 h-full min-h-0 flex flex-col overflow-hidden">
+              <div className="lg:col-span-4 min-h-[300px] lg:h-full lg:min-h-0 flex flex-col overflow-hidden">
                 <MetricsPanel
                   scenario={scenario}
                   snapshot={snapshot}

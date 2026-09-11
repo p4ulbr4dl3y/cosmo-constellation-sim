@@ -50,7 +50,7 @@ export const ReportView: React.FC = () => {
             <span className="text-[11px] font-mono text-slate-400">720 шагов / 24 часа</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 text-center text-xs">
+          <div className="grid grid-cols-1 xs:grid-cols-3 gap-2 text-center text-xs">
             <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
               <div className="text-[11px] text-slate-400 font-medium">1-я очередь</div>
               <div className="text-base font-bold font-mono text-rose-400 mt-1">18.56%</div>

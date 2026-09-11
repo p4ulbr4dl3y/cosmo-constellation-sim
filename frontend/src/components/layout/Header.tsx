@@ -101,23 +101,24 @@ export const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <header className="h-11 shrink-0 bg-[#0c1017] border-b border-white/[0.08] px-3 flex items-center justify-between gap-2 select-none">
+    <header className="h-11 shrink-0 bg-[#0c1017] border-b border-white/[0.08] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none overflow-x-auto scrollbar-none">
       {/* Brand */}
-      <div className="flex items-center gap-2 shrink-0">
-        <span className="text-xs font-semibold tracking-wider text-slate-200 uppercase font-sans">
-          Космохакатон
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <span className="text-xs font-bold tracking-wider text-slate-200 uppercase font-sans">
+          <span className="hidden sm:inline">Космохакатон</span>
+          <span className="sm:hidden text-sky-400">COSMO</span>
         </span>
-        <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">
+        <span className="text-[10px] text-slate-500 font-mono hidden md:inline">
           // LEO Sim
         </span>
         {isModified && (
-          <span className="text-[10px] font-mono text-amber-400 flex items-center gap-1 ml-1">
+          <span className="text-[10px] font-mono text-amber-400 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            изменен
+            <span className="hidden sm:inline">изменен</span>
           </span>
         )}
         <span
-          className={`text-[10px] font-mono px-1.5 py-0.5 rounded border hidden md:inline-flex items-center gap-1 ml-1 ${
+          className={`text-[10px] font-mono px-1.5 py-0.5 rounded border hidden lg:inline-flex items-center gap-1 ml-0.5 ${
             isBackendOnline
               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
               : 'bg-white/5 border-white/10 text-slate-400'
@@ -138,51 +139,55 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center bg-white/[0.03] p-0.5 rounded-lg border border-white/[0.08] text-xs font-sans">
+      <div className="flex items-center bg-white/[0.03] p-0.5 rounded-lg border border-white/[0.08] text-xs font-sans shrink-0">
         <button
           onClick={() => setActiveTab('monitor')}
-          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+          className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
             activeTab === 'monitor'
               ? 'bg-white/12 text-white font-medium shadow-sm'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          Мониторинг
+          <span className="hidden sm:inline">Мониторинг</span>
+          <span className="sm:hidden">Обзор</span>
         </button>
         <button
           onClick={() => setActiveTab('config')}
-          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+          className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
             activeTab === 'config'
               ? 'bg-white/12 text-white font-medium shadow-sm'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          Конфигурация
+          <span className="hidden sm:inline">Конфигурация</span>
+          <span className="sm:hidden">Конфиг</span>
         </button>
         <button
           onClick={() => setActiveTab('compare')}
-          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+          className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
             activeTab === 'compare'
               ? 'bg-white/12 text-white font-medium shadow-sm'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          A/B Сравнение
+          <span className="hidden sm:inline">A/B Сравнение</span>
+          <span className="sm:hidden">A/B</span>
         </button>
         <button
           onClick={() => setActiveTab('report')}
-          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+          className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
             activeTab === 'report'
               ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 font-medium shadow-sm'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          Аналитика & Рекомендации
+          <span className="hidden lg:inline">Аналитика & Рекомендации</span>
+          <span className="lg:hidden">Аналитика</span>
         </button>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
         {/* Preset dropdown */}
         <div className="relative">
           <select
@@ -193,10 +198,10 @@ export const Header: React.FC<HeaderProps> = ({
               const preset = PRESET_SCENARIOS.find((p) => p.id === e.target.value)
               if (preset) onSelectPreset(preset.data)
             }}
-            className="h-7 pl-2.5 pr-7 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs text-slate-200 font-sans rounded-md appearance-none focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
+            className="h-7 pl-2 pr-6 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs text-slate-200 font-sans rounded-md appearance-none focus:outline-none focus:border-white/30 transition-colors cursor-pointer max-w-[85px] xs:max-w-[120px] sm:max-w-[160px] md:max-w-[200px] truncate"
           >
             <option value="" disabled className="bg-[#0c1017] text-slate-400">
-              Выбрать пресет...
+              Пресеты...
             </option>
             {PRESET_SCENARIOS.map((p) => (
               <option key={p.id} value={p.id} className="bg-[#0c1017] text-slate-200">
@@ -204,7 +209,7 @@ export const Header: React.FC<HeaderProps> = ({
               </option>
             ))}
           </select>
-          <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* Load JSON */}
@@ -218,7 +223,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={() => fileInputRef.current?.click()}
           title="Загрузить JSON (cosmo-A-1.0)"
-          className="h-7 w-7 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          className="h-7 w-7 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
         >
           <Upload className="w-3.5 h-3.5" />
         </button>
@@ -228,7 +233,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onResetScenario}
             title="Сбросить к исходному"
-            className="h-7 w-7 rounded-md bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-200 flex items-center justify-center transition-colors cursor-pointer"
+            className="h-7 w-7 rounded-md bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-rose-200 flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
@@ -238,20 +243,20 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={handleExportScenario}
           title="Экспортировать входной сценарий (cosmo-A-1.0)"
-          className="h-7 px-2.5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs font-sans flex items-center gap-1.5 transition-colors cursor-pointer"
+          className="h-7 w-7 xl:w-auto px-0 xl:px-2.5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs font-sans flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
         >
           <FileCode className="w-3.5 h-3.5 text-slate-400" />
-          <span>Сценарий</span>
+          <span className="hidden xl:inline">Сценарий</span>
         </button>
 
         {/* Export Result */}
         <button
           onClick={handleExportResult}
           title="Экспорт cosmo-A-result-1.0"
-          className="h-7 px-2.5 rounded-md bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-200 text-xs font-sans font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+          className="h-7 w-7 xl:w-auto px-0 xl:px-2.5 rounded-md bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-200 text-xs font-sans font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
         >
           <Download className="w-3.5 h-3.5 text-sky-300" />
-          <span>Результат</span>
+          <span className="hidden xl:inline">Результат</span>
         </button>
       </div>
     </header>

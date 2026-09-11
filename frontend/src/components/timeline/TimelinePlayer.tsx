@@ -176,29 +176,29 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
   return (
     <div className="p-2 bg-[#0c1017] border border-white/10 rounded-xl flex flex-col gap-1.5 select-none font-mono">
       {/* Top Row: Playback Controls & Time readout */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-1 sm:gap-2">
         {/* Play / Step Buttons & Speed */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
           <button
             onClick={() => onTimeChange(0)}
             title="В начало (00:00:00)"
-            className="h-7 w-7 rounded-md flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="h-7 w-6 sm:w-7 rounded-md flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
           </button>
 
           <button
             onClick={() => onTimeChange(Math.max(0, currentTime - step_s))}
             title="Шаг назад (-120с)"
-            className="h-7 w-7 rounded-md flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="h-7 w-6 sm:w-7 rounded-md flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
           </button>
 
           <button
             onClick={() => setIsPlaying((v) => !v)}
             title={isPlaying ? 'Пауза (Пробел)' : 'Воспроизведение (Пробел)'}
-            className={`h-7 px-3 rounded-md text-xs font-sans font-medium flex items-center gap-1.5 transition-colors cursor-pointer border ${
+            className={`h-7 px-2 sm:px-3 rounded-md text-xs font-sans font-medium flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer border shrink-0 ${
               isPlaying
                 ? 'bg-sky-500/15 text-sky-200 border-sky-500/35 shadow-sm'
                 : 'bg-white/[0.08] hover:bg-white/[0.12] border-white/15 text-white'
@@ -207,12 +207,12 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             {isPlaying ? (
               <>
                 <Pause className="w-3.5 h-3.5 fill-current" />
-                <span>Пауза</span>
+                <span className="hidden xs:inline">Пауза</span>
               </>
             ) : (
               <>
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Старт</span>
+                <span className="hidden xs:inline">Старт</span>
               </>
             )}
           </button>
@@ -220,18 +220,18 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           <button
             onClick={() => onTimeChange(Math.min(horizon_s - step_s, currentTime + step_s))}
             title="Шаг вперед (+120с)"
-            className="h-7 w-7 rounded-md flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="h-7 w-6 sm:w-7 rounded-md flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
           </button>
 
           {/* Speed Selector */}
-          <div className="flex items-center ml-1 bg-white/[0.04] rounded-md border border-white/[0.08] p-0.5 text-xs h-7">
+          <div className="flex items-center ml-0.5 sm:ml-1 bg-white/[0.04] rounded-md border border-white/[0.08] p-0.5 text-xs h-7 shrink-0">
             {[1, 5, 20, 60].map((spd) => (
               <button
                 key={spd}
                 onClick={() => setPlaybackSpeed(spd)}
-                className={`px-1.5 h-full rounded text-[11px] font-mono transition-colors cursor-pointer ${
+                className={`px-1 sm:px-1.5 h-full rounded text-[10px] sm:text-[11px] font-mono transition-colors cursor-pointer ${
                   playbackSpeed === spd
                     ? 'bg-white/15 text-white font-medium shadow-xs'
                     : 'text-slate-400 hover:text-slate-200'
@@ -244,16 +244,16 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
 
         {/* Current Time Display */}
-        <div className="h-7 flex items-center gap-1.5 bg-[#0c1017] border border-white/[0.08] px-2.5 rounded-md text-xs font-mono">
-          <Clock className="w-3.5 h-3.5 text-slate-400" />
-          <span className="font-semibold text-white tracking-wider">
+        <div className="h-7 flex items-center gap-1 sm:gap-1.5 bg-[#0c1017] border border-white/[0.08] px-1.5 sm:px-2.5 rounded-md text-xs font-mono shrink-0">
+          <Clock className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-slate-400 shrink-0" />
+          <span className="font-semibold text-white tracking-wider text-[11px] sm:text-xs whitespace-nowrap">
             {formatTime(currentTime)}
           </span>
-          <span className="text-[11px] text-slate-500">/ {formatTime(horizon_s)} UTC</span>
+          <span className="text-[11px] text-slate-500 hidden sm:inline">/ {formatTime(horizon_s)} UTC</span>
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-3 text-xs text-slate-400 font-sans">
+        <div className="hidden md:flex items-center gap-3 text-xs text-slate-400 font-sans shrink-0">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500/80" />
             Связь

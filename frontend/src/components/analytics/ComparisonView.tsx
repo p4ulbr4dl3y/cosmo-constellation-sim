@@ -111,20 +111,20 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
   return (
     <div className="h-full flex flex-col gap-2 font-mono text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
       {/* Action Header */}
-      <div className="bg-[#0c1017] px-3 py-2 rounded-xl border border-white/10 flex flex-wrap items-center justify-between gap-2 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-slate-200 uppercase tracking-wider">
+      <div className="bg-[#0c1017] px-2.5 sm:px-3 py-2 rounded-xl border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="font-bold text-slate-200 uppercase tracking-wider text-xs">
             A/B СРАВНЕНИЕ ВАРИАНТОВ
           </span>
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-slate-400 hidden xs:inline">
             (оценка дельты SLA, времени простоя и сетевых хопов)
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
           <button
             onClick={() => onSetVariantA(currentScenario)}
-            className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="flex-1 sm:flex-initial h-7 px-2 sm:px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             title="Зафиксировать текущую конфигурацию как Вариант A"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
@@ -133,7 +133,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
           <button
             onClick={() => onSetVariantB(currentScenario)}
-            className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="flex-1 sm:flex-initial h-7 px-2 sm:px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             title="Зафиксировать текущую конфигурацию как Вариант B"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
@@ -256,7 +256,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           </div>
 
           <div className="overflow-x-auto flex-1">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[560px]">
               <thead>
                 <tr className="bg-[#080b11] text-slate-400 border-b border-white/10 text-[10px] uppercase">
                   <th className="py-2 px-3">Терминал</th>
