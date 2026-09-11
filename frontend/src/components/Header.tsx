@@ -4,6 +4,7 @@ import {
   Download,
   FileCode,
   RotateCcw,
+  ChevronDown,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline } from '../types/scenario'
 import { PRESET_SCENARIOS } from '../data/presets'
@@ -54,12 +55,12 @@ export const Header: React.FC<HeaderProps> = ({
           !Array.isArray(json.ground_sites) ||
           json.ground_sites.length === 0
         ) {
-          alert('Ошибка: поврежденный файл сценария. Отсутствуют обязательные разделы.')
+          alert('Ошибка структуры файла cosmo-A-1.0')
           return
         }
-        onLoadCustomJson(json)
-      } catch (err) {
-        alert('Ошибка при чтении файла JSON: ' + (err as Error).message)
+        onLoadCustomJson(json as Scenario)
+      } catch {
+        alert('Некорректный JSON файл')
       }
     }
     reader.readAsText(file)
@@ -80,7 +81,8 @@ export const Header: React.FC<HeaderProps> = ({
   }
 
   const handleExportScenario = () => {
-    const blob = new Blob([JSON.stringify(currentScenario, null, 2)], {
+    const jsonStr = JSON.stringify(currentScenario, null, 2)
+    const blob = new Blob([jsonStr], {
       type: 'application/json',
     })
     const url = URL.createObjectURL(blob)
@@ -143,25 +145,28 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Actions */}
       <div className="flex items-center gap-1.5 shrink-0">
         {/* Preset dropdown */}
-        <select
-          value={
-            PRESET_SCENARIOS.find((p) => p.data.meta.id === currentScenario.meta.id)?.id || ''
-          }
-          onChange={(e) => {
-            const preset = PRESET_SCENARIOS.find((p) => p.id === e.target.value)
-            if (preset) onSelectPreset(preset.data)
-          }}
-          className="bg-[#0c1017] hover:bg-[#121824] border border-white/10 text-[11px] text-slate-200 font-mono py-1 px-2 rounded-md focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
-        >
-          <option value="" disabled>
-            Выбрать пресет...
-          </option>
-          {PRESET_SCENARIOS.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
+        <div className="relative">
+          <select
+            value={
+              PRESET_SCENARIOS.find((p) => p.data.meta.id === currentScenario.meta.id)?.id || ''
+            }
+            onChange={(e) => {
+              const preset = PRESET_SCENARIOS.find((p) => p.id === e.target.value)
+              if (preset) onSelectPreset(preset.data)
+            }}
+            className="h-7 pl-2.5 pr-7 bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200 font-mono rounded-md appearance-none focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
+          >
+            <option value="" disabled className="bg-[#0c1017] text-slate-400">
+              Выбрать пресет...
             </option>
-          ))}
-        </select>
+            {PRESET_SCENARIOS.map((p) => (
+              <option key={p.id} value={p.id} className="bg-[#0c1017] text-slate-200">
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
 
         {/* Load JSON */}
         <input
@@ -174,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={() => fileInputRef.current?.click()}
           title="Загрузить JSON (cosmo-A-1.0)"
-          className="h-7 px-2 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs flex items-center gap-1 transition-colors cursor-pointer"
+          className="h-7 w-7 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
         >
           <Upload className="w-3.5 h-3.5" />
         </button>
@@ -184,7 +189,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onResetScenario}
             title="Сбросить к исходному"
-            className="h-7 px-2 rounded-md bg-red-950/40 hover:bg-red-900/60 border border-red-800/40 text-red-300 text-xs flex items-center transition-colors cursor-pointer"
+            className="h-7 w-7 rounded-md bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/40 text-rose-300 hover:text-rose-200 flex items-center justify-center transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
@@ -194,7 +199,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={handleExportScenario}
           title="Экспортировать входной сценарий (cosmo-A-1.0)"
-          className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-[11px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+          className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
         >
           <FileCode className="w-3 h-3 text-slate-400" />
           <span>Сценарий</span>
@@ -204,9 +209,9 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={handleExportResult}
           title="Экспорт cosmo-A-result-1.0"
-          className="h-7 px-2.5 rounded-md bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-200 text-[11px] font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+          className="h-7 px-2.5 rounded-md bg-white/15 hover:bg-white/20 border border-white/20 text-white text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <Download className="w-3 h-3" />
+          <Download className="w-3 h-3 text-slate-200" />
           <span>Результат</span>
         </button>
       </div>

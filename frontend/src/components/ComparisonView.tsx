@@ -121,7 +121,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => onSetVariantA(currentScenario)}
-            className="h-7 px-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             title="Зафиксировать текущую конфигурацию как Вариант A"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
@@ -130,7 +130,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
           <button
             onClick={() => onSetVariantB(currentScenario)}
-            className="h-7 px-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             title="Зафиксировать текущую конфигурацию как Вариант B"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />

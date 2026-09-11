@@ -4,6 +4,7 @@ import {
   Plus,
   ZapOff,
   RotateCcw,
+  ChevronDown,
 } from 'lucide-react'
 import type { Scenario, Failure, GatewayOutage } from '../types/scenario'
 
@@ -170,22 +171,22 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
           <button
             onClick={handleKillActiveRouteSat}
             disabled={activeRouteSats.length === 0}
-            className={`h-7 px-2.5 rounded text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+            className={`h-7 px-2.5 rounded-md text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
               activeRouteSats.length > 0
                 ? 'bg-rose-950/50 hover:bg-rose-900/70 border border-rose-800/60 text-rose-300'
                 : 'bg-white/5 border border-white/5 text-slate-500 cursor-not-allowed'
             }`}
           >
-            <ZapOff className="w-3 h-3" />
+            <ZapOff className="w-3.5 h-3.5" />
             <span>Отказ {activeRouteSats[0] || 'нет КА'} (4ч)</span>
           </button>
 
           {/* Reset */}
           <button
             onClick={onResetScenario}
-            className="h-7 px-2.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <RotateCcw className="w-3 h-3" />
+            <RotateCcw className="w-3.5 h-3.5" />
             <span>Сброс</span>
           </button>
         </div>
@@ -342,40 +343,43 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
 
             {/* Add failure row */}
             <div className="flex flex-wrap items-center gap-1.5 bg-[#080b11] p-1.5 rounded-lg border border-white/10 text-xs">
-              <select
-                value={newFailSat}
-                onChange={(e) => setNewFailSat(e.target.value)}
-                className="bg-[#0c1017] border border-white/10 text-slate-200 py-1 px-1.5 rounded text-xs focus:outline-none"
-              >
-                {draft.design.satellites.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.id} ({s.plane_id})
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={newFailSat}
+                  onChange={(e) => setNewFailSat(e.target.value)}
+                  className="h-7 pl-2 pr-7 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-mono rounded-md appearance-none focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
+                >
+                  {draft.design.satellites.map((s) => (
+                    <option key={s.id} value={s.id} className="bg-[#0c1017] text-slate-200">
+                      {s.id} ({s.plane_id})
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
 
-              <div className="flex items-center gap-1 text-[11px]">
+              <div className="flex items-center gap-1 text-xs">
                 <span className="text-slate-400">С:</span>
                 <input
                   type="time"
                   value={secondsToHHMM(newFailStart)}
                   onChange={(e) => setNewFailStart(hhmmToSeconds(e.target.value))}
-                  className="bg-[#0c1017] border border-white/10 px-1.5 py-0.5 rounded text-slate-200 text-xs focus:outline-none"
+                  className="h-7 px-1.5 bg-[#0c1017] border border-white/10 rounded-md text-slate-200 text-xs font-mono focus:outline-none focus:border-white/30"
                 />
                 <span className="text-slate-400">До:</span>
                 <input
                   type="time"
                   value={secondsToHHMM(newFailEnd)}
                   onChange={(e) => setNewFailEnd(hhmmToSeconds(e.target.value))}
-                  className="bg-[#0c1017] border border-white/10 px-1.5 py-0.5 rounded text-slate-200 text-xs focus:outline-none"
+                  className="h-7 px-1.5 bg-[#0c1017] border border-white/10 rounded-md text-slate-200 text-xs font-mono focus:outline-none focus:border-white/30"
                 />
               </div>
 
               <button
                 onClick={handleAddFailure}
-                className="ml-auto h-7 px-2 rounded bg-rose-950/50 hover:bg-rose-900/70 border border-rose-800/60 text-rose-300 font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                className="ml-auto h-7 px-2.5 rounded-md bg-rose-950/50 hover:bg-rose-900/70 border border-rose-800/60 text-rose-300 text-xs font-mono font-medium flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3.5 h-3.5" />
                 <span>Добавить</span>
               </button>
             </div>
@@ -422,28 +426,28 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
 
             {/* Add gateway outage row */}
             <div className="flex flex-wrap items-center gap-1.5 bg-[#080b11] p-1.5 rounded-lg border border-white/10 text-xs">
-              <div className="flex items-center gap-1 text-[11px]">
+              <div className="flex items-center gap-1 text-xs">
                 <span className="text-slate-400">С:</span>
                 <input
                   type="time"
                   value={secondsToHHMM(newGwStart)}
                   onChange={(e) => setNewGwStart(hhmmToSeconds(e.target.value))}
-                  className="bg-[#0c1017] border border-white/10 px-1.5 py-0.5 rounded text-slate-200 text-xs focus:outline-none"
+                  className="h-7 px-1.5 bg-[#0c1017] border border-white/10 rounded-md text-slate-200 text-xs font-mono focus:outline-none focus:border-white/30"
                 />
                 <span className="text-slate-400">До:</span>
                 <input
                   type="time"
                   value={secondsToHHMM(newGwEnd)}
                   onChange={(e) => setNewGwEnd(hhmmToSeconds(e.target.value))}
-                  className="bg-[#0c1017] border border-white/10 px-1.5 py-0.5 rounded text-slate-200 text-xs focus:outline-none"
+                  className="h-7 px-1.5 bg-[#0c1017] border border-white/10 rounded-md text-slate-200 text-xs font-mono focus:outline-none focus:border-white/30"
                 />
               </div>
 
               <button
                 onClick={handleAddGatewayOutage}
-                className="ml-auto h-7 px-2 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                className="ml-auto h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3.5 h-3.5" />
                 <span>Добавить</span>
               </button>
             </div>
