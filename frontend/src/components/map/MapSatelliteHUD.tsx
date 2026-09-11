@@ -1,5 +1,4 @@
 import React from 'react'
-import { Crosshair, ZapOff } from 'lucide-react'
 import type { SatelliteSnapshot } from '../../types/scenario'
 
 export interface MapSatelliteHUDProps {
@@ -86,23 +85,13 @@ export const MapSatelliteHUD: React.FC<MapSatelliteHUDProps> = ({
       <div className="mt-2 pt-2 border-t border-zinc-800">
         <button
           onClick={() => onToggleFailure(satellite.id)}
-          className={`w-full h-7 px-2 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
+          className={`w-full h-7 px-2 rounded-md text-xs font-mono font-medium flex items-center justify-center transition-all cursor-pointer border ${
             satellite.failed
               ? 'bg-emerald-600/30 hover:bg-emerald-600/50 border-emerald-500/40 text-emerald-200'
               : 'bg-white/5 hover:bg-rose-950/40 border-zinc-800 hover:border-rose-800/50 text-zinc-300 hover:text-rose-300'
           }`}
         >
-          {satellite.failed ? (
-            <>
-              <Crosshair className="w-3.5 h-3.5" />
-              <span>Восстановить связь</span>
-            </>
-          ) : (
-            <>
-              <ZapOff className="w-3.5 h-3.5" />
-              <span>Имитировать отказ КА</span>
-            </>
-          )}
+          {satellite.failed ? 'Восстановить связь' : 'Имитировать отказ КА'}
         </button>
       </div>
     </div>
