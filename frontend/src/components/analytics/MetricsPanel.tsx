@@ -230,17 +230,20 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               )}
             </div>
           ) : (
-            <div className="bg-rose-950/20 border border-rose-900/40 p-2 rounded-md space-y-1">
-              <div className="text-rose-400 font-medium text-xs">
-                Маршрут разорван
+            <div className="rounded border border-rose-500/25 bg-rose-500/[0.03] p-2 flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
+                <span className="text-rose-400 font-medium text-xs">
+                  Маршрут разорван
+                </span>
+                <span className="text-zinc-600 text-xs">/</span>
+                <span className="text-zinc-300 text-xs font-medium">
+                  {diagnosis.title}
+                </span>
               </div>
-              <div className="text-[11px] text-zinc-300">
-                <span className="text-rose-400 font-medium">Причина: </span>
-                {diagnosis.title}
-              </div>
-              <div className="text-[10px] text-zinc-400 bg-black/40 p-1.5 rounded">
-                <span className="text-sky-300 font-medium">Рекомендация: </span>
-                {diagnosis.recommendation}
+              <div className="text-[11px] text-zinc-400 leading-snug pl-3.5">
+                <span className="text-zinc-500">Рекомендация: </span>
+                <span>{diagnosis.recommendation}</span>
               </div>
             </div>
           )}
