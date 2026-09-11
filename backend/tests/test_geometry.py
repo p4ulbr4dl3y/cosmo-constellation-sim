@@ -1,12 +1,16 @@
-import json
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Any
 import numpy as np
 import pytest
 
 from app.core.geometry import compute_positions, snapshot as app_snapshot
 
+pytestmark = pytest.mark.unit
 
-def get_ref_geometry():
+
+def get_ref_geometry() -> Any:
     import sys
 
     candidates = [
@@ -29,27 +33,10 @@ def get_ref_geometry():
     raise FileNotFoundError("Reference geometry module not found")
 
 
-def get_preset_path(name: str) -> Path:
-    candidates = [
-        Path.cwd() / "data" / name,
-        Path.cwd().parent / "data" / name,
-        Path(__file__).resolve().parents[2] / "data" / name,
-        Path(__file__).resolve().parents[1] / "data" / name,
-        Path.cwd() / "Данные" / name,
-        Path.cwd().parent / "Данные" / name,
-        Path(__file__).resolve().parents[2] / "Данные" / name,
-        Path(__file__).resolve().parents[1] / "Данные" / name,
-    ]
-    for c in candidates:
-        if c.exists():
-            return c
-    raise FileNotFoundError(f"Preset {name} not found")
-
-
-def test_positions_exact_match():
+@pytest.mark.unit
+def test_positions_exact_match(baseline_scenario_data: dict[str, Any]) -> None:
     ref = get_ref_geometry()
-    path = get_preset_path("01_full_constellation.json")
-    scenario = json.loads(path.read_text(encoding="utf-8"))
+    scenario = baseline_scenario_data
 
     for t_s in [0.0, 120.0, 3600.0, 43200.0, 86280.0]:
         ref_ids, ref_xyz, ref_fixed = ref.positions(scenario, t_s)
@@ -60,10 +47,10 @@ def test_positions_exact_match():
         np.testing.assert_allclose(ref_fixed, app_fixed, rtol=1e-12, atol=1e-10)
 
 
-def test_snapshot_exact_match():
+@pytest.mark.unit
+def test_snapshot_exact_match(baseline_scenario_data: dict[str, Any]) -> None:
     ref = get_ref_geometry()
-    path = get_preset_path("01_full_constellation.json")
-    scenario = json.loads(path.read_text(encoding="utf-8"))
+    scenario = baseline_scenario_data
 
     for t_s in [0.0, 1200.0, 86280.0]:
         ref_snap = ref.snapshot(scenario, t_s)

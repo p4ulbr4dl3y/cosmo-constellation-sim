@@ -27,3 +27,11 @@ target-version = "py312"
 select = ["E", "F", "W"]
 ignore = ["E501"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration/E2E tests",
+]
+addopts = "--cov=app --cov-report=term --cov-fail-under=95"
+

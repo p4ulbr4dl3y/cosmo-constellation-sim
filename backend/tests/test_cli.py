@@ -10,8 +10,12 @@ from unittest.mock import patch
 import pytest
 
 from app.cli import main, print_table, process_scenario
+from tests.conftest import resolve_preset_path
+
+pytestmark = pytest.mark.unit
 
 
+@pytest.mark.unit
 def test_cli_help() -> None:
     res = subprocess.run(
         [sys.executable, "-m", "app.cli", "--help"],
@@ -22,6 +26,7 @@ def test_cli_help() -> None:
     assert "Cosmo Constellation Simulator CLI" in res.stdout
 
 
+@pytest.mark.unit
 def test_cli_all_scenarios() -> None:
     res = subprocess.run(
         [sys.executable, "-m", "app.cli", "--all"],
@@ -34,11 +39,9 @@ def test_cli_all_scenarios() -> None:
     assert "02_first_launch.json" in res.stdout
 
 
+@pytest.mark.unit
 def test_cli_single_scenario_export(tmp_path: Path) -> None:
-    data_dir = Path(__file__).resolve().parents[2] / "data"
-    if not data_dir.exists():
-        data_dir = Path(__file__).resolve().parents[2] / "Данные"
-    sc_file = data_dir / "01_full_constellation.json"
+    sc_file = resolve_preset_path("01_full_constellation.json")
     out_file = tmp_path / "result.json"
 
     res = subprocess.run(
@@ -51,6 +54,7 @@ def test_cli_single_scenario_export(tmp_path: Path) -> None:
     assert '"schema_version": "cosmo-A-result-1.0"' in out_file.read_text(encoding="utf-8")
 
 
+@pytest.mark.unit
 def test_cli_main_in_process_no_args(capsys: pytest.CaptureFixture[str]) -> None:
     with patch.object(sys, "argv", ["app.cli"]):
         with pytest.raises(SystemExit) as exc_info:
@@ -58,6 +62,7 @@ def test_cli_main_in_process_no_args(capsys: pytest.CaptureFixture[str]) -> None
         assert exc_info.value.code == 1
 
 
+@pytest.mark.unit
 def test_cli_main_in_process_all() -> None:
     with patch.object(sys, "argv", ["app.cli", "--all", "--metric", "hops"]):
         with pytest.raises(SystemExit) as exc_info:
@@ -65,6 +70,7 @@ def test_cli_main_in_process_all() -> None:
         assert exc_info.value.code == 0
 
 
+@pytest.mark.unit
 def test_cli_main_in_process_all_missing_dir() -> None:
     with patch("app.cli.Path.exists", return_value=False):
         with patch.object(sys, "argv", ["app.cli", "--all"]):
@@ -73,6 +79,7 @@ def test_cli_main_in_process_all_missing_dir() -> None:
             assert exc_info.value.code == 1
 
 
+@pytest.mark.unit
 def test_cli_main_in_process_all_no_json(tmp_path: Path) -> None:
     empty_data = tmp_path / "data"
     empty_data.mkdir()
@@ -86,9 +93,9 @@ def test_cli_main_in_process_all_no_json(tmp_path: Path) -> None:
             assert exc_info.value.code == 1
 
 
+@pytest.mark.unit
 def test_cli_main_in_process_single(tmp_path: Path) -> None:
-    data_dir = Path(__file__).resolve().parents[2] / "data"
-    sc_file = data_dir / "01_full_constellation.json"
+    sc_file = resolve_preset_path("01_full_constellation.json")
     out_file = tmp_path / "out.json"
 
     with patch.object(
@@ -100,9 +107,9 @@ def test_cli_main_in_process_single(tmp_path: Path) -> None:
         assert out_file.exists()
 
 
+@pytest.mark.unit
 def test_cli_main_in_process_single_fail() -> None:
-    data_dir = Path(__file__).resolve().parents[2] / "data"
-    sc_file = data_dir / "02_first_launch.json"
+    sc_file = resolve_preset_path("02_first_launch.json")
 
     with patch.object(sys, "argv", ["app.cli", "-s", str(sc_file)]):
         with pytest.raises(SystemExit) as exc_info:
@@ -110,22 +117,26 @@ def test_cli_main_in_process_single_fail() -> None:
         assert exc_info.value.code == 1
 
 
+@pytest.mark.unit
 def test_process_scenario_nonexistent_file(tmp_path: Path) -> None:
     assert process_scenario(tmp_path / "non_existent.json") is False
 
 
+@pytest.mark.unit
 def test_process_scenario_invalid_json(tmp_path: Path) -> None:
     bad_file = tmp_path / "bad.json"
     bad_file.write_text("{not: valid json", encoding="utf-8")
     assert process_scenario(bad_file) is False
 
 
+@pytest.mark.unit
 def test_process_scenario_validation_error(tmp_path: Path) -> None:
     val_file = tmp_path / "invalid_scenario.json"
     val_file.write_text(json.dumps({"schema_version": "wrong"}), encoding="utf-8")
     assert process_scenario(val_file) is False
 
 
+@pytest.mark.unit
 def test_print_table_all_failures() -> None:
     res: dict[str, Any] = {
         "total_steps": 10,
@@ -149,5 +160,4 @@ def test_print_table_all_failures() -> None:
             "all_meet_target": False,
         },
     }
-    # Call print_table directly to verify failure breakdown print branches
     print_table("Test_Failures", res, target_sla=0.9)

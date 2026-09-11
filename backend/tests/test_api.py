@@ -1,38 +1,34 @@
+from __future__ import annotations
+
+import copy
 import json
 from pathlib import Path
+from typing import Any
+from unittest.mock import patch
+
 from fastapi.testclient import TestClient
+import pytest
 
-from app.main import app
+from tests.conftest import resolve_preset_path
 
-client = TestClient(app)
-
-
-def get_preset_scenario(name: str = "01_full_constellation.json") -> dict:
-    candidates = [
-        Path.cwd() / "data" / name,
-        Path.cwd().parent / "data" / name,
-        Path(__file__).resolve().parents[2] / "data" / name,
-        Path(__file__).resolve().parents[1] / "data" / name,
-        Path.cwd() / "Данные" / name,
-        Path.cwd().parent / "Данные" / name,
-        Path(__file__).resolve().parents[2] / "Данные" / name,
-        Path(__file__).resolve().parents[1] / "Данные" / name,
-    ]
-    for c in candidates:
-        if c.exists():
-            return json.loads(c.read_text(encoding="utf-8"))
-    raise FileNotFoundError(f"Preset {name} not found")
+pytestmark = pytest.mark.unit
 
 
-def test_api_health():
-    res = client.get("/api/health")
+def get_preset_scenario(name: str = "01_full_constellation.json") -> dict[str, Any]:
+    return json.loads(resolve_preset_path(name).read_text(encoding="utf-8"))
+
+
+@pytest.mark.unit
+def test_api_health(api_client: TestClient) -> None:
+    res = api_client.get("/api/health")
     assert res.status_code == 200
     data = res.json()
     assert data["status"] == "ok"
 
 
-def test_api_get_presets():
-    res = client.get("/api/presets")
+@pytest.mark.unit
+def test_api_get_presets(api_client: TestClient) -> None:
+    res = api_client.get("/api/presets")
     assert res.status_code == 200
     presets = res.json()
     assert len(presets) >= 4
@@ -40,38 +36,43 @@ def test_api_get_presets():
     assert "01_full_constellation" in ids
 
 
-def test_api_get_preset_by_name():
-    res = client.get("/api/presets/01_full_constellation")
+@pytest.mark.unit
+def test_api_get_preset_by_name(api_client: TestClient) -> None:
+    res = api_client.get("/api/presets/01_full_constellation")
     assert res.status_code == 200
     data = res.json()
     assert data["schema_version"] == "cosmo-A-1.0"
 
 
-def test_api_get_preset_not_found():
-    res = client.get("/api/presets/not_exist")
+@pytest.mark.unit
+def test_api_get_preset_not_found(api_client: TestClient) -> None:
+    res = api_client.get("/api/presets/not_exist")
     assert res.status_code == 404
 
 
-def test_api_validate_valid():
-    scenario = get_preset_scenario()
-    res = client.post("/api/validate", json=scenario)
+@pytest.mark.unit
+def test_api_validate_valid(api_client: TestClient, baseline_scenario_data: dict[str, Any]) -> None:
+    res = api_client.post("/api/validate", json=baseline_scenario_data)
     assert res.status_code == 200
     assert res.json() == {"valid": True, "errors": [], "warnings": []}
 
 
-def test_api_validate_invalid():
-    scenario = get_preset_scenario()
+@pytest.mark.unit
+def test_api_validate_invalid(
+    api_client: TestClient, baseline_scenario_data: dict[str, Any]
+) -> None:
+    scenario = copy.deepcopy(baseline_scenario_data)
     scenario["schema_version"] = "bad"
-    res = client.post("/api/validate", json=scenario)
+    res = api_client.post("/api/validate", json=scenario)
     assert res.status_code == 200
     body = res.json()
     assert body["valid"] is False
     assert len(body["errors"]) > 0
 
 
-def test_api_snapshot():
-    scenario = get_preset_scenario()
-    res = client.post("/api/snapshot", json={"scenario": scenario, "t_s": 0.0})
+@pytest.mark.unit
+def test_api_snapshot(api_client: TestClient, baseline_scenario_data: dict[str, Any]) -> None:
+    res = api_client.post("/api/snapshot", json={"scenario": baseline_scenario_data, "t_s": 0.0})
     assert res.status_code == 200
     body = res.json()
     assert body["t_s"] == 0.0
@@ -83,10 +84,10 @@ def test_api_snapshot():
     assert body["client_routes"]["C65"]["status"] == "ok"
 
 
-def test_api_snapshot_outage():
+@pytest.mark.unit
+def test_api_snapshot_outage(api_client: TestClient) -> None:
     scenario = get_preset_scenario("02_first_launch.json")
-    # At t_s = 0.0, first launch has client outages
-    res = client.post("/api/snapshot", json={"scenario": scenario, "t_s": 0.0})
+    res = api_client.post("/api/snapshot", json={"scenario": scenario, "t_s": 0.0})
     assert res.status_code == 200
     body = res.json()
     outage_routes = [r for r in body["client_routes"].values() if r["status"] == "outage"]
@@ -94,12 +95,12 @@ def test_api_snapshot_outage():
     assert outage_routes[0]["failure_code"] is not None
 
 
-def test_api_simulate():
-    scenario = get_preset_scenario()
-    res = client.post(
+@pytest.mark.unit
+def test_api_simulate(api_client: TestClient, baseline_scenario_data: dict[str, Any]) -> None:
+    res = api_client.post(
         "/api/simulate",
         json={
-            "scenario": scenario,
+            "scenario": baseline_scenario_data,
             "routing_metric": "hops",
             "include_timeline": False,
         },
@@ -111,9 +112,11 @@ def test_api_simulate():
     assert body["summary"]["all_meet_target"] is True
 
 
-def test_api_export():
-    scenario = get_preset_scenario()
-    res = client.post("/api/export", json={"scenario": scenario, "routing_metric": "hops"})
+@pytest.mark.unit
+def test_api_export(api_client: TestClient, baseline_scenario_data: dict[str, Any]) -> None:
+    res = api_client.post(
+        "/api/export", json={"scenario": baseline_scenario_data, "routing_metric": "hops"}
+    )
     assert res.status_code == 200
     body = res.json()
     assert body["schema_version"] == "cosmo-A-result-1.0"
@@ -121,12 +124,12 @@ def test_api_export():
     assert "routes" in body
 
 
-def test_api_compare():
-    s1 = get_preset_scenario("01_full_constellation.json")
+@pytest.mark.unit
+def test_api_compare(api_client: TestClient, baseline_scenario_data: dict[str, Any]) -> None:
     s2 = get_preset_scenario("02_first_launch.json")
-    res = client.post(
+    res = api_client.post(
         "/api/compare",
-        json={"scenario_a": s1, "scenario_b": s2, "routing_metric": "hops"},
+        json={"scenario_a": baseline_scenario_data, "scenario_b": s2, "routing_metric": "hops"},
     )
     assert res.status_code == 200
     body = res.json()
@@ -135,8 +138,9 @@ def test_api_compare():
     assert "client_comparison" in body
 
 
-def test_api_recommendations():
-    res = client.get("/api/recommendations")
+@pytest.mark.unit
+def test_api_recommendations(api_client: TestClient) -> None:
+    res = api_client.get("/api/recommendations")
     assert res.status_code == 200
     body = res.json()
     assert body["status"] == "success"
@@ -144,66 +148,80 @@ def test_api_recommendations():
     assert len(body["recommendations"]) > 0
 
 
-def test_api_report_export():
-    res = client.get("/api/report/export")
+@pytest.mark.unit
+def test_api_report_export(api_client: TestClient) -> None:
+    res = api_client.get("/api/report/export")
     assert res.status_code == 200
     body = res.json()
     assert body["format"] == "markdown"
     assert "markdown" in body
 
-    res_md = client.get("/api/report/export?format=markdown")
+    res_md = api_client.get("/api/report/export?format=markdown")
     assert res_md.status_code == 200
     assert "Инженерный отчет" in res_md.text
 
 
-def test_api_root():
-    res = client.get("/")
+@pytest.mark.unit
+def test_api_root(api_client: TestClient) -> None:
+    res = api_client.get("/")
     assert res.status_code == 200
     assert res.json()["service"] == "cosmo-constellation-backend"
 
 
-def test_api_compare_validation_errors():
-    s_valid = get_preset_scenario("01_full_constellation.json")
+@pytest.mark.unit
+def test_api_compare_validation_errors(
+    api_client: TestClient, baseline_scenario_data: dict[str, Any]
+) -> None:
     s_invalid = {"schema_version": "bad"}
 
-    res_a = client.post(
+    res_a = api_client.post(
         "/api/compare",
-        json={"scenario_a": s_invalid, "scenario_b": s_valid, "routing_metric": "hops"},
+        json={
+            "scenario_a": s_invalid,
+            "scenario_b": baseline_scenario_data,
+            "routing_metric": "hops",
+        },
     )
     assert res_a.status_code == 422
     assert "Сценарий A содержит ошибки валидации" in res_a.json()["detail"]["message"]
 
-    res_b = client.post(
+    res_b = api_client.post(
         "/api/compare",
-        json={"scenario_a": s_valid, "scenario_b": s_invalid, "routing_metric": "hops"},
+        json={
+            "scenario_a": baseline_scenario_data,
+            "scenario_b": s_invalid,
+            "routing_metric": "hops",
+        },
     )
     assert res_b.status_code == 422
     assert "Сценарий B содержит ошибки валидации" in res_b.json()["detail"]["message"]
 
 
-def test_api_simulate_and_export_validation_errors():
+@pytest.mark.unit
+def test_api_simulate_and_export_validation_errors(api_client: TestClient) -> None:
     s_invalid = {"schema_version": "bad"}
 
-    res_sim = client.post("/api/simulate", json={"scenario": s_invalid})
+    res_sim = api_client.post("/api/simulate", json={"scenario": s_invalid})
     assert res_sim.status_code == 422
 
-    res_snap = client.post("/api/snapshot", json={"scenario": s_invalid, "t_s": 0.0})
+    res_snap = api_client.post("/api/snapshot", json={"scenario": s_invalid, "t_s": 0.0})
     assert res_snap.status_code == 422
 
-    res_exp = client.post("/api/export", json={"scenario": s_invalid})
+    res_exp = api_client.post("/api/export", json={"scenario": s_invalid})
     assert res_exp.status_code == 422
 
 
-def test_api_report_export_fallback_and_preset_errors(tmp_path: Path):
-    from unittest.mock import patch
-
+@pytest.mark.unit
+def test_api_report_export_fallback_and_preset_errors(
+    api_client: TestClient, tmp_path: Path
+) -> None:
     with patch("app.api.v1.analysis.find_recommendations_doc", return_value=None):
-        res = client.get("/api/report/export")
+        res = api_client.get("/api/report/export")
         assert res.status_code == 200
         assert "SLA: 98.10%" in res.json()["markdown"]
 
     with patch("app.api.v1.presets.find_data_dir", return_value=tmp_path / "empty_nonexistent"):
-        res = client.get("/api/presets")
+        res = api_client.get("/api/presets")
         assert res.status_code == 200
         assert res.json() == []
 
@@ -213,10 +231,10 @@ def test_api_report_export_fallback_and_preset_errors(tmp_path: Path):
     (bad_dir / "corrupted.json").write_text("invalid json", encoding="utf-8")
     with patch("app.api.v1.presets.find_data_dir", return_value=bad_dir):
         # get_presets skips corrupt files
-        res_list = client.get("/api/presets")
+        res_list = api_client.get("/api/presets")
         assert res_list.status_code == 200
         assert res_list.json() == []
 
         # get_preset returns 500
-        res_single = client.get("/api/presets/corrupted")
+        res_single = api_client.get("/api/presets/corrupted")
         assert res_single.status_code == 500

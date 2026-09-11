@@ -1,31 +1,35 @@
+from __future__ import annotations
+
+import copy
 import json
-from pathlib import Path
+from typing import Any
+
+import pytest
 
 from app.core.compare import compare_scenarios
 from app.core.export import export_result
+from app.core.geometry import finite
+from app.core.routing import (
+    FAILURE_REASON_GATEWAY_OFFLINE,
+    FAILURE_REASON_ISL_DISCONNECTED,
+    FAILURE_REASON_NO_CLIENT_SAT,
+    FAILURE_REASON_NO_GW_SAT,
+    classify_failure,
+    find_route,
+)
 from app.core.simulator import run_simulation
+from tests.conftest import resolve_preset_path
+
+pytestmark = pytest.mark.unit
 
 
-def get_preset_path(name: str) -> Path:
-    candidates = [
-        Path.cwd() / "data" / name,
-        Path.cwd().parent / "data" / name,
-        Path(__file__).resolve().parents[2] / "data" / name,
-        Path(__file__).resolve().parents[1] / "data" / name,
-        Path.cwd() / "Данные" / name,
-        Path.cwd().parent / "Данные" / name,
-        Path(__file__).resolve().parents[2] / "Данные" / name,
-        Path(__file__).resolve().parents[1] / "Данные" / name,
-    ]
-    for c in candidates:
-        if c.exists():
-            return c
-    raise FileNotFoundError(f"Preset {name} not found")
+def load_preset(name: str) -> dict[str, Any]:
+    return json.loads(resolve_preset_path(name).read_text(encoding="utf-8"))
 
 
-def test_simulate_preset_01_full():
-    scenario = json.loads(get_preset_path("01_full_constellation.json").read_text(encoding="utf-8"))
-    res = run_simulation(scenario, metric="hops", include_timeline=True)
+@pytest.mark.unit
+def test_simulate_preset_01_full(baseline_scenario_data: dict[str, Any]) -> None:
+    res = run_simulation(baseline_scenario_data, metric="hops", include_timeline=True)
 
     assert res["total_steps"] == 720
     assert res["summary"]["all_meet_target"] is True
@@ -40,8 +44,9 @@ def test_simulate_preset_01_full():
         assert len(m["timeline"]) == 720
 
 
-def test_simulate_preset_02_first_launch():
-    scenario = json.loads(get_preset_path("02_first_launch.json").read_text(encoding="utf-8"))
+@pytest.mark.unit
+def test_simulate_preset_02_first_launch() -> None:
+    scenario = load_preset("02_first_launch.json")
     res = run_simulation(scenario, metric="hops", include_timeline=False)
 
     assert res["total_steps"] == 720
@@ -54,8 +59,9 @@ def test_simulate_preset_02_first_launch():
         assert m["max_outage_s"] > 10000
 
 
-def test_simulate_preset_03_satellite_outages():
-    scenario = json.loads(get_preset_path("03_satellite_outages.json").read_text(encoding="utf-8"))
+@pytest.mark.unit
+def test_simulate_preset_03_satellite_outages() -> None:
+    scenario = load_preset("03_satellite_outages.json")
     res = run_simulation(scenario, metric="hops", include_timeline=False)
 
     assert res["total_steps"] == 720
@@ -64,8 +70,9 @@ def test_simulate_preset_03_satellite_outages():
         assert m["failure_breakdown"]["isl_disconnected"] > 0
 
 
-def test_simulate_preset_04_link_range():
-    scenario = json.loads(get_preset_path("04_link_range.json").read_text(encoding="utf-8"))
+@pytest.mark.unit
+def test_simulate_preset_04_link_range() -> None:
+    scenario = load_preset("04_link_range.json")
     res = run_simulation(scenario, metric="hops", include_timeline=False)
 
     assert res["total_steps"] == 720
@@ -75,9 +82,9 @@ def test_simulate_preset_04_link_range():
         assert m["failure_breakdown"]["isl_disconnected"] > 100
 
 
-def test_export_format():
-    scenario = json.loads(get_preset_path("01_full_constellation.json").read_text(encoding="utf-8"))
-    exported = export_result(scenario, metric="hops")
+@pytest.mark.unit
+def test_export_format(baseline_scenario_data: dict[str, Any]) -> None:
+    exported = export_result(baseline_scenario_data, metric="hops")
 
     assert exported["schema_version"] == "cosmo-A-result-1.0"
     assert "effective_scenario" in exported
@@ -91,31 +98,32 @@ def test_export_format():
     assert isinstance(first_route["path"], list)
 
 
-def test_compare_presets():
-    s1 = json.loads(get_preset_path("01_full_constellation.json").read_text(encoding="utf-8"))
-    s2 = json.loads(get_preset_path("02_first_launch.json").read_text(encoding="utf-8"))
+@pytest.mark.unit
+def test_compare_presets(baseline_scenario_data: dict[str, Any]) -> None:
+    s2 = load_preset("02_first_launch.json")
 
-    comp = compare_scenarios(s1, s2, metric="hops")
+    comp = compare_scenarios(baseline_scenario_data, s2, metric="hops")
     assert comp["summary"]["delta_average_availability_pct"] < -50.0
     assert any(d["field"] == "design.launch_stage" for d in comp["parameter_differences"])
 
 
-def test_compare_scenarios_branches():
-    s1 = json.loads(get_preset_path("01_full_constellation.json").read_text(encoding="utf-8"))
-    s2 = json.loads(get_preset_path("01_full_constellation.json").read_text(encoding="utf-8"))
+@pytest.mark.unit
+def test_compare_scenarios_branches(baseline_scenario_data: dict[str, Any]) -> None:
+    s1 = baseline_scenario_data
+    s2 = copy.deepcopy(s1)
 
     # Identical scenarios (delta == 0)
     comp_same = compare_scenarios(s1, s2, metric="hops")
     assert "Средняя доступность вариантов идентична." in comp_same["summary"]["recommendation"]
 
     # B beats A (s2 is full, s1 is first launch)
-    s_first = json.loads(get_preset_path("02_first_launch.json").read_text(encoding="utf-8"))
+    s_first = load_preset("02_first_launch.json")
     comp_better = compare_scenarios(s_first, s1, metric="hops")
     assert "превосходит вариант A" in comp_better["summary"]["recommendation"]
     assert "все пункты вышли на целевой уровень" in comp_better["summary"]["recommendation"]
 
     # Diff parameters branches: diff environment key, plane parameter, sat count, failures, gateway outages
-    s_mod = json.loads(json.dumps(s1))
+    s_mod = copy.deepcopy(s1)
     s_mod["environment"]["isl_range_km"] = 4000.0
     s_mod["design"]["planes"][0]["raan_deg"] = 10.0
     s_mod["design"]["satellites"].pop()
@@ -133,17 +141,8 @@ def test_compare_scenarios_branches():
     assert "gateway_outages_count" in fields
 
 
-def test_routing_classify_failure_and_direct_edge_cases():
-    from app.core.routing import (
-        classify_failure,
-        find_route,
-        FAILURE_REASON_NO_CLIENT_SAT,
-        FAILURE_REASON_GATEWAY_OFFLINE,
-        FAILURE_REASON_NO_GW_SAT,
-        FAILURE_REASON_ISL_DISCONNECTED,
-    )
-    from app.core.geometry import finite
-
+@pytest.mark.unit
+def test_routing_classify_failure_and_direct_edge_cases() -> None:
     # geometry finite helper
     assert finite(123.45) is True
     assert finite(True) is False

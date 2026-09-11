@@ -3,10 +3,15 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
+import sys
 
-from app.core.geometry import ground_position, snapshot
-from app.core.routing import build_adjacency, classify_failure, find_route
-from app.core.simulator import run_simulation
+backend_dir = Path(__file__).resolve().parents[1]
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+
+from app.core.geometry import ground_position, snapshot  # noqa: E402
+from app.core.routing import build_adjacency, classify_failure, find_route  # noqa: E402
+from app.core.simulator import run_simulation  # noqa: E402
 
 
 def main() -> None:
