@@ -1,17 +1,4 @@
 import React from 'react'
-import {
-  ShieldAlert,
-  AlertTriangle,
-  Lightbulb,
-  Radio,
-  Satellite,
-  Compass,
-  ArrowRight,
-  ExternalLink,
-  Layers,
-  Activity,
-  Cpu,
-} from 'lucide-react'
 
 export const ReportView: React.FC = () => {
   return (
@@ -19,15 +6,14 @@ export const ReportView: React.FC = () => {
       {/* Action Header */}
       <div className="bg-[#0c1017] px-2.5 sm:px-3 py-2 rounded-xl border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-bold text-slate-200 uppercase tracking-wider text-xs flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="font-bold text-slate-200 uppercase tracking-wider text-xs">
             АНАЛИТИКА УСТОЙЧИВОСТИ И ИНЖЕНЕРНЫЙ ОТЧЕТ
           </span>
           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border bg-cyan-500/10 border-cyan-500/30 text-cyan-300 hidden sm:inline-flex">
             КРИТЕРИИ 1–3
           </span>
           <span className="text-[10px] text-slate-400 hidden md:inline">
-            // Обоснование группировки 48 КА, этапы развертывания и SLA
+            // 48 КА · 3 плоскости · i=87° · h=550 км
           </span>
         </div>
 
@@ -41,11 +27,10 @@ export const ReportView: React.FC = () => {
             href="https://github.com/p4ulbr4dl3y/cosmo-constellation-sim/blob/main/docs/RECOMMENDATIONS.md"
             target="_blank"
             rel="noreferrer"
-            className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-1 transition-colors cursor-pointer"
             title="Открыть подробный отчет в docs/"
           >
             <span>docs/ ↗</span>
-            <ExternalLink className="w-3 h-3 text-slate-400" />
           </a>
         </div>
       </div>
@@ -55,8 +40,7 @@ export const ReportView: React.FC = () => {
         {/* Section 1: Launch Stages Dynamics */}
         <div className="bg-[#0c1017] p-3 rounded-xl border border-white/10 flex flex-col gap-2">
           <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-            <span className="font-bold text-slate-200 uppercase tracking-wider text-xs flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="font-bold text-slate-200 uppercase tracking-wider text-xs">
               1. Динамика этапов развёртывания
             </span>
             <span className="text-[10px] text-slate-400 font-mono">720 шагов / 24 ч</span>
@@ -113,19 +97,17 @@ export const ReportView: React.FC = () => {
           </div>
 
           <div className="p-2 rounded-lg bg-white/[0.02] border border-white/[0.06] text-[11px] text-slate-300 leading-relaxed">
-            <span className="text-cyan-300 font-semibold uppercase">Орбитальная физика:</span> 1-я очередь (16 КА) создает внутриплоскостную цепь, но вращение Земли (15°/ч) уводит плоскость из видимости пунктов на 3–5 витков. Непрерывность в Арктике гарантируют только <span className="text-white font-semibold">3 плоскости с разнесением ΔΩ = 60°</span>.
+            <span className="text-cyan-300 font-semibold uppercase">Орбитальная физика:</span> 1-я очередь (16 КА) создает внутриплоскостную цепь, но суточное вращение Земли (15°/ч) уводит плоскость из видимости пунктов на 3–5 витков. Непрерывность в Арктике гарантируют только <span className="text-white font-semibold">3 плоскости с разнесением узлов ΔΩ = 60°</span>.
           </div>
         </div>
 
         {/* Section 2: Vulnerability Analysis */}
         <div className="bg-[#0c1017] p-3 rounded-xl border border-white/10 flex flex-col gap-2">
           <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-            <span className="font-bold text-slate-200 uppercase tracking-wider text-xs flex items-center gap-1.5">
-              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+            <span className="font-bold text-slate-200 uppercase tracking-wider text-xs">
               2. Анализ уязвимостей (Матрица рисков)
             </span>
-            <span className="text-[10px] font-mono text-amber-400 flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3" />
+            <span className="text-[10px] font-mono text-amber-400">
               3 ФАКТОРА РИСКА
             </span>
           </div>
@@ -172,8 +154,7 @@ export const ReportView: React.FC = () => {
         {/* Section 3: Recommendations */}
         <div className="bg-[#0c1017] p-3 rounded-xl border border-white/10 flex flex-col gap-2 lg:col-span-2">
           <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-            <span className="font-bold text-slate-200 uppercase tracking-wider text-xs flex items-center gap-1.5">
-              <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+            <span className="font-bold text-slate-200 uppercase tracking-wider text-xs">
               3. Обоснованные рекомендации по повышению устойчивости
             </span>
             <span className="text-[10px] font-mono text-emerald-400">ПРОЕКТНЫЙ ЭФФЕКТ: SLA &gt; 99.7%</span>
@@ -182,9 +163,8 @@ export const ReportView: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-1.5 text-emerald-400 font-semibold mb-1">
-                  <Radio className="w-3.5 h-3.5 shrink-0" />
-                  <span>Резервный шлюз</span>
+                <div className="text-emerald-400 font-semibold mb-1">
+                  Резервный шлюз
                 </div>
                 <p className="text-slate-400 text-[11px] leading-relaxed">
                   Размещение 2-го шлюза в восточном секторе (<span className="text-slate-200">Тикси 71.6°N</span> или <span className="text-slate-200">Анадырь 64.7°N</span>).
@@ -198,9 +178,8 @@ export const ReportView: React.FC = () => {
 
             <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-1.5 text-cyan-400 font-semibold mb-1">
-                  <Compass className="w-3.5 h-3.5 shrink-0" />
-                  <span>Порог ISL ≥ 2800 км</span>
+                <div className="text-cyan-400 font-semibold mb-1">
+                  Порог ISL ≥ 2800 км
                 </div>
                 <p className="text-slate-400 text-[11px] leading-relaxed">
                   Энергетический потенциал межспутникового линка радио/лазер не менее 2800 км.
@@ -214,9 +193,8 @@ export const ReportView: React.FC = () => {
 
             <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-1.5 text-indigo-400 font-semibold mb-1">
-                  <Satellite className="w-3.5 h-3.5 shrink-0" />
-                  <span>Фазировка Walker Delta</span>
+                <div className="text-indigo-400 font-semibold mb-1">
+                  Фазировка Walker Delta
                 </div>
                 <p className="text-slate-400 text-[11px] leading-relaxed">
                   Сдвиг истинной аномалии между соседними плоскостями на <span className="text-slate-200">ΔM = 7.5°</span>.
@@ -230,9 +208,8 @@ export const ReportView: React.FC = () => {
 
             <div className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-1.5 text-amber-400 font-semibold mb-1">
-                  <ArrowRight className="w-3.5 h-3.5 shrink-0" />
-                  <span>Кольцевой Rerouting</span>
+                <div className="text-amber-400 font-semibold mb-1">
+                  Кольцевой Rerouting
                 </div>
                 <p className="text-slate-400 text-[11px] leading-relaxed">
                   Автоматическое замыкание трафика по кольцу плоскости при разрыве межплоскостного линка.
@@ -248,12 +225,9 @@ export const ReportView: React.FC = () => {
 
         {/* Section 4: Engineering Limitations */}
         <div className="bg-[#0c1017] p-3 rounded-xl border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 lg:col-span-2">
-          <div className="flex items-start sm:items-center gap-2">
-            <Cpu className="w-4 h-4 text-slate-400 shrink-0 mt-0.5 sm:mt-0" />
-            <div className="text-[11px] text-slate-400">
-              <span className="text-slate-200 font-semibold uppercase">Границы применимости модели:</span>{' '}
-              Оптимизировано для широт &gt; 60°N (Арктика). Базовый расчет: угол места θ ≥ 10°. При закрытом рельефе (θ ≥ 15°) доступность снижается на 1.4%.
-            </div>
+          <div className="text-[11px] text-slate-400">
+            <span className="text-slate-200 font-semibold uppercase">Границы применимости модели:</span>{' '}
+            Оптимизировано для широт &gt; 60°N (Арктика). Базовый расчет: угол места θ ≥ 10°. При закрытом рельефе (θ ≥ 15°) доступность снижается на 1.4%.
           </div>
           <div className="shrink-0 flex items-center gap-2">
             <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-2 py-1 rounded border border-white/10">
