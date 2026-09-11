@@ -161,7 +161,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
   }
 
   return (
-    <div className="p-2 bg-[#090b10] border border-white/10 rounded-xl flex flex-col gap-1.5 select-none font-mono">
+    <div className="p-2 bg-[#0c1017] border border-white/10 rounded-xl flex flex-col gap-1.5 select-none font-mono">
       {/* Top Row: Playback Controls & Time readout */}
       <div className="flex items-center justify-between gap-2">
         {/* Play / Step Buttons & Speed */}

@@ -420,7 +420,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                       className="text-slate-400 hover:text-rose-400 p-0.5 cursor-pointer"
                       title="Удалить"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))
@@ -475,7 +475,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                     className="flex items-center justify-between bg-[#080b11] px-2.5 py-1.5 rounded-lg border border-white/10 text-xs"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="px-1.5 py-0.2 rounded bg-white/10 text-slate-300 text-[10px] font-bold">
+                      <span className="px-1.5 py-0.5 rounded bg-white/10 text-slate-300 text-[10px] font-bold">
                         {o.gateway_id}
                       </span>
                       <span className="text-slate-300 text-[11px]">
@@ -490,7 +490,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                       className="text-slate-400 hover:text-rose-400 p-0.5 cursor-pointer"
                       title="Удалить"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))

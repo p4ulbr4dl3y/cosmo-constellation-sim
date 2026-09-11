@@ -228,7 +228,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     ctx.scale(dpr, dpr)
 
     // Background cosmic deep space
-    ctx.fillStyle = '#070a12'
+    ctx.fillStyle = '#07090e'
     ctx.fillRect(0, 0, width, height)
 
     // Draw subtle star dust
@@ -959,10 +959,10 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       {/* Minimal Map Header Toolbar */}
       <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#0c1017] px-1.5 py-1 rounded-md border border-white/10 font-mono text-[11px]">
         {/* 2D / 3D Mode Switcher */}
-        <div className="flex items-center bg-black/50 p-0.5 rounded border border-white/5">
+        <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10">
           <button
             onClick={() => setViewMode('2d')}
-            className={`px-2 py-0.5 font-bold rounded-xs transition-all cursor-pointer ${
+            className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
               viewMode === '2d'
                 ? 'bg-white/20 text-white'
                 : 'text-slate-400 hover:text-slate-200'
@@ -972,7 +972,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           </button>
           <button
             onClick={() => setViewMode('3d')}
-            className={`px-2 py-0.5 font-bold rounded-xs transition-all cursor-pointer ${
+            className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
               viewMode === '3d'
                 ? 'bg-white/20 text-white'
                 : 'text-slate-400 hover:text-slate-200'
@@ -988,7 +988,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         <button
           onClick={focusArctic}
           title="Сфокусировать 3D-глобус на Арктике"
-          className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
+          className="px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
         >
           Арктика
         </button>
@@ -996,11 +996,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         <div className="h-3 w-px bg-white/10 mx-0.5" />
 
         {/* Layer Toggles */}
-        <div className="flex items-center bg-black/50 p-0.5 rounded border border-white/5 gap-0.5">
+        <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10 gap-0.5">
           <button
             onClick={() => setShowIsl((v) => !v)}
             title="Межспутниковые линии (ISL)"
-            className={`px-2 py-0.5 rounded-xs transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               showIsl
                 ? 'bg-white/20 text-white font-medium'
                 : 'text-slate-400 hover:text-slate-200'
@@ -1012,7 +1012,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           <button
             onClick={() => setShowGroundLinks((v) => !v)}
             title="Линии Земля-Спутник (GSL)"
-            className={`px-2 py-0.5 rounded-xs transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               showGroundLinks
                 ? 'bg-white/20 text-white font-medium'
                 : 'text-slate-400 hover:text-slate-200'
@@ -1024,7 +1024,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           <button
             onClick={() => setShowLabels((v) => !v)}
             title="Номера спутников (ID)"
-            className={`px-2 py-0.5 rounded-xs transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               showLabels
                 ? 'bg-white/20 text-white font-medium'
                 : 'text-slate-400 hover:text-slate-200'
@@ -1036,7 +1036,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           <button
             onClick={() => setShowUnlaunched((v) => !v)}
             title="Спутники последующих этапов"
-            className={`px-2 py-0.5 rounded-xs transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               showUnlaunched
                 ? 'bg-white/20 text-white font-medium'
                 : 'text-slate-400 hover:text-slate-200'
@@ -1062,7 +1062,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           <span className="text-slate-400">P3</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
           <span className="text-slate-400">ОТКАЗ</span>
         </div>
       </div>
@@ -1089,7 +1089,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
               <span
                 className={`w-2 h-2 rounded-full ${
                   inspectedSat.failed
-                    ? 'bg-red-500'
+                    ? 'bg-rose-500'
                     : inspectedSat.active
                     ? 'bg-emerald-400'
                     : 'bg-slate-500'
@@ -1098,7 +1098,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
               <span className="font-bold text-xs tracking-wider text-white">
                 КА {inspectedSat.id}
               </span>
-              <span className="text-[10px] bg-black/40 text-slate-400 border border-white/10 px-1.5 py-0.2 rounded">
+              <span className="text-[10px] bg-black/40 text-slate-400 border border-white/10 px-1.5 py-0.5 rounded">
                 {inspectedSat.plane_id}
               </span>
             </div>
@@ -1116,7 +1116,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
               <span
                 className={
                   inspectedSat.failed
-                    ? 'text-red-400 font-bold'
+                    ? 'text-rose-400 font-bold'
                     : inspectedSat.active
                     ? 'text-emerald-400 font-semibold'
                     : 'text-slate-400'

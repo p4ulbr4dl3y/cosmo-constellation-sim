@@ -103,7 +103,7 @@ export const StatCard: React.FC<StatCardProps> = ({
               trend === 'up'
                 ? 'text-[#00f0ff]'
                 : trend === 'down'
-                ? 'text-red-400'
+                ? 'text-rose-400'
                 : 'text-slate-400'
             }`}
           >

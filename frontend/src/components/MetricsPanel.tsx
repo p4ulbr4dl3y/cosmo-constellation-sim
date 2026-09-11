@@ -231,7 +231,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
                     {!isLast && (
                       <div className="flex items-center text-slate-500">
-                        <ArrowRight className="w-2.5 h-2.5 text-slate-500" />
+                        <ArrowRight className="w-3 h-3 text-slate-500" />
                         <span className="text-[8px] mx-0.5 text-slate-400 font-mono">
                           {idx === 0 ? 'GSL' : idx === activeRoute.length - 2 ? 'GSL' : 'ISL'}
                         </span>
@@ -286,7 +286,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             />
             <StatCard
               variant="compact"
-              label="Max Gap (простой)"
+              label="Макс. перерыв (Max Gap)"
               value={`${Math.round(selectedMetrics.max_gap_s / 60)} мин`}
               sublabel={`макс. ${selectedMetrics.max_gap_s}с`}
             />
@@ -316,7 +316,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 <span className="text-[10px] text-slate-400">Партия #{primeSat.launch_batch}</span>
               </div>
               {primeSat.failed && (
-                <span className="text-rose-400 font-bold text-[10px] bg-rose-950/50 px-1.5 py-0.2 rounded border border-rose-800/40">
+                <span className="text-rose-400 font-bold text-[10px] bg-rose-950/50 px-1.5 py-0.5 rounded border border-rose-800/40">
                   ОТКАЗ
                 </span>
               )}

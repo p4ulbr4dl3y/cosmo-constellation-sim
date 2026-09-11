@@ -94,7 +94,7 @@ export const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <header className="h-11 shrink-0 bg-[#090b10] border-b border-white/10 px-3 flex items-center justify-between gap-2 select-none">
+    <header className="h-11 shrink-0 bg-[#0c1017] border-b border-white/10 px-3 flex items-center justify-between gap-2 select-none">
       {/* Brand */}
       <div className="flex items-center gap-2 shrink-0">
         <span className="text-xs font-bold tracking-wider text-slate-200 uppercase font-mono">
@@ -201,7 +201,7 @@ export const Header: React.FC<HeaderProps> = ({
           title="Экспортировать входной сценарий (cosmo-A-1.0)"
           className="h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <FileCode className="w-3 h-3 text-slate-400" />
+          <FileCode className="w-3.5 h-3.5 text-slate-400" />
           <span>Сценарий</span>
         </button>
 
@@ -211,7 +211,7 @@ export const Header: React.FC<HeaderProps> = ({
           title="Экспорт cosmo-A-result-1.0"
           className="h-7 px-2.5 rounded-md bg-white/15 hover:bg-white/20 border border-white/20 text-white text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <Download className="w-3 h-3 text-slate-200" />
+          <Download className="w-3.5 h-3.5 text-slate-200" />
           <span>Результат</span>
         </button>
       </div>

@@ -299,7 +299,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
                       {/* Row 2: Max Gap */}
                       <tr className="hover:bg-white/[0.02]">
-                        <td className="py-1.5 px-3 text-slate-400">Макс. перерыв</td>
+                        <td className="py-1.5 px-3 text-slate-400">Макс. перерыв (Max Gap)</td>
                         <td className="py-1.5 px-3 text-slate-300">
                           {formatDurationHuman(mA.max_gap_s)}
                         </td>
