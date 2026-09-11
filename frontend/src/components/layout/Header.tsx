@@ -1,10 +1,11 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import {
   Upload,
   Download,
   FileCode,
   RotateCcw,
   ChevronDown,
+  Check,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline } from '../../types/scenario'
 import { PRESET_SCENARIOS } from '../../data/presets'
@@ -19,7 +20,6 @@ interface HeaderProps {
   activeTab: 'monitor' | 'config' | 'compare' | 'report'
   setActiveTab: (tab: 'monitor' | 'config' | 'compare' | 'report') => void
   isModified: boolean
-  isBackendOnline?: boolean
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -31,9 +31,25 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   setActiveTab,
   isModified,
-  isBackendOnline = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [isPresetOpen, setIsPresetOpen] = useState(false)
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsPresetOpen(false)
+      }
+    }
+    if (isPresetOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isPresetOpen])
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -102,114 +118,117 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="h-11 shrink-0 bg-[#0c1017] border-b border-white/[0.08] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none overflow-x-auto scrollbar-none">
-      {/* Brand */}
+      {/* Navigation Tabs */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        <span className="text-xs font-bold tracking-wider text-slate-200 uppercase font-sans">
-          <span className="hidden sm:inline">Космохакатон</span>
-          <span className="sm:hidden text-sky-400">COSMO</span>
-        </span>
-        <span className="text-[10px] text-slate-500 font-mono hidden md:inline">
-          // LEO Sim
-        </span>
+        <div className="flex items-center bg-white/[0.03] p-0.5 rounded-lg border border-white/[0.08] text-xs font-sans shrink-0">
+          <button
+            onClick={() => setActiveTab('monitor')}
+            className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+              activeTab === 'monitor'
+                ? 'bg-white/12 text-white font-medium shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span>Мониторинг</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('config')}
+            className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+              activeTab === 'config'
+                ? 'bg-white/12 text-white font-medium shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span>Конфигурация</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('compare')}
+            className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+              activeTab === 'compare'
+                ? 'bg-white/12 text-white font-medium shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span className="hidden sm:inline">A/B Сравнение</span>
+            <span className="sm:hidden">A/B</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('report')}
+            className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+              activeTab === 'report'
+                ? 'bg-white/12 text-white font-medium shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <span className="hidden sm:inline">Аналитика & Рекомендации</span>
+            <span className="sm:hidden">Аналитика</span>
+          </button>
+        </div>
+
         {isModified && (
-          <span className="text-[10px] font-mono text-amber-400 flex items-center gap-1">
+          <span className="text-[10px] font-mono text-amber-400 flex items-center gap-1 shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
             <span className="hidden sm:inline">изменен</span>
           </span>
         )}
-        <span
-          className={`text-[10px] font-mono px-1.5 py-0.5 rounded border hidden lg:inline-flex items-center gap-1 ml-0.5 ${
-            isBackendOnline
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-              : 'bg-white/5 border-white/10 text-slate-400'
-          }`}
-          title={
-            isBackendOnline
-              ? 'FastAPI бэкенд подключен (/api/v1)'
-              : 'Автономный режим (TypeScript Web Engine)'
-          }
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${
-              isBackendOnline ? 'bg-emerald-400' : 'bg-slate-400'
-            }`}
-          />
-          {isBackendOnline ? 'API онлайн' : 'Автономный TS'}
-        </span>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="flex items-center bg-white/[0.03] p-0.5 rounded-lg border border-white/[0.08] text-xs font-sans shrink-0">
-        <button
-          onClick={() => setActiveTab('monitor')}
-          className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-            activeTab === 'monitor'
-              ? 'bg-white/12 text-white font-medium shadow-sm'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <span className="hidden sm:inline">Мониторинг</span>
-          <span className="sm:hidden">Обзор</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('config')}
-          className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-            activeTab === 'config'
-              ? 'bg-white/12 text-white font-medium shadow-sm'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <span className="hidden sm:inline">Конфигурация</span>
-          <span className="sm:hidden">Конфиг</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('compare')}
-          className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-            activeTab === 'compare'
-              ? 'bg-white/12 text-white font-medium shadow-sm'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <span className="hidden sm:inline">A/B Сравнение</span>
-          <span className="sm:hidden">A/B</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('report')}
-          className={`px-2 sm:px-3 py-1 rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap ${
-            activeTab === 'report'
-              ? 'bg-white/12 text-white font-medium shadow-sm'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <span className="hidden lg:inline">Аналитика & Рекомендации</span>
-          <span className="lg:hidden">Аналитика</span>
-        </button>
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-        {/* Preset dropdown */}
-        <div className="relative">
-          <select
-            value={
-              PRESET_SCENARIOS.find((p) => p.data.meta.id === currentScenario.meta.id)?.id || ''
-            }
-            onChange={(e) => {
-              const preset = PRESET_SCENARIOS.find((p) => p.id === e.target.value)
-              if (preset) onSelectPreset(preset.data)
-            }}
-            className="h-7 pl-2 pr-6 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs text-slate-200 font-sans rounded-md appearance-none focus:outline-none focus:border-white/30 transition-colors cursor-pointer max-w-[85px] xs:max-w-[120px] sm:max-w-[160px] md:max-w-[200px] truncate"
+        {/* Custom Preset Dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            type="button"
+            onClick={() => setIsPresetOpen(!isPresetOpen)}
+            className={`h-7 px-2 sm:px-2.5 bg-white/[0.04] hover:bg-white/[0.08] border ${
+              isPresetOpen ? 'border-cyan-500/40 bg-white/[0.08]' : 'border-white/[0.08]'
+            } text-xs text-slate-200 font-mono rounded-md flex items-center justify-between gap-1.5 transition-colors cursor-pointer max-w-[130px] sm:max-w-[180px] md:max-w-[220px]`}
           >
-            <option value="" disabled className="bg-[#0c1017] text-slate-400">
-              Пресеты...
-            </option>
-            {PRESET_SCENARIOS.map((p) => (
-              <option key={p.id} value={p.id} className="bg-[#0c1017] text-slate-200">
-                {p.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <span className="truncate text-[11px]">
+              {PRESET_SCENARIOS.find((p) => p.data.meta.id === currentScenario.meta.id)?.label || 'Пресеты...'}
+            </span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-150 ${
+                isPresetOpen ? 'rotate-180 text-white' : ''
+              }`}
+            />
+          </button>
+
+          {isPresetOpen && (
+            <div className="absolute right-0 top-full mt-1.5 w-64 bg-[#0c1017] border border-white/15 rounded-lg shadow-2xl py-1 z-50 backdrop-blur-md">
+              <div className="px-2.5 py-1 text-[10px] font-mono text-slate-500 uppercase tracking-wider border-b border-white/[0.06] mb-1">
+                Выберите сценарий
+              </div>
+              {PRESET_SCENARIOS.map((p) => {
+                const isSelected = p.data.meta.id === currentScenario.meta.id
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      onSelectPreset(p.data)
+                      setIsPresetOpen(false)
+                    }}
+                    className={`w-full text-left px-2.5 py-1.5 text-xs font-mono flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                      isSelected
+                        ? 'bg-white/[0.08] text-white font-medium'
+                        : 'text-slate-300 hover:text-white hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                          isSelected ? 'bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]' : 'bg-transparent'
+                        }`}
+                      />
+                      <span className="truncate text-[11px]">{p.label}</span>
+                    </div>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />}
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* Load JSON */}

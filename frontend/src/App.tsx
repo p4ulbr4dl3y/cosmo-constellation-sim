@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import type { Scenario } from './types/scenario'
 import { PRESET_SCENARIOS } from './data/presets'
 import { calculateSnapshot, calculateFullTimeline } from './lib/orbit'
@@ -28,24 +28,6 @@ export default function App() {
   // A/B Comparison scenarios
   const [variantA, setVariantA] = useState<Scenario | null>(PRESET_SCENARIOS[0].data)
   const [variantB, setVariantB] = useState<Scenario | null>(PRESET_SCENARIOS[1].data)
-
-  const [isBackendOnline, setIsBackendOnline] = useState<boolean>(false)
-
-  // Dual-engine detection: verify FastAPI backend availability
-  useEffect(() => {
-    fetch('/api/presets')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data && Array.isArray(data) && data.length > 0) {
-          setIsBackendOnline(true)
-        } else {
-          setIsBackendOnline(false)
-        }
-      })
-      .catch(() => {
-        setIsBackendOnline(false)
-      })
-  }, [])
 
   // Full day calculation for availability Gantt & SLA metrics
   const { timelines } = useMemo(() => {
@@ -124,7 +106,6 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isModified={isModified}
-        isBackendOnline={isBackendOnline}
       />
 
       {/* Main Content Area */}
