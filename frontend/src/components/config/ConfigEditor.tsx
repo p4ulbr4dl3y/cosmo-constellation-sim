@@ -172,10 +172,10 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
             size="sm"
             onClick={handleKillActiveRouteSat}
             disabled={activeRouteSats.length === 0}
-            className={`font-mono ${
+            className={`font-mono transition-colors ${
               activeRouteSats.length > 0
-                ? 'hover:bg-rose-950/40 hover:border-rose-800/50 hover:text-rose-300'
-                : ''
+                ? 'border-rose-500/30 text-rose-300 hover:bg-rose-500/15 hover:border-rose-500/60'
+                : 'opacity-50'
             }`}
           >
             <span>Отказ {activeRouteSats[0] || 'нет КА'} (4ч)</span>
@@ -259,17 +259,38 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
 
               <div>
                 <label className="text-zinc-400 text-[10px] block mb-1">
-                  Мин. угол места (°):
+                  Мин. угол места:
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="45"
-                  step="1"
-                  value={draft.environment.min_elevation_deg}
-                  onChange={(e) => handleEnvChange('min_elevation_deg', Number(e.target.value))}
-                  className="w-full bg-[#09090c] border border-white/10 rounded-md py-1 px-2 text-xs text-zinc-200 focus:outline-none focus:border-white/30"
-                />
+                <div className="flex items-center bg-[#09090c] border border-white/10 rounded-md overflow-hidden h-7 focus-within:border-cyan-400/40">
+                  <button
+                    type="button"
+                    onClick={() => handleEnvChange('min_elevation_deg', Math.max(0, draft.environment.min_elevation_deg - 1))}
+                    className="px-2.5 h-full text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer text-xs font-mono select-none"
+                    title="Уменьшить"
+                  >
+                    −
+                  </button>
+                  <div className="flex-1 flex items-center justify-center">
+                    <input
+                      type="number"
+                      min="0"
+                      max="45"
+                      step="1"
+                      value={draft.environment.min_elevation_deg}
+                      onChange={(e) => handleEnvChange('min_elevation_deg', Math.max(0, Math.min(45, Number(e.target.value))))}
+                      className="w-8 bg-transparent text-center text-xs font-mono font-bold text-cyan-300 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                    <span className="text-zinc-500 text-xs select-none font-mono">°</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleEnvChange('min_elevation_deg', Math.min(45, draft.environment.min_elevation_deg + 1))}
+                    className="px-2.5 h-full text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer text-xs font-mono select-none"
+                    title="Увеличить"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -363,21 +384,25 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 <ChevronDown className="w-3.5 h-3.5 text-zinc-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
 
-              <div className="flex items-center gap-1 text-xs">
-                <span className="text-zinc-400">С:</span>
-                <input
-                  type="time"
-                  value={secondsToTimeInputValue(newFailStart)}
-                  onChange={(e) => setNewFailStart(hhmmToSeconds(e.target.value))}
-                  className="h-7 px-1.5 bg-[#121215] border border-white/10 rounded-md text-zinc-200 text-xs font-mono focus:outline-none focus:border-white/30"
-                />
-                <span className="text-zinc-400">До:</span>
-                <input
-                  type="time"
-                  value={secondsToTimeInputValue(newFailEnd)}
-                  onChange={(e) => setNewFailEnd(hhmmToSeconds(e.target.value))}
-                  className="h-7 px-1.5 bg-[#121215] border border-white/10 rounded-md text-zinc-200 text-xs font-mono focus:outline-none focus:border-white/30"
-                />
+              <div className="flex items-center gap-1.5 text-xs">
+                <div className="flex items-center bg-[#121215] border border-white/10 rounded-md px-1.5 h-7 focus-within:border-cyan-400/40">
+                  <span className="text-zinc-500 text-[10px] mr-1.5 select-none font-mono">С</span>
+                  <input
+                    type="time"
+                    value={secondsToTimeInputValue(newFailStart)}
+                    onChange={(e) => setNewFailStart(hhmmToSeconds(e.target.value))}
+                    className="bg-transparent text-zinc-200 text-xs font-mono focus:outline-none"
+                  />
+                </div>
+                <div className="flex items-center bg-[#121215] border border-white/10 rounded-md px-1.5 h-7 focus-within:border-cyan-400/40">
+                  <span className="text-zinc-500 text-[10px] mr-1.5 select-none font-mono">ДО</span>
+                  <input
+                    type="time"
+                    value={secondsToTimeInputValue(newFailEnd)}
+                    onChange={(e) => setNewFailEnd(hhmmToSeconds(e.target.value))}
+                    className="bg-transparent text-zinc-200 text-xs font-mono focus:outline-none"
+                  />
+                </div>
               </div>
 
               <Button
@@ -385,7 +410,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleAddFailure}
-                className="ml-auto font-mono"
+                className="ml-auto font-mono hover:border-cyan-400/40 hover:text-cyan-300"
               >
                 <span>Добавить</span>
               </Button>
@@ -394,9 +419,10 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
             {/* Failures list */}
             <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-0.5">
               {draft.failures.length === 0 ? (
-                <span className="text-xs text-zinc-500 italic p-2 text-center">
-                  Нет активных отказов
-                </span>
+                <div className="flex flex-col items-center justify-center py-5 px-3 rounded-lg border border-dashed border-white/10 bg-[#09090c]/40 text-center">
+                  <span className="text-zinc-300 text-xs font-medium">Штатное функционирование КА</span>
+                  <span className="text-[10px] text-zinc-500 mt-0.5 font-mono">Активных отказов в симуляции нет</span>
+                </div>
               ) : (
                 draft.failures.map((f, idx) => (
                   <div
@@ -453,21 +479,25 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 </div>
               )}
 
-              <div className="flex items-center gap-1 text-xs">
-                <span className="text-zinc-400">С:</span>
-                <input
-                  type="time"
-                  value={secondsToTimeInputValue(newGwStart)}
-                  onChange={(e) => setNewGwStart(hhmmToSeconds(e.target.value))}
-                  className="h-7 px-1.5 bg-[#121215] border border-white/10 rounded-md text-zinc-200 text-xs font-mono focus:outline-none focus:border-white/30"
-                />
-                <span className="text-zinc-400">До:</span>
-                <input
-                  type="time"
-                  value={secondsToTimeInputValue(newGwEnd)}
-                  onChange={(e) => setNewGwEnd(hhmmToSeconds(e.target.value))}
-                  className="h-7 px-1.5 bg-[#121215] border border-white/10 rounded-md text-zinc-200 text-xs font-mono focus:outline-none focus:border-white/30"
-                />
+              <div className="flex items-center gap-1.5 text-xs">
+                <div className="flex items-center bg-[#121215] border border-white/10 rounded-md px-1.5 h-7 focus-within:border-cyan-400/40">
+                  <span className="text-zinc-500 text-[10px] mr-1.5 select-none font-mono">С</span>
+                  <input
+                    type="time"
+                    value={secondsToTimeInputValue(newGwStart)}
+                    onChange={(e) => setNewGwStart(hhmmToSeconds(e.target.value))}
+                    className="bg-transparent text-zinc-200 text-xs font-mono focus:outline-none"
+                  />
+                </div>
+                <div className="flex items-center bg-[#121215] border border-white/10 rounded-md px-1.5 h-7 focus-within:border-cyan-400/40">
+                  <span className="text-zinc-500 text-[10px] mr-1.5 select-none font-mono">ДО</span>
+                  <input
+                    type="time"
+                    value={secondsToTimeInputValue(newGwEnd)}
+                    onChange={(e) => setNewGwEnd(hhmmToSeconds(e.target.value))}
+                    className="bg-transparent text-zinc-200 text-xs font-mono focus:outline-none"
+                  />
+                </div>
               </div>
 
               <Button
@@ -475,7 +505,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleAddGatewayOutage}
-                className="ml-auto font-mono"
+                className="ml-auto font-mono hover:border-cyan-400/40 hover:text-cyan-300"
               >
                 <span>Добавить</span>
               </Button>
@@ -484,9 +514,10 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
             {/* Outages list */}
             <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-0.5">
               {draft.gateway_outages.length === 0 ? (
-                <span className="text-xs text-zinc-500 italic p-2 text-center">
-                  Шлюзы доступны 24/7 без окон обслуживания
-                </span>
+                <div className="flex flex-col items-center justify-center py-5 px-3 rounded-lg border border-dashed border-white/10 bg-[#09090c]/40 text-center">
+                  <span className="text-zinc-300 text-xs font-medium">Шлюзы доступны 24/7</span>
+                  <span className="text-[10px] text-zinc-500 mt-0.5 font-mono">Окна регламентного обслуживания не назначены</span>
+                </div>
               ) : (
                 draft.gateway_outages.map((o, idx) => (
                   <div
