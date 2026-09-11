@@ -72,13 +72,6 @@ export const MapSatelliteHUD: React.FC<MapSatelliteHUDProps> = ({
           <span className="text-zinc-400">Связи (ISL):</span>
           <span className="text-cyan-400 font-bold">{islDegree} линков</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-zinc-400">ECEF:</span>
-          <span className="text-[9px] text-zinc-400">
-            [{Math.round(satellite.x_km)}, {Math.round(satellite.y_km)}, {Math.round(satellite.z_km)}]{' '}
-            км
-          </span>
-        </div>
       </div>
 
       {/* Action button */}

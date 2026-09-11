@@ -231,9 +231,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             </div>
           ) : (
             <div className="bg-rose-950/20 border border-rose-900/40 p-2 rounded-md space-y-1">
-              <div className="flex items-center justify-between text-rose-400 font-medium text-xs">
-                <span>Маршрут разорван</span>
-                <span className="text-[9px] bg-black/40 px-1 rounded text-zinc-400 font-mono">0 хопов</span>
+              <div className="text-rose-400 font-medium text-xs">
+                Маршрут разорван
               </div>
               <div className="text-[11px] text-zinc-300">
                 <span className="text-rose-400 font-medium">Причина: </span>
@@ -303,9 +302,6 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               <span>
                 {Math.abs(primeSat.lat_deg).toFixed(1)}°{primeSat.lat_deg >= 0 ? ' с.ш.' : ' ю.ш.'},{' '}
                 {Math.abs(primeSat.lon_deg).toFixed(1)}°{primeSat.lon_deg >= 0 ? ' в.д.' : ' з.д.'}
-              </span>
-              <span>
-                [{Math.round(primeSat.x_km)}, {Math.round(primeSat.y_km)}, {Math.round(primeSat.z_km)}] км
               </span>
             </div>
 

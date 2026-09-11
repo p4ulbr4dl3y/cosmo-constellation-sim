@@ -258,10 +258,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       {/* Gantt & Timeline Scrubber Area */}
       <div className="flex gap-1.5 bg-[#070b10] p-2 rounded border border-[#1a2636]">
         {/* Left Column: Client Pills */}
-        <div className="w-14 shrink-0 flex flex-col gap-1.5">
-          <div className="h-3.5 flex items-center justify-center text-[9px] text-zinc-400 font-mono">
-            UTC
-          </div>
+        <div className="w-12 shrink-0 flex flex-col gap-1.5 pt-4">
           <ClientSelector
             clients={clients}
             selectedClientId={selectedClientId}
@@ -269,6 +266,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             timelines={timelines}
             targetAvailability={scenario.environment.target_availability ?? 0.9}
             direction="vertical"
+            showMetrics={false}
           />
         </div>
 
@@ -354,10 +352,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         >
           <div className="flex items-center gap-2 font-semibold text-cyan-300 border-b border-[#1a2636] pb-1 mb-1">
             <span>{tooltipData.clientId}</span>
-            <span>{formatTime(tooltipData.slot.t_s)}</span>
-            <span className="text-[9px] text-zinc-400">
-              (T+{tooltipData.slot.t_s} с)
-            </span>
+            <span>{formatTime(tooltipData.slot.t_s)} UTC</span>
           </div>
           <div className="flex items-center gap-1 text-[10px]">
             {tooltipData.slot.hasPath ? (

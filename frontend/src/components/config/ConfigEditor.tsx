@@ -159,9 +159,6 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
           <span className="font-semibold text-zinc-200">
             Конфигурация симуляции
           </span>
-          <span className="text-[10px] text-zinc-400">
-            (этапы развертывания, ISL, плоскости, отказы)
-          </span>
         </div>
 
         <div className="flex items-center gap-2">

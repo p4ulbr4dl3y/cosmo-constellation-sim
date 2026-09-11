@@ -52,12 +52,12 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   liveStats.allMeetTarget ? 'bg-emerald-400' : 'bg-amber-400'
                 }`}
               />
-              <span>Активный сценарий: {liveStats.meanAvail}%</span>
+              <span>{liveStats.allMeetTarget ? 'SLA в норме' : 'SLA нарушен'}</span>
             </Badge>
           ) : (
             <Badge variant="emerald" className="px-2 py-0.5 text-xs font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>Базовый SLA: 98.10%</span>
+              <span>SLA в норме</span>
             </Badge>
           )}
 

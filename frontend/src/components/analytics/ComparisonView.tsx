@@ -107,9 +107,6 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           <span className="font-semibold text-zinc-200 text-xs">
             A/B Сравнение вариантов
           </span>
-          <span className="text-[10px] text-zinc-400 hidden xs:inline">
-            (оценка дельты SLA, времени простоя и сетевых хопов)
-          </span>
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
@@ -337,74 +334,6 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                 })}
               </tbody>
             </table>
-          </div>
-
-          {/* Comparative SLA Progress Bars */}
-          <div className="p-3 bg-[#070b10] border-t border-[#1a2636] shrink-0">
-            <div className="text-[10px] font-semibold text-zinc-400 mb-2 flex items-center justify-between">
-              <span>Сравнение доступности SLA (Порог ≥ 90%)</span>
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1 text-[10px] text-zinc-300">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400" /> Вариант A
-                </span>
-                <span className="flex items-center gap-1 text-[10px] text-zinc-300">
-                  <span className="w-2 h-2 rounded-full bg-purple-400" /> Вариант B
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-              {clients.map((c) => {
-                const mA = resultA.timelines[c.id]?.metrics
-                const mB = resultB.timelines[c.id]?.metrics
-                if (!mA || !mB) return null
-                const pctA = mA.availability_ratio * 100
-                const pctB = mB.availability_ratio * 100
-
-                return (
-                  <div key={c.id} className="bg-[#0b1017] p-2 rounded border border-[#1a2636]/60 space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-zinc-200">{c.id} ({c.lat_deg}° с.ш.)</span>
-                      <span className="text-[10px] text-zinc-500 font-mono">{c.name}</span>
-                    </div>
-
-                    {/* Bar A */}
-                    <div className="space-y-0.5">
-                      <div className="flex justify-between text-[10px] text-zinc-400 font-mono">
-                        <span className="text-cyan-400">A</span>
-                        <span>{pctA.toFixed(1)}%</span>
-                      </div>
-                      <div className="h-1.5 w-full bg-zinc-800/80 rounded-full overflow-hidden relative">
-                        <div
-                          className="h-full bg-cyan-400 rounded-full transition-all"
-                          style={{ width: `${Math.min(100, pctA)}%` }}
-                        />
-                        <div className="absolute top-0 bottom-0 left-[90%] w-0.5 bg-white/40" title="Цель 90%" />
-                      </div>
-                    </div>
-
-                    {/* Bar B */}
-                    <div className="space-y-0.5">
-                      <div className="flex justify-between text-[10px] text-zinc-400 font-mono">
-                        <span className="text-purple-400">B</span>
-                        <span className={pctB >= 90 ? 'text-zinc-200' : 'text-rose-400 font-bold'}>
-                          {pctB.toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 w-full bg-zinc-800/80 rounded-full overflow-hidden relative">
-                        <div
-                          className={`h-full rounded-full transition-all ${
-                            pctB >= 90 ? 'bg-purple-400' : 'bg-rose-500'
-                          }`}
-                          style={{ width: `${Math.min(100, pctB)}%` }}
-                        />
-                        <div className="absolute top-0 bottom-0 left-[90%] w-0.5 bg-white/40" title="Цель 90%" />
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
           </div>
         </div>
       )}
