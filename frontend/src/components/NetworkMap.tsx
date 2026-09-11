@@ -82,6 +82,17 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     return map
   }, [groundPositions, snapshot.satellites])
 
+  // Clamp 2D pan so map viewport never exposes empty space outside boundaries
+  const clampPan2D = useCallback((pan: { x: number; y: number }, curZoom: number, w: number, h: number) => {
+    if (curZoom <= 1.0) return { x: 0, y: 0 }
+    const maxPanX = (w * (curZoom - 1)) / 2
+    const maxPanY = (h * (curZoom - 1)) / 2
+    return {
+      x: Math.max(-maxPanX, Math.min(maxPanX, pan.x)),
+      y: Math.max(-maxPanY, Math.min(maxPanY, pan.y)),
+    }
+  }, [])
+
   // 2D Projection helper: maps (lon, lat) to canvas coordinates with zoom and pan
   const project2D = useCallback(
     (lon: number, lat: number, width: number, height: number): [number, number] => {
@@ -89,11 +100,12 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       const cy = height / 2
       const baseNormX = (lon + 180) / 360
       const baseNormY = (90 - lat) / 180
-      const x = cx + (baseNormX * width - cx) * zoom + pan2d.x
-      const y = cy + (baseNormY * height - cy) * zoom + pan2d.y
+      const clampedPan = clampPan2D(pan2d, zoom, width, height)
+      const x = cx + (baseNormX * width - cx) * zoom + clampedPan.x
+      const y = cy + (baseNormY * height - cy) * zoom + clampedPan.y
       return [x, y]
     },
-    [zoom, pan2d]
+    [zoom, pan2d, clampPan2D]
   )
 
   // 3D Orthographic Projection helper with zoom and depth occlusion
@@ -139,6 +151,15 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     [zoom]
   )
 
+  // Switch view mode with appropriate zoom limits
+  const handleSetViewMode = (mode: '2d' | '3d') => {
+    setViewMode(mode)
+    if (mode === '2d') {
+      setZoom((z) => Math.max(1.0, z))
+      setPan2d({ x: 0, y: 0 })
+    }
+  }
+
   // Focus view on the Russian Arctic / Northern Sea Route
   const focusArctic = () => {
     setViewMode('3d')
@@ -157,8 +178,21 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     }
   }
 
-  const zoomIn = () => setZoom((z) => Math.min(3.5, Number((z + 0.25).toFixed(2))))
-  const zoomOut = () => setZoom((z) => Math.max(0.6, Number((z - 0.25).toFixed(2))))
+  const zoomIn = () => {
+    const maxZ = viewMode === '2d' ? 4.0 : 3.0
+    setZoom((z) => Math.min(maxZ, Number((z + 0.25).toFixed(2))))
+  }
+
+  const zoomOut = () => {
+    const minZ = viewMode === '2d' ? 1.0 : 0.8
+    setZoom((z) => {
+      const nextZ = Math.max(minZ, Number((z - 0.25).toFixed(2)))
+      if (nextZ <= 1.0 && viewMode === '2d') {
+        setPan2d({ x: 0, y: 0 })
+      }
+      return nextZ
+    })
+  }
 
   // Native non-passive wheel listener for smooth zoom
   useEffect(() => {
@@ -167,15 +201,24 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
+      const minZ = viewMode === '2d' ? 1.0 : 0.8
+      const maxZ = viewMode === '2d' ? 4.0 : 3.0
       const factor = e.deltaY < 0 ? 1.12 : 0.89
-      setZoom((z) => Math.min(3.5, Math.max(0.6, Number((z * factor).toFixed(2)))))
+
+      setZoom((z) => {
+        const next = Math.min(maxZ, Math.max(minZ, Number((z * factor).toFixed(2))))
+        if (next <= 1.0 && viewMode === '2d') {
+          setPan2d({ x: 0, y: 0 })
+        }
+        return next
+      })
     }
 
     canvas.addEventListener('wheel', handleWheel, { passive: false })
     return () => {
       canvas.removeEventListener('wheel', handleWheel)
     }
-  }, [])
+  }, [viewMode])
 
   // Handle canvas mouse drag (3D rotation or 2D pan)
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -204,7 +247,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         setGlobeRotY((prev) => prev + dx * 0.008)
         setGlobeRotX((prev) => Math.max(0.08, Math.min(Math.PI - 0.08, prev + dy * 0.008)))
       } else {
-        setPan2d((prev) => ({ x: prev.x + dx, y: prev.y + dy }))
+        if (zoom > 1.0) {
+          const w = canvas.clientWidth
+          const h = canvas.clientHeight
+          setPan2d((prev) => clampPan2D({ x: prev.x + dx, y: prev.y + dy }, zoom, w, h))
+        }
       }
       return
     }
@@ -374,11 +421,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.rect(0, 0, width, height)
       ctx.clip()
 
-      // Ocean background
+      // In 2D: Ocean fills entire canvas viewport at all times (no ugly black border box)
       ctx.fillStyle = '#0b1322'
-      const [oceanLeft, oceanTop] = project2D(-180, 90, width, height)
-      const [oceanRight, oceanBottom] = project2D(180, -90, width, height)
-      ctx.fillRect(oceanLeft, oceanTop, oceanRight - oceanLeft, oceanBottom - oceanTop)
+      ctx.fillRect(0, 0, width, height)
 
       // Lat/lon grid lines
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
@@ -570,8 +615,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         const isGateway = g.role === 'gateway'
         const isSelected = g.id === selectedClientId
 
-        // Radar coverage footprint circle
-        const footprintRadius = width * 0.05 * zoom
+        // Radar coverage footprint circle clamped in screen pixels
+        const footprintRadius = Math.max(22, Math.min(65, width * 0.04 * zoom))
         ctx.fillStyle = isGateway
           ? 'rgba(59, 130, 246, 0.08)'
           : isSelected
@@ -1080,6 +1125,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     return snapshot.edges.filter(([u, v]) => u === inspectedSatId || v === inspectedSatId).length
   }, [inspectedSatId, snapshot.edges])
 
+  const isMinZoom = viewMode === '2d' ? zoom <= 1.0 : zoom <= 0.8
+  const isMaxZoom = viewMode === '2d' ? zoom >= 4.0 : zoom >= 3.0
+
   return (
     <div className="relative w-full h-full flex flex-col bg-[#07090e] select-none overflow-hidden rounded-xl border border-white/10">
       {/* Minimal Map Header Toolbar */}
@@ -1087,7 +1135,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         {/* 2D / 3D Mode Switcher */}
         <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10">
           <button
-            onClick={() => setViewMode('2d')}
+            onClick={() => handleSetViewMode('2d')}
             className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
               viewMode === '2d' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-slate-200'
             }`}
@@ -1095,7 +1143,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
             2D
           </button>
           <button
-            onClick={() => setViewMode('3d')}
+            onClick={() => handleSetViewMode('3d')}
             className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
               viewMode === '3d' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-slate-200'
             }`}
@@ -1122,24 +1170,34 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10 gap-0.5">
           <button
             onClick={zoomOut}
+            disabled={isMinZoom}
             title="Отдалить карту"
-            className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className={`p-1 rounded transition-colors ${
+              isMinZoom
+                ? 'text-slate-600 cursor-not-allowed'
+                : 'text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer'
+            }`}
           >
             <ZoomOut className="w-3 h-3" />
           </button>
-          <span className="px-1 text-[10px] text-slate-300 min-w-[32px] text-center">
+          <span className="px-1 text-[10px] text-slate-300 min-w-[32px] text-center font-medium">
             {Math.round(zoom * 100)}%
           </span>
           <button
             onClick={zoomIn}
+            disabled={isMaxZoom}
             title="Приблизить карту"
-            className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className={`p-1 rounded transition-colors ${
+              isMaxZoom
+                ? 'text-slate-600 cursor-not-allowed'
+                : 'text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer'
+            }`}
           >
             <ZoomIn className="w-3 h-3" />
           </button>
           <button
             onClick={resetView}
-            title="Сбросить масштаб и положение (1x)"
+            title="Сбросить масштаб и положение (100%)"
             className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3 h-3" />
