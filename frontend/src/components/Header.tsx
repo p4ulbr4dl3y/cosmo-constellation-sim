@@ -16,8 +16,8 @@ interface HeaderProps {
   onLoadCustomJson: (scenario: Scenario) => void
   onResetScenario: () => void
   timelines: Record<string, ClientTimeline>
-  activeTab: 'monitor' | 'config' | 'compare'
-  setActiveTab: (tab: 'monitor' | 'config' | 'compare') => void
+  activeTab: 'monitor' | 'config' | 'compare' | 'report'
+  setActiveTab: (tab: 'monitor' | 'config' | 'compare' | 'report') => void
   isModified: boolean
 }
 
@@ -142,6 +142,16 @@ export const Header: React.FC<HeaderProps> = ({
           }`}
         >
           A/B Сравнение
+        </button>
+        <button
+          onClick={() => setActiveTab('report')}
+          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+            activeTab === 'report'
+              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 font-medium shadow-sm'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          Аналитика & Рекомендации
         </button>
       </div>
 

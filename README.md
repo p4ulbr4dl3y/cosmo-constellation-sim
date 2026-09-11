@@ -15,16 +15,44 @@
   - Gantt-диаграмма доступности по клиентам (C65, C70, C72) с тултипами причин разрыва.
   - Редактор сценария: переключение очередей запуска (1, 2, 3), поворот плоскостей (RAAN, Phase), кнопка отключения спутника на маршруте в 1 клик.
   - Модуль A/B сравнения с расчетом дельты параметров и метрик SLA.
-- **Стандарты данных**:
+- **Инженерный анализ и рекомендации**:
+  - Интерактивная вкладка в UI «Аналитика & Рекомендации» с матрицей рисков и обоснованием проектных решений.
+  - Подробный аналитический отчет: [`docs_md/RECOMMENDATIONS.md`](docs_md/RECOMMENDATIONS.md) (соответствие критериям 1–3, до 35 баллов).
+- **Стандарты данных и CLI**:
   - Полная поддержка формата сценариев `cosmo-A-1.0`.
   - Выгрузка результатов в формате `cosmo-A-result-1.0`.
+  - Консольная утилита расчета и валидации сценариев без запуска браузера (`app.cli`).
 
 ---
 
 ## 🚀 Быстрый запуск
 
-### 1. Бэкенд (FastAPI + uv)
-Требуется Python 3.10+ и [`uv`](https://github.com/astral-sh/uv).
+### Вариант A. В 1 команду через Docker Compose (Рекомендуемый)
+```bash
+docker compose up --build -d
+```
+- Веб-интерфейс: `http://localhost:3000`
+- API документация (Swagger): `http://localhost:3000/docs`
+- Прямой порт бэкенда: `http://localhost:8000/api/health`
+
+---
+
+### Вариант B. Консольный расчет сценариев (CLI)
+Быстрый расчет SLA в терминале без браузера (NumPy ядро):
+```bash
+# Расчет всех эталонных сценариев из 'Данные/'
+cd backend && uv run python -m app.cli --all
+
+# Расчет конкретного сценария с экспортом в cosmo-A-result-1.0
+cd backend && uv run python -m app.cli --scenario ../Данные/01_full_constellation.json --export ../result.json
+```
+
+---
+
+### Вариант C. Локальная разработка
+
+#### 1. Бэкенд (FastAPI + uv)
+Требуется Python 3.12+ и [`uv`](https://github.com/astral-sh/uv).
 ```bash
 cd backend
 uv sync
@@ -32,18 +60,18 @@ uv run uvicorn app.main:app --reload --port 8000
 ```
 API доступен по адресу: `http://127.0.0.1:8000` (документация Swagger: `http://127.0.0.1:8000/docs`).
 
-Запуск тестов бэкенда:
+Запуск тестов бэкенда (33 теста):
 ```bash
 cd backend
 uv run pytest
 ```
 
-### 2. Фронтенд (React + Vite + Tailwind)
-Требуется Node.js 18+ или [Bun](https://bun.sh).
+#### 2. Фронтенд (React + Vite + Tailwind)
+Требуется Node.js 20+ или [Bun](https://bun.sh).
 ```bash
 cd frontend
-bun install   # или npm install
-bun run dev   # или npm run dev
+npm ci        # или bun install
+npm run dev   # или bun run dev
 ```
 Интерфейс доступен по адресу: `http://localhost:5173`.
 

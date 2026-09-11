@@ -8,6 +8,7 @@ import { TimelinePlayer } from './components/TimelinePlayer'
 import { MetricsPanel } from './components/MetricsPanel'
 import { ConfigEditor } from './components/ConfigEditor'
 import { ComparisonView } from './components/ComparisonView'
+import { ReportView } from './components/ReportView'
 
 export default function App() {
   // Active scenario state
@@ -22,7 +23,7 @@ export default function App() {
   const [selectedClientId, setSelectedClientId] = useState<string>('C65')
 
   // Current tab view
-  const [activeTab, setActiveTab] = useState<'monitor' | 'config' | 'compare'>('monitor')
+  const [activeTab, setActiveTab] = useState<'monitor' | 'config' | 'compare' | 'report'>('monitor')
 
   // A/B Comparison scenarios
   const [variantA, setVariantA] = useState<Scenario | null>(PRESET_SCENARIOS[0].data)
@@ -193,6 +194,12 @@ export default function App() {
                 setActiveTab('monitor')
               }}
             />
+          </div>
+        )}
+
+        {activeTab === 'report' && (
+          <div className="flex-1 min-h-0 overflow-y-auto p-1">
+            <ReportView />
           </div>
         )}
       </main>
