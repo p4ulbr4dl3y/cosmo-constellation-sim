@@ -220,12 +220,10 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 return (
                   <React.Fragment key={idx}>
                     <div
-                      className={`px-1.5 py-0.5 rounded text-[11px] font-bold border ${
-                        isFirst
-                          ? 'bg-amber-950/40 border-amber-600/40 text-amber-300'
-                          : isLast
-                          ? 'bg-blue-950/40 border-blue-600/40 text-blue-300'
-                          : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
+                      className={`px-1.5 py-0.5 rounded text-[11px] font-mono border ${
+                        isFirst || isLast
+                          ? 'bg-white/5 border-white/10 text-slate-300 font-medium'
+                          : 'bg-white/15 border-white/25 text-white font-bold'
                       }`}
                     >
                       {nodeId}
@@ -233,8 +231,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
                     {!isLast && (
                       <div className="flex items-center text-slate-500">
-                        <ArrowRight className="w-2.5 h-2.5 text-slate-400" />
-                        <span className="text-[8px] mx-0.5 text-slate-400">
+                        <ArrowRight className="w-2.5 h-2.5 text-slate-500" />
+                        <span className="text-[8px] mx-0.5 text-slate-400 font-mono">
                           {idx === 0 ? 'GSL' : idx === activeRoute.length - 2 ? 'GSL' : 'ISL'}
                         </span>
                       </div>
@@ -244,8 +242,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               })}
 
               {routeLatencyMs && (
-                <div className="ml-auto text-slate-400 text-[10px]">
-                  RTT <span className="text-cyan-300 font-bold">{routeLatencyMs}ms</span>
+                <div className="ml-auto text-slate-400 text-[10px] font-mono">
+                  RTT <span className="text-slate-200 font-bold">{routeLatencyMs} мс</span>
                 </div>
               )}
             </div>
