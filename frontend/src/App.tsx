@@ -29,21 +29,21 @@ export default function App() {
   const [variantA, setVariantA] = useState<Scenario | null>(PRESET_SCENARIOS[0].data)
   const [variantB, setVariantB] = useState<Scenario | null>(PRESET_SCENARIOS[1].data)
 
-  // Try fetching scenarios from backend API if available
+  const [isBackendOnline, setIsBackendOnline] = useState<boolean>(false)
+
+  // Dual-engine detection: verify FastAPI backend availability
   useEffect(() => {
     fetch('/api/presets')
-      .then((res) => {
-        if (res.ok) return res.json()
-        return null
-      })
+      .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && Array.isArray(data) && data.length > 0) {
-          // Backend API is online!
-          console.log('Backend /api/presets connected:', data)
+          setIsBackendOnline(true)
+        } else {
+          setIsBackendOnline(false)
         }
       })
       .catch(() => {
-        // Backend not running; fallback to local calculation
+        setIsBackendOnline(false)
       })
   }, [])
 
@@ -57,10 +57,10 @@ export default function App() {
     return calculateSnapshot(scenario, currentTime)
   }, [scenario, currentTime])
 
-  // Satellites on current active route for selected client
+  // Satellites on current active route for selected client (intermediate nodes on [client, sat1, ..., gw])
   const activeRouteSats = useMemo(() => {
     const route = snapshot.routes[selectedClientId] || []
-    return route.filter((node) => node.startsWith('S'))
+    return route.length >= 3 ? route.slice(1, -1) : []
   }, [snapshot.routes, selectedClientId])
 
   const isModified = useMemo(() => {
@@ -86,7 +86,8 @@ export default function App() {
 
   // Toggle failure for specific satellite
   const handleToggleFailure = (satId: string) => {
-    const isCurrentlyFailed = scenario.failures.some(
+    const currentFailures = scenario.failures ?? []
+    const isCurrentlyFailed = currentFailures.some(
       (f) => f.satellite_id === satId && f.start_s <= currentTime && currentTime < f.end_s
     )
 
@@ -94,7 +95,7 @@ export default function App() {
       // Remove failure covering currentTime
       const updated = {
         ...scenario,
-        failures: scenario.failures.filter(
+        failures: currentFailures.filter(
           (f) => !(f.satellite_id === satId && f.start_s <= currentTime && currentTime < f.end_s)
         ),
       }
@@ -105,7 +106,7 @@ export default function App() {
       const end_s = Math.min(scenario.environment.horizon_s, currentTime + 14400)
       const updated = {
         ...scenario,
-        failures: [...scenario.failures, { satellite_id: satId, start_s, end_s }],
+        failures: [...currentFailures, { satellite_id: satId, start_s, end_s }],
       }
       setScenario(updated)
     }
@@ -123,6 +124,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isModified={isModified}
+        isBackendOnline={isBackendOnline}
       />
 
       {/* Main Content Area */}

@@ -113,6 +113,9 @@ export interface ResultExport {
   metrics: Record<string, ClientMetrics>
   summary_metrics: Record<string, ClientMetrics>
   summary: {
+    average_availability_pct?: number
+    min_availability_pct?: number
+    all_meet_target?: boolean
     mean_availability: number
     mean_hops: number
     all_clients_meet_sla: boolean

@@ -45,6 +45,8 @@ def get_presets() -> list[PresetSummary]:
     for p in sorted(data_dir.glob("*.json")):
         try:
             content = json.loads(p.read_text(encoding="utf-8"))
+            if content.get("schema_version") != "cosmo-A-1.0":
+                continue
             meta = content.get("meta", {})
             env = content.get("environment", {})
             des = content.get("design", {})

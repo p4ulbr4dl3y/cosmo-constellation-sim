@@ -1081,4 +1081,36 @@ describe('exportResultFile and exportResults', () => {
     // Availability is 1.0, default target is 0.9, so meets SLA
     expect(exportData.summary!.all_clients_meet_sla).toBe(true)
   })
+
+  it('safely handles zero or negative step_s in exportResultFile without infinite loop', () => {
+    const scenario: Scenario = {
+      schema_version: 'cosmo-A-1.0',
+      meta: { id: 'zero_step', title: 'Zero Step' },
+      environment: {
+        altitude_km: 550,
+        inclination_deg: 0,
+        earth_angle0_deg: 0,
+        horizon_s: 240,
+        step_s: 0, // edge case: 0 step
+        min_elevation_deg: -90,
+        isl_range_km: 15000,
+      },
+      design: {
+        launch_stage: 1,
+        planes: [{ id: 'P1', raan_deg: 0, phase_deg: 0 }],
+        satellites: [{ id: 'S01', plane_id: 'P1', slot_deg: 0, launch_batch: 1 }],
+      },
+      ground_sites: [
+        { id: 'C1', name: 'Client 1', role: 'client', lat_deg: 0, lon_deg: 0 },
+        { id: 'GW1', name: 'Gateway 1', role: 'gateway', lat_deg: 0, lon_deg: 0 },
+      ],
+      failures: [],
+      gateway_outages: [],
+    }
+
+    const { timelines } = calculateFullTimeline(scenario)
+    const exported = exportResultFile(scenario, timelines)
+    expect(exported.schema_version).toBe('cosmo-A-result-1.0')
+    expect(exported.routes.length).toBeGreaterThan(0)
+  })
 })

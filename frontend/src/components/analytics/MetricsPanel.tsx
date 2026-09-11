@@ -32,14 +32,11 @@ function getDiagnosis(reason?: string, isGatewayOutage?: boolean) {
     }
   }
 
-  // 2. gateway_offline: gateway maintenance outage window
-  if (
-    isGatewayOutage ||
-    (reason && (reason.includes('Шлюз отключен') || reason.includes('gateway_offline')))
-  ) {
+  // 2. Explicit gateway_offline reason
+  if (reason && (reason.includes('Шлюз отключен') || reason.includes('gateway_offline'))) {
     return {
       title: 'Технологическое окно шлюза',
-      detail: 'Опорный шлюз G_MUR временно отключен согласно регламенту обслуживания.',
+      detail: 'Опорный наземный шлюз временно отключен согласно регламенту обслуживания.',
       recommendation: 'Дождитесь завершения планового технологического окна шлюза.',
     }
   }
@@ -67,6 +64,16 @@ function getDiagnosis(reason?: string, isGatewayOutage?: boolean) {
       recommendation: 'Проверьте состояние отказавших КА или скорректируйте лимит дальности ISL.',
     }
   }
+
+  // 5. Fallback if all gateways are offline and no specific reason was determined
+  if (isGatewayOutage) {
+    return {
+      title: 'Технологическое окно шлюза',
+      detail: 'Опорный наземный шлюз временно отключен согласно регламенту обслуживания.',
+      recommendation: 'Дождитесь завершения планового технологического окна шлюза.',
+    }
+  }
+
   return {
     title: 'Маршрут не построен',
     detail: reason || 'Сетевой путь между клиентом и опорным шлюзом временно разорван.',
@@ -102,10 +109,20 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
   const hasRoute = activeRoute.length > 0
   const outageReason = snapshot.outageReasons[selectedClientId]
 
-  // Check gateway status at current simulation step
-  const isGatewayOutage = scenario.gateway_outages.some(
-    (o) => o.start_s <= snapshot.t_s && snapshot.t_s < o.end_s
+  const gateways = useMemo(
+    () => scenario.ground_sites.filter((g) => g.role === 'gateway'),
+    [scenario.ground_sites]
   )
+
+  // In multi-gateway topologies, gateway outage applies if all available gateways are in maintenance
+  const isGatewayOutage = useMemo(() => {
+    if (gateways.length === 0) return false
+    return gateways.every((gw) =>
+      scenario.gateway_outages?.some(
+        (o) => o.gateway_id === gw.id && o.start_s <= snapshot.t_s && snapshot.t_s < o.end_s
+      )
+    )
+  }, [gateways, scenario.gateway_outages, snapshot.t_s])
 
   // Approximate route latency (RTT) based on geometry
   const routeLatencyMs = useMemo(() => {
@@ -146,8 +163,9 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
   const diagnosis = getDiagnosis(outageReason, isGatewayOutage)
 
-  // Prime satellite on route (first sat client links to)
-  const primeSatId = activeRoute.find((n) => n.startsWith('S'))
+  // Prime satellite on route (first sat client links to: intermediate node on [client, sat1, ..., gw])
+  const satIdSet = useMemo(() => new Set(snapshot.satellites.map((s) => s.id)), [snapshot.satellites])
+  const primeSatId = activeRoute.find((n) => satIdSet.has(n))
   const primeSat = primeSatId ? snapshot.satellites.find((s) => s.id === primeSatId) : null
 
   return (

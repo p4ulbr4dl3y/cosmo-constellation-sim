@@ -128,9 +128,9 @@ def main() -> None:
     parser.add_argument(
         "--metric",
         "-m",
-        choices=["hops", "delay"],
+        choices=["hops", "distance", "delay"],
         default="hops",
-        help="Метрика маршрутизации: hops (минимальное число хопов) или delay (минимальная задержка)",
+        help="Метрика маршрутизации: hops (минимальное число хопов) или distance/delay (минимальное геометрическое расстояние/задержка)",
     )
     parser.add_argument(
         "--export",
@@ -140,6 +140,7 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+    metric: RoutingMetric = "distance" if args.metric in ("distance", "delay") else "hops"
 
     if args.all:
         candidates = [
@@ -159,14 +160,14 @@ def main() -> None:
             sys.exit(1)
 
         for sc in scenarios:
-            process_scenario(sc, metric=args.metric)
+            process_scenario(sc, metric=metric)
         sys.exit(0)
 
     if not args.scenario:
         parser.print_help()
         sys.exit(1)
 
-    ok = process_scenario(args.scenario, metric=args.metric, export_path=args.export)
+    ok = process_scenario(args.scenario, metric=metric, export_path=args.export)
     sys.exit(0 if ok else 1)
 
 

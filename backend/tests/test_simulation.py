@@ -140,6 +140,29 @@ def test_compare_scenarios_branches(baseline_scenario_data: dict[str, Any]) -> N
     assert "failures_count" in fields
     assert "gateway_outages_count" in fields
 
+    # Additional diff tests: ground site diff, failure content diff, outage content diff, sat config diff
+    s_ground = copy.deepcopy(s1)
+    s_ground["ground_sites"].append({"id": "G_TIK", "role": "gateway", "lat_deg": 71.6, "lon_deg": 128.8})
+    s_ground["failures"] = [{"satellite_id": "S102", "start_s": 10, "end_s": 20}]
+    s1_fails = [{"satellite_id": "S101", "start_s": 10, "end_s": 20}]
+    s1_with_fails = copy.deepcopy(s1)
+    s1_with_fails["failures"] = s1_fails
+    diff_g = compare_scenarios(s1_with_fails, s_ground, metric="hops")
+    fields_g = [d["field"] for d in diff_g["parameter_differences"]]
+    assert "ground_sites[G_TIK]" in fields_g
+    assert "failures" in fields_g
+
+    # Gateway outage content diff & sat modified diff
+    s_gw1 = copy.deepcopy(s1)
+    s_gw2 = copy.deepcopy(s1)
+    s_gw1["gateway_outages"] = [{"gateway_id": "G_MUR", "start_s": 0, "end_s": 50}]
+    s_gw2["gateway_outages"] = [{"gateway_id": "G_MUR", "start_s": 0, "end_s": 60}]
+    s_gw2["design"]["satellites"][0]["slot_deg"] += 5.0
+    diff_gw = compare_scenarios(s_gw1, s_gw2, metric="hops")
+    fields_gw = [d["field"] for d in diff_gw["parameter_differences"]]
+    assert "gateway_outages" in fields_gw
+    assert "design.satellites" in fields_gw
+
 
 @pytest.mark.unit
 def test_routing_classify_failure_and_direct_edge_cases() -> None:

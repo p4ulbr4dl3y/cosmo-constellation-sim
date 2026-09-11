@@ -161,3 +161,19 @@ def test_print_table_all_failures() -> None:
         },
     }
     print_table("Test_Failures", res, target_sla=0.9)
+
+
+@pytest.mark.unit
+def test_cli_metric_distance_and_delay(tmp_path: Path) -> None:
+    sc_file = resolve_preset_path("02_first_launch.json")
+    # Test distance metric
+    with patch.object(sys, "argv", ["app.cli", "-s", str(sc_file), "-m", "distance"]):
+        with pytest.raises(SystemExit) as exc:
+            main()
+        assert exc.value.code in (0, 1)
+
+    # Test delay alias metric
+    with patch.object(sys, "argv", ["app.cli", "-s", str(sc_file), "-m", "delay"]):
+        with pytest.raises(SystemExit) as exc:
+            main()
+        assert exc.value.code in (0, 1)

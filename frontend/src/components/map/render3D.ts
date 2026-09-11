@@ -393,7 +393,7 @@ export function render3DGlobe(options: Render3DOptions): void {
       const v = activeRoute[k + 1]
       const p1 = ground3DMap.get(u) || sat3DMap.get(u)
       const p2 = ground3DMap.get(v) || sat3DMap.get(v)
-      if (!p1 || !p2 || (!p1.visible && !p2.visible)) continue
+      if (!p1 || !p2 || !p1.visible || !p2.visible) continue
 
       ctx.beginPath()
       ctx.moveTo(p1.x, p1.y)

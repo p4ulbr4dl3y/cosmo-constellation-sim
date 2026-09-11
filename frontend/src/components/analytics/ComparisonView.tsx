@@ -47,7 +47,10 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
   // Check differences between variant A and B for highlighting
   const stageDiff = variantA && variantB && variantA.design.launch_stage !== variantB.design.launch_stage
   const islDiff = variantA && variantB && variantA.environment.isl_range_km !== variantB.environment.isl_range_km
-  const failDiff = variantA && variantB && variantA.failures.length !== variantB.failures.length
+  const failDiff =
+    variantA &&
+    variantB &&
+    (variantA.failures?.length ?? 0) !== (variantB.failures?.length ?? 0)
 
   // Helper for delta formatting
   const renderDeltaPct = (valA: number, valB: number) => {
@@ -163,7 +166,11 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               <div className="flex justify-between items-center text-slate-400">
                 <span>Очередь запуска:</span>
                 <span className={stageDiff ? 'text-cyan-300 font-bold' : 'text-slate-200'}>
-                  Этап {variantA.design.launch_stage} ({variantA.design.launch_stage * 16} КА)
+                  Этап {variantA.design.launch_stage} (
+                  {variantA.design.satellites.filter(
+                    (s) => s.launch_batch <= variantA.design.launch_stage
+                  ).length || variantA.design.launch_stage * 16}{' '}
+                  КА)
                 </span>
               </div>
               <div className="flex justify-between items-center text-slate-400">
@@ -175,7 +182,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               <div className="flex justify-between items-center text-slate-400">
                 <span>Отказы КА:</span>
                 <span className={failDiff ? 'text-amber-400 font-bold' : 'text-slate-200'}>
-                  {variantA.failures.length}
+                  {variantA.failures?.length ?? 0}
                 </span>
               </div>
             </div>
@@ -208,7 +215,11 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               <div className="flex justify-between items-center text-slate-400">
                 <span>Очередь запуска:</span>
                 <span className={stageDiff ? 'text-purple-300 font-bold' : 'text-slate-200'}>
-                  Этап {variantB.design.launch_stage} ({variantB.design.launch_stage * 16} КА)
+                  Этап {variantB.design.launch_stage} (
+                  {variantB.design.satellites.filter(
+                    (s) => s.launch_batch <= variantB.design.launch_stage
+                  ).length || variantB.design.launch_stage * 16}{' '}
+                  КА)
                 </span>
               </div>
               <div className="flex justify-between items-center text-slate-400">
@@ -220,7 +231,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               <div className="flex justify-between items-center text-slate-400">
                 <span>Отказы КА:</span>
                 <span className={failDiff ? 'text-amber-400 font-bold' : 'text-slate-200'}>
-                  {variantB.failures.length}
+                  {variantB.failures?.length ?? 0}
                 </span>
               </div>
             </div>

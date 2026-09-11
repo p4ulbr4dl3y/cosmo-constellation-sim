@@ -19,6 +19,7 @@ interface HeaderProps {
   activeTab: 'monitor' | 'config' | 'compare' | 'report'
   setActiveTab: (tab: 'monitor' | 'config' | 'compare' | 'report') => void
   isModified: boolean
+  isBackendOnline?: boolean
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -30,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeTab,
   setActiveTab,
   isModified,
+  isBackendOnline = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -58,7 +60,12 @@ export const Header: React.FC<HeaderProps> = ({
           alert('Ошибка структуры файла cosmo-A-1.0')
           return
         }
-        onLoadCustomJson(json as Scenario)
+        const normalized: Scenario = {
+          ...json,
+          failures: Array.isArray(json.failures) ? json.failures : [],
+          gateway_outages: Array.isArray(json.gateway_outages) ? json.gateway_outages : [],
+        }
+        onLoadCustomJson(normalized)
       } catch {
         alert('Некорректный JSON файл')
       }
@@ -109,6 +116,25 @@ export const Header: React.FC<HeaderProps> = ({
             изменен
           </span>
         )}
+        <span
+          className={`text-[10px] font-mono px-1.5 py-0.5 rounded border hidden md:inline-flex items-center gap-1 ml-1 ${
+            isBackendOnline
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+              : 'bg-white/5 border-white/10 text-slate-400'
+          }`}
+          title={
+            isBackendOnline
+              ? 'FastAPI бэкенд подключен (/api/v1)'
+              : 'Автономный режим (TypeScript Web Engine)'
+          }
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              isBackendOnline ? 'bg-emerald-400' : 'bg-slate-400'
+            }`}
+          />
+          {isBackendOnline ? 'API онлайн' : 'Автономный TS'}
+        </span>
       </div>
 
       {/* Navigation Tabs */}

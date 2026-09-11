@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   Trash2,
   Plus,
@@ -6,7 +6,7 @@ import {
   RotateCcw,
   ChevronDown,
 } from 'lucide-react'
-import type { Scenario, Failure, GatewayOutage } from '../../types/scenario'
+import type { Scenario, Failure, GatewayOutage, GroundSite } from '../../types/scenario'
 
 interface ConfigEditorProps {
   scenario: Scenario
@@ -56,17 +56,29 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
   activeRouteSats,
   currentTime,
 }) => {
-  const [draft, setDraft] = useState<Scenario>(() => JSON.parse(JSON.stringify(scenario)))
+  const normalizeDraft = (sc: Scenario): Scenario => ({
+    ...sc,
+    failures: Array.isArray(sc.failures) ? sc.failures : [],
+    gateway_outages: Array.isArray(sc.gateway_outages) ? sc.gateway_outages : [],
+  })
+
+  const [draft, setDraft] = useState<Scenario>(() => normalizeDraft(JSON.parse(JSON.stringify(scenario))))
   const [prevScenario, setPrevScenario] = useState(scenario)
   if (scenario !== prevScenario) {
     setPrevScenario(scenario)
-    setDraft(JSON.parse(JSON.stringify(scenario)))
+    setDraft(normalizeDraft(JSON.parse(JSON.stringify(scenario))))
   }
 
   // New failure form inputs (in seconds)
   const [newFailSat, setNewFailSat] = useState<string>(draft.design.satellites[0]?.id || 'S01')
   const [newFailStart, setNewFailStart] = useState<number>(21600) // 06:00
   const [newFailEnd, setNewFailEnd] = useState<number>(43200) // 12:00
+
+  const gateways = useMemo<GroundSite[]>(
+    () => draft.ground_sites.filter((g: GroundSite) => g.role === 'gateway'),
+    [draft.ground_sites]
+  )
+  const [newGwId, setNewGwId] = useState<string>(gateways[0]?.id || 'G_MUR')
 
   // New gateway outage form inputs (in seconds)
   const [newGwStart, setNewGwStart] = useState<number>(10800) // 03:00
@@ -110,7 +122,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
     const end_s = Math.min(draft.environment.horizon_s, currentTime + 14400) // 4 hours
 
     const nextFailures: Failure[] = [
-      ...draft.failures,
+      ...(draft.failures ?? []),
       { satellite_id: targetSat, start_s, end_s },
     ]
     const next = { ...draft, failures: nextFailures }
@@ -123,9 +135,14 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
       alert('Время начала отказа должно быть меньше времени окончания.')
       return
     }
+    const targetSat = draft.design.satellites.some((s) => s.id === newFailSat)
+      ? newFailSat
+      : draft.design.satellites[0]?.id
+    if (!targetSat) return
+
     const nextFailures: Failure[] = [
-      ...draft.failures,
-      { satellite_id: newFailSat, start_s: newFailStart, end_s: newFailEnd },
+      ...(draft.failures ?? []),
+      { satellite_id: targetSat, start_s: newFailStart, end_s: newFailEnd },
     ]
     const next = { ...draft, failures: nextFailures }
     setDraft(next)
@@ -133,7 +150,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
   }
 
   const handleRemoveFailure = (idx: number) => {
-    const nextFailures = draft.failures.filter((_, i) => i !== idx)
+    const nextFailures = (draft.failures ?? []).filter((_, i) => i !== idx)
     const next = { ...draft, failures: nextFailures }
     setDraft(next)
     onUpdateScenario(next)
@@ -144,12 +161,12 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
       alert('Время начала отказа должно быть меньше времени окончания.')
       return
     }
-    const gw = draft.ground_sites.find((g) => g.role === 'gateway')
-    if (!gw) return
+    const targetGwId = gateways.some((g) => g.id === newGwId) ? newGwId : gateways[0]?.id
+    if (!targetGwId) return
 
     const nextOutages: GatewayOutage[] = [
-      ...draft.gateway_outages,
-      { gateway_id: gw.id, start_s: newGwStart, end_s: newGwEnd },
+      ...(draft.gateway_outages ?? []),
+      { gateway_id: targetGwId, start_s: newGwStart, end_s: newGwEnd },
     ]
     const next = { ...draft, gateway_outages: nextOutages }
     setDraft(next)
@@ -157,7 +174,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
   }
 
   const handleRemoveGatewayOutage = (idx: number) => {
-    const nextOutages = draft.gateway_outages.filter((_, i) => i !== idx)
+    const nextOutages = (draft.gateway_outages ?? []).filter((_, i) => i !== idx)
     const next = { ...draft, gateway_outages: nextOutages }
     setDraft(next)
     onUpdateScenario(next)
@@ -214,7 +231,8 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
             {/* Stage buttons */}
             <div className="grid grid-cols-3 gap-1.5">
               {[1, 2, 3].map((stg) => {
-                const activeSatsCount = stg * 16
+                const activeSatsCount =
+                  draft.design.satellites.filter((s) => s.launch_batch <= stg).length || stg * 16
                 const isSelected = draft.design.launch_stage === stg
                 return (
                   <button
@@ -297,7 +315,9 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                     <span className="font-bold text-cyan-300">
                       Плоскость {p.id}
                     </span>
-                    <span className="text-[10px] text-slate-400">16 КА</span>
+                    <span className="text-[10px] text-slate-400">
+                      {draft.design.satellites.filter((s) => s.plane_id === p.id).length} КА
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2.5 text-[11px]">
@@ -431,11 +451,28 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
           {/* Gateway Outages */}
           <div className="bg-[#0c1017] p-3 rounded-xl border border-white/10 flex flex-col gap-2.5">
             <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center justify-between">
-              <span>Окна обслуживания шлюза Мурманск ({draft.gateway_outages.length})</span>
+              <span>Окна обслуживания наземных шлюзов ({draft.gateway_outages.length})</span>
             </span>
 
             {/* Add gateway outage row */}
             <div className="flex flex-wrap items-center gap-1.5 bg-[#080b11] p-1.5 rounded-lg border border-white/10 text-xs">
+              {gateways.length > 1 && (
+                <div className="relative">
+                  <select
+                    value={newGwId}
+                    onChange={(e) => setNewGwId(e.target.value)}
+                    className="h-7 pl-2 pr-7 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-mono rounded-md appearance-none focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
+                  >
+                    {gateways.map((g) => (
+                      <option key={g.id} value={g.id} className="bg-[#0c1017] text-slate-200">
+                        {g.id} ({g.name || 'Шлюз'})
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              )}
+
               <div className="flex items-center gap-1 text-xs">
                 <span className="text-slate-400">С:</span>
                 <input
@@ -466,7 +503,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
             <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-0.5">
               {draft.gateway_outages.length === 0 ? (
                 <span className="text-xs text-slate-500 italic p-2 text-center">
-                  Шлюз доступен 24/7 без окон обслуживания
+                  Шлюзы доступны 24/7 без окон обслуживания
                 </span>
               ) : (
                 draft.gateway_outages.map((o, idx) => (

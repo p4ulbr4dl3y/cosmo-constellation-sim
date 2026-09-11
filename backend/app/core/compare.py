@@ -51,7 +51,7 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
                 }
             )
 
-    # Satellites count
+    # Satellites count & configuration
     sats_a = len(des_a.get("satellites", []))
     sats_b = len(des_b.get("satellites", []))
     if sats_a != sats_b:
@@ -62,8 +62,31 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
                 "value_b": sats_b,
             }
         )
+    elif des_a.get("satellites") != des_b.get("satellites"):
+        diffs.append(
+            {
+                "field": "design.satellites",
+                "value_a": "modified",
+                "value_b": "modified",
+            }
+        )
 
-    # Failures count
+    # Ground sites
+    gs_a = {g["id"]: g for g in a.get("ground_sites", []) if isinstance(g, dict) and "id" in g}
+    gs_b = {g["id"]: g for g in b.get("ground_sites", []) if isinstance(g, dict) and "id" in g}
+    for gid in sorted(set(gs_a.keys()) | set(gs_b.keys())):
+        ga = gs_a.get(gid)
+        gb = gs_b.get(gid)
+        if ga != gb:
+            diffs.append(
+                {
+                    "field": f"ground_sites[{gid}]",
+                    "value_a": ga,
+                    "value_b": gb,
+                }
+            )
+
+    # Failures count & configuration
     fails_a = len(a.get("failures", []))
     fails_b = len(b.get("failures", []))
     if fails_a != fails_b:
@@ -74,8 +97,16 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
                 "value_b": fails_b,
             }
         )
+    elif a.get("failures") != b.get("failures"):
+        diffs.append(
+            {
+                "field": "failures",
+                "value_a": a.get("failures", []),
+                "value_b": b.get("failures", []),
+            }
+        )
 
-    # Gateway outages count
+    # Gateway outages count & configuration
     gw_a = len(a.get("gateway_outages", []))
     gw_b = len(b.get("gateway_outages", []))
     if gw_a != gw_b:
@@ -84,6 +115,14 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
                 "field": "gateway_outages_count",
                 "value_a": gw_a,
                 "value_b": gw_b,
+            }
+        )
+    elif a.get("gateway_outages") != b.get("gateway_outages"):
+        diffs.append(
+            {
+                "field": "gateway_outages",
+                "value_a": a.get("gateway_outages", []),
+                "value_b": b.get("gateway_outages", []),
             }
         )
 

@@ -37,9 +37,22 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
     y: number
   } | null>(null)
 
-  const horizon_s = scenario.environment.horizon_s // 86400
-  const step_s = scenario.environment.step_s // 120
+  const horizon_s = scenario.environment.horizon_s || 86400
+  const step_s = scenario.environment.step_s || 120
   const totalSlots = Math.floor(horizon_s / step_s)
+
+  const timeRulerTicks = useMemo(() => {
+    const totalHours = horizon_s / 3600
+    const hourStep = totalHours <= 12 ? 2 : totalHours <= 24 ? 4 : 8
+    const ticks: number[] = []
+    for (let h = 0; h <= totalHours; h += hourStep) {
+      ticks.push(h)
+    }
+    if (ticks[ticks.length - 1] !== totalHours) {
+      ticks.push(totalHours)
+    }
+    return { ticks, totalHours }
+  }, [horizon_s])
 
   // Playback timer loop
   const isPlayingRef = useRef(isPlaying)
@@ -236,7 +249,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           <span className="font-semibold text-white tracking-wider">
             {formatTime(currentTime)}
           </span>
-          <span className="text-[11px] text-slate-500">/ 24:00:00 UTC</span>
+          <span className="text-[11px] text-slate-500">/ {formatTime(horizon_s)} UTC</span>
         </div>
 
         {/* Legend */}
@@ -309,9 +322,12 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
 
           {/* Time Ruler */}
           <div className="relative h-3.5 w-full">
-            {[0, 4, 8, 12, 16, 20, 24].map((h) => {
-              const pct = (h / 24) * 100
-              const label = `${String(h).padStart(2, '0')}:00`
+            {timeRulerTicks.ticks.map((h) => {
+              const pct = (h / (timeRulerTicks.totalHours || 1)) * 100
+              const totalMin = Math.round(h * 60)
+              const hh = Math.floor(totalMin / 60)
+              const mm = totalMin % 60
+              const label = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
               return (
                 <div
                   key={h}
@@ -321,7 +337,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                     transform:
                       h === 0
                         ? 'translateX(0%)'
-                        : h === 24
+                        : h >= timeRulerTicks.totalHours
                         ? 'translateX(-100%)'
                         : 'translateX(-50%)',
                   }}

@@ -568,8 +568,8 @@ export function exportResultFile(
 ): ResultExport {
   const routes: RouteRecord[] = []
   const { environment, ground_sites } = scenario
-  const step_s = environment.step_s
-  const horizon_s = environment.horizon_s
+  const step_s = Math.max(1, environment.step_s || 120)
+  const horizon_s = Math.max(step_s, environment.horizon_s || 86400)
   const totalSlots = Math.floor(horizon_s / step_s)
   const clients = ground_sites.filter((g) => g.role === 'client')
 
@@ -615,6 +615,12 @@ export function exportResultFile(
     metrics: summary_metrics,
     summary_metrics,
     summary: {
+      average_availability_pct: +(meanAvail * 100).toFixed(2),
+      min_availability_pct:
+        clientVals.length > 0
+          ? +(Math.min(...clientVals.map((m) => m.availability_ratio)) * 100).toFixed(2)
+          : 0,
+      all_meet_target: allMeetSla,
       mean_availability: meanAvail,
       mean_hops: meanHops,
       all_clients_meet_sla: allMeetSla,
