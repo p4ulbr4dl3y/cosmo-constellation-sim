@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-bg: #07090e;
+  --color-brand-card: #0c1017;
+  --color-brand-card-subtle: #080b11;
+  --color-brand-border: #182232;
+  --color-brand-border-focus: #c4f042;
+  
+  --color-brand-lime: #c4f042;
+  --color-brand-lime-hover: #b3dc32;
+  --color-brand-lime-dim: rgba(196, 240, 66, 0.12);
+  --color-brand-lime-border: rgba(196, 240, 66, 0.35);
+
+  --color-brand-muted: #8b9bb4;
+  --color-brand-dim: #475569;
+}
+
 @layer base {
   :root {
     color-scheme: dark;
@@ -10,11 +26,16 @@
   body {
     margin: 0;
     padding: 0;
-    background-color: #05070d;
-    color: #dbe3f0;
+    background-color: #07090e;
+    color: #e2e8f0;
     font-family: var(--font-display);
     overflow-x: hidden;
     letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background-color: #c4f042;
+    color: #000000;
   }
 
   code, kbd, samp, pre, .font-mono {
@@ -26,15 +47,15 @@
 .bg-grid-tech {
   background-size: 24px 24px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
 }
 
 .radar-sweep {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at center, rgba(6, 182, 212, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(196, 240, 66, 0.04) 0%, transparent 70%);
 }
 
 /* Custom crisp technical scrollbar */
@@ -43,12 +64,12 @@
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #080c16;
+  background: #07090e;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1c273c;
+  background: #182232;
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2d3e5e;
+  background: #25354e;
 }

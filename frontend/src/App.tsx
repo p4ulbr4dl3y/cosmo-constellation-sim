@@ -111,7 +111,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070a12] text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans selection:bg-[#c4f042] selection:text-black">
       {/* Top Navigation Bar */}
       <Header
         currentScenario={scenario}

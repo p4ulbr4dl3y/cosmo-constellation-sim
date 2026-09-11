@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import type { Scenario } from '../types/scenario'
 import { calculateFullTimeline } from '../lib/orbit'
+import { Card, CardHeader, CardTitle, Button, Badge } from './ui'
 
 interface ComparisonViewProps {
   currentScenario: Scenario
@@ -42,7 +43,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     const diff = (valB - valA) * 100
     if (Math.abs(diff) < 0.05) {
       return (
-        <span className="text-slate-400 flex items-center gap-0.5">
+        <span className="text-slate-400 flex items-center gap-0.5 font-mono">
           <Minus className="w-3 h-3" /> 0.0%
         </span>
       )
@@ -50,8 +51,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     const isPositive = diff > 0
     return (
       <span
-        className={`flex items-center gap-0.5 font-bold ${
-          isPositive ? 'text-emerald-400' : 'text-red-400'
+        className={`flex items-center gap-0.5 font-bold font-mono ${
+          isPositive ? 'text-[#c4f042]' : 'text-red-400'
         }`}
       >
         {isPositive ? (
@@ -69,7 +70,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     const diffMin = Math.round(diffSec / 60)
     if (Math.abs(diffMin) === 0) {
       return (
-        <span className="text-slate-400 flex items-center gap-0.5">
+        <span className="text-slate-400 flex items-center gap-0.5 font-mono">
           <Minus className="w-3 h-3" /> 0 мин
         </span>
       )
@@ -78,8 +79,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     const isBetter = diffSec < 0
     return (
       <span
-        className={`flex items-center gap-0.5 font-bold ${
-          isBetter ? 'text-emerald-400' : 'text-red-400'
+        className={`flex items-center gap-0.5 font-bold font-mono ${
+          isBetter ? 'text-[#c4f042]' : 'text-red-400'
         }`}
       >
         {isBetter ? (
@@ -93,18 +94,18 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-3 p-3.5 bg-[#080d17] border border-[#162238] rounded-lg shadow-xl max-w-6xl mx-auto">
+    <Card noPadding className="p-3.5 flex flex-col gap-3 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#162238] pb-2.5">
+      <CardHeader className="pb-2.5">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded bg-[#0d1424] border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+          <div className="w-7 h-7 rounded-lg bg-[#121824] border border-[#182232] flex items-center justify-center text-[#c4f042]">
             <Scale className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h2 className="text-xs font-mono font-bold text-slate-100 uppercase tracking-wider">
+            <CardTitle>
               A/B СРАВНЕНИЕ ПРОЕКТНЫХ ВАРИАНТОВ (TRADE-OFF STUDY)
-            </h2>
-            <p className="text-[10px] font-mono text-slate-500">
+            </CardTitle>
+            <p className="text-[10px] font-mono text-slate-400 mt-0.5">
               Сопоставление архитектур группировки, плотности сетки ISL и дельты показателей SLA
             </p>
           </div>
@@ -112,27 +113,31 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
         {/* Snapshot Buttons */}
         <div className="flex items-center gap-2 font-mono">
-          <button
+          <Button
+            size="sm"
+            variant="outline"
             onClick={() => onSetVariantA(currentScenario)}
-            className="px-2.5 py-1 rounded bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 font-bold text-xs flex items-center gap-1.5 transition-all"
+            className="border-blue-500/40 text-blue-300 hover:text-blue-200 gap-1.5"
           >
-            <Pin className="w-3 h-3" />
+            <Pin className="w-3 h-3 text-blue-400" />
             <span>ФИКСИРОВАТЬ [A]</span>
-          </button>
-          <button
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
             onClick={() => onSetVariantB(currentScenario)}
-            className="px-2.5 py-1 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 font-bold text-xs flex items-center gap-1.5 transition-all"
+            className="border-purple-500/40 text-purple-300 hover:text-purple-200 gap-1.5"
           >
-            <Pin className="w-3 h-3" />
+            <Pin className="w-3 h-3 text-purple-400" />
             <span>ФИКСИРОВАТЬ [B]</span>
-          </button>
+          </Button>
         </div>
-      </div>
+      </CardHeader>
 
       {/* Top Banner: Variant Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Card A */}
-        <div className="bg-[#050810] p-3 rounded border border-blue-500/30 flex flex-col gap-2 font-mono">
+        <div className="bg-[#080b11] p-3 rounded-xl border border-blue-500/30 flex flex-col gap-2 font-mono">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-blue-400" />
@@ -141,7 +146,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             {variantA && (
               <button
                 onClick={() => onLoadVariantIntoEditor(variantA)}
-                className="text-[10px] text-blue-300 hover:underline font-mono"
+                className="text-[10px] text-blue-300 hover:underline cursor-pointer"
               >
                 Загрузить в симулятор ↗
               </button>
@@ -175,7 +180,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         </div>
 
         {/* Card B */}
-        <div className="bg-[#050810] p-3 rounded border border-purple-500/30 flex flex-col gap-2 font-mono">
+        <div className="bg-[#080b11] p-3 rounded-xl border border-purple-500/30 flex flex-col gap-2 font-mono">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-purple-400" />
@@ -184,7 +189,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             {variantB && (
               <button
                 onClick={() => onLoadVariantIntoEditor(variantB)}
-                className="text-[10px] text-purple-300 hover:underline"
+                className="text-[10px] text-purple-300 hover:underline cursor-pointer"
               >
                 ЗАГРУЗИТЬ В СИМУЛЯТОР ↗
               </button>
@@ -220,12 +225,12 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
       {/* Side-by-Side Metrics Table */}
       {resultA && resultB && (
-        <div className="bg-[#050810] rounded border border-[#162238] overflow-hidden font-mono">
-          <div className="px-3 py-2 bg-[#0a101d] border-b border-[#162238] flex items-center justify-between">
+        <div className="bg-[#080b11] rounded-xl border border-[#182232] overflow-hidden font-mono">
+          <div className="px-3 py-2 bg-[#0c1017] border-b border-[#182232] flex items-center justify-between">
             <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
               ТАБЛИЦА СРАВНЕНИЯ МЕТРИК СВЯЗИ
             </span>
-            <span className="text-[10px] text-cyan-400">
+            <span className="text-[10px] text-[#c4f042]">
               ЦЕЛЕВОЙ ПОРОГ SLA: ≥ 90.0%
             </span>
           </div>
@@ -233,16 +238,16 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-[#070c18] text-slate-400 border-b border-[#162238] text-[10px] uppercase">
-                  <th className="py-2 px-3">НАЗЕМНЫЙ ПУНКТ</th>
-                  <th className="py-2 px-3">ПАРАМЕТР</th>
-                  <th className="py-2 px-3 text-blue-300">ВАРИАНТ A</th>
-                  <th className="py-2 px-3 text-purple-300">ВАРИАНТ B</th>
-                  <th className="py-2 px-3">ДЕЛЬТА (B - A)</th>
-                  <th className="py-2 px-3">SLA СТАТУС (B)</th>
+                <tr className="bg-[#0c1017] text-slate-400 border-b border-[#182232] text-[10px] uppercase">
+                  <th className="py-2.5 px-3">НАЗЕМНЫЙ ПУНКТ</th>
+                  <th className="py-2.5 px-3">ПАРАМЕТР</th>
+                  <th className="py-2.5 px-3 text-blue-300">ВАРИАНТ A</th>
+                  <th className="py-2.5 px-3 text-purple-300">ВАРИАНТ B</th>
+                  <th className="py-2.5 px-3">ДЕЛЬТА (B - A)</th>
+                  <th className="py-2.5 px-3">SLA СТАТУС (B)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#172236]">
+              <tbody className="divide-y divide-[#182232]">
                 {clients.map((c) => {
                   const mA = resultA.timelines[c.id]?.metrics
                   const mB = resultB.timelines[c.id]?.metrics
@@ -254,7 +259,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                   return (
                     <React.Fragment key={c.id}>
                       {/* Row 1: Availability */}
-                      <tr className="hover:bg-[#121c2e]/50">
+                      <tr className="hover:bg-[#121824]/50">
                         <td className="py-2.5 px-3 font-bold text-slate-200" rowSpan={3}>
                           {c.id} ({c.lat_deg}°N)
                         </td>
@@ -271,20 +276,14 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                           {renderDeltaPct(mA.availability_ratio, mB.availability_ratio)}
                         </td>
                         <td className="py-2 px-3" rowSpan={3}>
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                              meetsSlaB
-                                ? 'bg-emerald-950/80 border-emerald-700 text-emerald-300'
-                                : 'bg-red-950/80 border-red-700 text-red-300'
-                            }`}
-                          >
+                          <Badge variant={meetsSlaB ? 'lime' : 'red'}>
                             {meetsSlaB ? 'СООТВЕТСТВУЕТ' : 'НИЖЕ ЦЕЛИ'}
-                          </span>
+                          </Badge>
                         </td>
                       </tr>
 
                       {/* Row 2: Max Gap */}
-                      <tr className="hover:bg-[#121c2e]/50">
+                      <tr className="hover:bg-[#121824]/50">
                         <td className="py-2 px-3 text-slate-400">Макс. перерыв связи</td>
                         <td className="py-2 px-3 text-slate-300">
                           {Math.round(mA.max_gap_s / 60)} мин ({mA.max_gap_s}с)
@@ -298,7 +297,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                       </tr>
 
                       {/* Row 3: Hops */}
-                      <tr className="hover:bg-[#121c2e]/50">
+                      <tr className="hover:bg-[#121824]/50">
                         <td className="py-2 px-3 text-slate-400">Среднее число хопов</td>
                         <td className="py-2 px-3 text-slate-300">{mA.avg_hops.toFixed(1)}</td>
                         <td className="py-2 px-3 text-slate-300 font-bold">
@@ -316,6 +315,6 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           </div>
         </div>
       )}
-    </div>
+    </Card>
   )
 }

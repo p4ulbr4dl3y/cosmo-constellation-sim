@@ -395,12 +395,12 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.setLineDash([])
     }
 
-    // Draw ACTIVE ROUTE with glowing neon green beam
+    // Draw ACTIVE ROUTE with glowing neon lime beam
     if (activeRoute.length >= 2) {
       ctx.save()
-      ctx.shadowColor = '#10b981'
+      ctx.shadowColor = '#c4f042'
       ctx.shadowBlur = 12
-      ctx.strokeStyle = '#34d399'
+      ctx.strokeStyle = '#c4f042'
       ctx.lineWidth = 3
 
       for (let k = 0; k < activeRoute.length - 1; k++) {
@@ -420,8 +420,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         // Hop badge
         const midX = (p1[0] + p2[0]) / 2
         const midY = (p1[1] + p2[1]) / 2
-        ctx.fillStyle = '#065f46'
-        ctx.strokeStyle = '#34d399'
+        ctx.fillStyle = '#1e2d09'
+        ctx.strokeStyle = '#c4f042'
         ctx.lineWidth = 1
         ctx.beginPath()
         ctx.arc(midX, midY, 8, 0, Math.PI * 2)
@@ -565,7 +565,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       // Satellite ID Label
       if (showLabels || isOnRoute || isInspected) {
         ctx.fillStyle = isOnRoute
-          ? '#6ee7b7'
+          ? '#c4f042'
           : sat.failed
           ? '#f87171'
           : !sat.active
@@ -751,9 +751,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     // Draw ACTIVE ROUTE in 3D
     if (activeRoute.length >= 2) {
       ctx.save()
-      ctx.shadowColor = '#10b981'
+      ctx.shadowColor = '#c4f042'
       ctx.shadowBlur = 12
-      ctx.strokeStyle = '#34d399'
+      ctx.strokeStyle = '#c4f042'
       ctx.lineWidth = 3
 
       for (let k = 0; k < activeRoute.length - 1; k++) {
@@ -830,7 +830,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2)
         ctx.stroke()
       } else {
-        ctx.fillStyle = isOnRoute ? '#34d399' : pCol.stroke
+        ctx.fillStyle = isOnRoute ? '#c4f042' : pCol.stroke
         ctx.strokeStyle = '#ffffff'
         ctx.lineWidth = isOnRoute ? 2 : 1
         ctx.beginPath()
@@ -840,7 +840,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       }
 
       if (showLabels && p.visible) {
-        ctx.fillStyle = isOnRoute ? '#6ee7b7' : '#94a3b8'
+        ctx.fillStyle = isOnRoute ? '#c4f042' : '#94a3b8'
         ctx.font = '8px monospace'
         ctx.textAlign = 'center'
         ctx.fillText(sat.id, p.x, p.y + 6)
@@ -881,18 +881,18 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     : null
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-[#05070d] select-none overflow-hidden rounded-lg border border-[#162238]">
+    <div className="relative w-full h-full flex flex-col bg-[#07090e] select-none overflow-hidden rounded-xl border border-[#182232]">
       {/* Map Header Toolbar */}
       <div className="absolute top-2 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
         {/* Left Toolbar */}
-        <div className="flex flex-wrap items-center gap-1 bg-[#090e1a]/90 backdrop-blur-md px-1.5 py-1 rounded border border-[#18263e] shadow-xl pointer-events-auto font-mono">
+        <div className="flex flex-wrap items-center gap-1 bg-[#0c1017]/90 backdrop-blur-md px-1.5 py-1 rounded-lg border border-[#182232] shadow-xl pointer-events-auto font-mono">
           {/* 2D / 3D Mode Switcher */}
-          <div className="flex items-center bg-[#050810] p-0.5 rounded border border-[#141e30]">
+          <div className="flex items-center bg-[#080b11] p-0.5 rounded-md border border-[#182232]">
             <button
               onClick={() => setViewMode('2d')}
-              className={`px-2 py-0.5 text-xs font-semibold rounded flex items-center gap-1 transition-all ${
+              className={`px-2 py-0.5 text-xs font-semibold rounded-sm flex items-center gap-1 transition-all cursor-pointer ${
                 viewMode === '2d'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                  ? 'bg-[#c4f042]/15 text-[#c4f042] border border-[#c4f042]/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
@@ -901,9 +901,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
             </button>
             <button
               onClick={() => setViewMode('3d')}
-              className={`px-2 py-0.5 text-xs font-semibold rounded flex items-center gap-1 transition-all ${
+              className={`px-2 py-0.5 text-xs font-semibold rounded-sm flex items-center gap-1 transition-all cursor-pointer ${
                 viewMode === '3d'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                  ? 'bg-[#c4f042]/15 text-[#c4f042] border border-[#c4f042]/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
@@ -918,19 +918,19 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           <button
             onClick={focusArctic}
             title="Сфокусировать вид на Арктическом регионе (Севморпуть)"
-            className="px-2 py-0.5 rounded bg-[#050810] hover:bg-[#10192a] text-slate-300 hover:text-cyan-300 border border-[#18263e] text-xs flex items-center gap-1"
+            className="px-2 py-0.5 rounded-md bg-[#080b11] hover:bg-[#121824] text-slate-300 hover:text-[#c4f042] border border-[#182232] text-xs flex items-center gap-1 cursor-pointer transition-colors"
           >
-            <Compass className="w-3 h-3 text-cyan-400" />
+            <Compass className="w-3 h-3 text-[#c4f042]" />
             <span>АРКТИКА</span>
           </button>
 
           {/* Toggles */}
           <button
             onClick={() => setShowIsl((v) => !v)}
-            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 ${
+            className={`px-2 py-0.5 rounded-md text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
               showIsl
-                ? 'bg-cyan-950/70 border-cyan-600/60 text-cyan-300'
-                : 'bg-[#050810] border-[#18263e] text-slate-500'
+                ? 'bg-[#c4f042]/15 border-[#c4f042]/40 text-[#c4f042]'
+                : 'bg-[#080b11] border-[#182232] text-slate-400'
             }`}
           >
             <Layers className="w-3 h-3" />
@@ -939,10 +939,10 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
           <button
             onClick={() => setShowGroundLinks((v) => !v)}
-            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 ${
+            className={`px-2 py-0.5 rounded-md text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
               showGroundLinks
-                ? 'bg-cyan-950/70 border-cyan-600/60 text-cyan-300'
-                : 'bg-[#050810] border-[#18263e] text-slate-500'
+                ? 'bg-[#c4f042]/15 border-[#c4f042]/40 text-[#c4f042]'
+                : 'bg-[#080b11] border-[#182232] text-slate-400'
             }`}
           >
             <Wifi className="w-3 h-3" />
@@ -951,10 +951,10 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
           <button
             onClick={() => setShowLabels((v) => !v)}
-            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 ${
+            className={`px-2 py-0.5 rounded-md text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
               showLabels
-                ? 'bg-cyan-950/70 border-cyan-600/60 text-cyan-300'
-                : 'bg-[#050810] border-[#18263e] text-slate-500'
+                ? 'bg-[#c4f042]/15 border-[#c4f042]/40 text-[#c4f042]'
+                : 'bg-[#080b11] border-[#182232] text-slate-400'
             }`}
           >
             <Eye className="w-3 h-3" />
@@ -963,10 +963,10 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
           <button
             onClick={() => setShowUnlaunched((v) => !v)}
-            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 ${
+            className={`px-2 py-0.5 rounded-md text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
               showUnlaunched
-                ? 'bg-cyan-950/70 border-cyan-600/60 text-cyan-300'
-                : 'bg-[#050810] border-[#18263e] text-slate-500'
+                ? 'bg-[#c4f042]/15 border-[#c4f042]/40 text-[#c4f042]'
+                : 'bg-[#080b11] border-[#182232] text-slate-400'
             }`}
             title="Показывать неразвернутые аппараты (резервные очереди)"
           >
@@ -977,8 +977,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         {/* Right Toolbar: Client Selector & Legend */}
         <div className="flex flex-wrap items-center gap-1.5 pointer-events-auto font-mono">
           {/* Client quick switcher */}
-          <div className="bg-[#090e1a]/90 backdrop-blur-md px-1.5 py-1 rounded border border-[#18263e] shadow-xl flex items-center gap-1">
-            <span className="text-[10px] text-slate-500 uppercase px-1">CLIENT:</span>
+          <div className="bg-[#0c1017]/90 backdrop-blur-md px-1.5 py-1 rounded-lg border border-[#182232] shadow-xl flex items-center gap-1">
+            <span className="text-[10px] text-slate-400 uppercase px-1">CLIENT:</span>
             {scenario.ground_sites
               .filter((g) => g.role === 'client')
               .map((c) => {
@@ -988,10 +988,10 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
                   <button
                     key={c.id}
                     onClick={() => onSelectClient(c.id)}
-                    className={`px-2 py-0.5 text-xs font-bold rounded flex items-center gap-1 transition-all ${
+                    className={`px-2 py-0.5 text-xs font-bold rounded-md flex items-center gap-1 transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-amber-500 text-black shadow-sm'
-                        : 'bg-[#050810] text-slate-400 hover:text-slate-200 border border-[#18263e]'
+                        ? 'bg-[#c4f042] text-black shadow-sm'
+                        : 'bg-[#080b11] text-slate-400 hover:text-slate-200 border border-[#182232]'
                     }`}
                   >
                     <span
@@ -1006,7 +1006,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           </div>
 
           {/* Orbit Plane Legend */}
-          <div className="bg-[#090e1a]/90 backdrop-blur-md px-2 py-1 rounded border border-[#18263e] shadow-xl flex items-center gap-2 text-[10px]">
+          <div className="bg-[#0c1017]/90 backdrop-blur-md px-2 py-1 rounded-lg border border-[#182232] shadow-xl flex items-center gap-2 text-[10px]">
             <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-[#00e5ff]" />
               <span className="text-slate-400">P1</span>
@@ -1041,28 +1041,28 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
       {/* Floating HUD Card for Inspected Satellite */}
       {inspectedSat && (
-        <div className="absolute bottom-3 left-3 z-20 bg-[#070c18]/95 backdrop-blur-md p-3 rounded border border-cyan-500/40 shadow-2xl max-w-xs text-xs font-mono">
-          <div className="flex items-center justify-between gap-3 border-b border-[#162238] pb-1.5 mb-2">
+        <div className="absolute bottom-3 left-3 z-20 bg-[#0c1017]/95 backdrop-blur-md p-3 rounded-xl border border-[#c4f042]/40 shadow-2xl max-w-xs text-xs font-mono">
+          <div className="flex items-center justify-between gap-3 border-b border-[#182232] pb-1.5 mb-2">
             <div className="flex items-center gap-1.5">
               <span
                 className={`w-2 h-2 rounded-full ${
                   inspectedSat.failed
                     ? 'bg-red-500'
                     : inspectedSat.active
-                    ? 'bg-emerald-400'
+                    ? 'bg-[#c4f042]'
                     : 'bg-slate-500'
                 }`}
               />
-              <span className="font-bold text-xs tracking-wider text-cyan-300">
+              <span className="font-bold text-xs tracking-wider text-[#c4f042]">
                 SAT // {inspectedSat.id}
               </span>
-              <span className="text-[10px] bg-[#050810] text-slate-400 border border-[#162238] px-1 py-0.2 rounded">
+              <span className="text-[10px] bg-[#080b11] text-slate-400 border border-[#182232] px-1 py-0.2 rounded">
                 {inspectedSat.plane_id}
               </span>
             </div>
             <button
               onClick={() => setInspectedSatId(null)}
-              className="text-slate-500 hover:text-white text-sm leading-none px-1"
+              className="text-slate-500 hover:text-white text-sm leading-none px-1 cursor-pointer"
             >
               ✕
             </button>
@@ -1070,14 +1070,14 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
           <div className="space-y-1 text-[10px] text-slate-300">
             <div className="flex justify-between">
-              <span className="text-slate-500">СТАТУС:</span>
+              <span className="text-slate-400">СТАТУС:</span>
               <span
                 className={
                   inspectedSat.failed
                     ? 'text-red-400 font-bold'
                     : inspectedSat.active
-                    ? 'text-emerald-400 font-semibold'
-                    : 'text-slate-500'
+                    ? 'text-[#c4f042] font-semibold'
+                    : 'text-slate-400'
                 }
               >
                 {inspectedSat.failed
@@ -1088,18 +1088,18 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">ОЧЕРЕДЬ:</span>
+              <span className="text-slate-400">ОЧЕРЕДЬ:</span>
               <span>BATCH #{inspectedSat.launch_batch}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">LAT / LON:</span>
+              <span className="text-slate-400">LAT / LON:</span>
               <span>
                 {Math.abs(inspectedSat.lat_deg).toFixed(1)}°{inspectedSat.lat_deg >= 0 ? 'N' : 'S'},{' '}
                 {Math.abs(inspectedSat.lon_deg).toFixed(1)}°{inspectedSat.lon_deg >= 0 ? 'E' : 'W'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">ECEF (X, Y, Z):</span>
+              <span className="text-slate-400">ECEF (X, Y, Z):</span>
               <span className="text-[9px] text-slate-400">
                 [{Math.round(inspectedSat.x_km)}, {Math.round(inspectedSat.y_km)}, {Math.round(inspectedSat.z_km)}] KM
               </span>
@@ -1107,23 +1107,23 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           </div>
 
           {/* Action button */}
-          <div className="mt-2.5 pt-2 border-t border-[#162238]">
+          <div className="mt-2.5 pt-2 border-t border-[#182232]">
             <button
               onClick={() => onToggleFailure(inspectedSat.id)}
-              className={`w-full py-1 px-2 rounded text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`w-full py-1.5 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 inspectedSat.failed
-                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                  : 'bg-red-600/90 hover:bg-red-500 text-white'
+                  ? 'bg-[#c4f042] hover:bg-[#b3dc32] text-black font-semibold'
+                  : 'bg-red-950/60 hover:bg-red-900/80 border border-red-800/60 text-red-300'
               }`}
             >
               {inspectedSat.failed ? (
                 <>
-                  <Crosshair className="w-3 h-3" />
+                  <Crosshair className="w-3.5 h-3.5" />
                   <span>ВОССТАНОВИТЬ СВЯЗЬ</span>
                 </>
               ) : (
                 <>
-                  <ZapOff className="w-3 h-3" />
+                  <ZapOff className="w-3.5 h-3.5" />
                   <span>ИНИЦИИРОВАТЬ ОТКАЗ</span>
                 </>
               )}
