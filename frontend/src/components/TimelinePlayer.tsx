@@ -170,8 +170,8 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           >
             {isPlaying ? (
               <>
-                <Pause className="w-3.5 h-3.5 fill-current text-[#c4f042]" />
-                <span className="text-[#c4f042]">PAUSE</span>
+                <Pause className="w-3.5 h-3.5 fill-current text-[#00f0ff]" />
+                <span className="text-[#00f0ff]">PAUSE</span>
               </>
             ) : (
               <>
@@ -198,7 +198,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                 onClick={() => setPlaybackSpeed(spd)}
                 className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
                   playbackSpeed === spd
-                    ? 'bg-[#c4f042]/15 text-[#c4f042] font-bold border border-[#c4f042]/40'
+                    ? 'bg-[#00f0ff]/15 text-[#00f0ff] font-bold border border-[#00f0ff]/40'
                     : 'text-slate-400 hover:text-slate-200 border border-transparent'
                 }`}
               >
@@ -211,7 +211,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         {/* Current Time Display */}
         <div className="flex items-center gap-2.5 font-mono">
           <div className="flex items-center gap-2 bg-[#080b11] border border-[#182232] px-2.5 py-1 rounded-lg">
-            <Clock className="w-3.5 h-3.5 text-[#c4f042] animate-pulse" />
+            <Clock className="w-3.5 h-3.5 text-[#00f0ff] animate-pulse" />
             <span className="text-sm font-bold text-slate-100 tracking-wider">
               {formatTime(currentTime)}
             </span>
@@ -234,7 +234,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           step={step_s}
           value={currentTime}
           onChange={(e) => onTimeChange(Number(e.target.value))}
-          className="w-full h-1.5 bg-[#141b26] rounded-sm appearance-none cursor-pointer accent-[#c4f042] focus:outline-none"
+          className="w-full h-1.5 bg-[#141b26] rounded-sm appearance-none cursor-pointer accent-[#00f0ff] focus:outline-none"
         />
         {/* Hour tick marks */}
         <div className="flex justify-between text-[9px] font-mono text-slate-400 pt-1 select-none">
@@ -252,12 +252,12 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       <div className="flex flex-col gap-1 mt-0.5">
         <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono uppercase">
           <span className="font-semibold text-slate-300 tracking-wider flex items-center gap-1.5">
-            <Radio className="w-3 h-3 text-[#c4f042]" />
+            <Radio className="w-3 h-3 text-[#00f0ff]" />
             ДОСТУПНОСТЬ ТРАССЫ (00:00 - 24:00 UTC)
           </span>
           <div className="flex items-center gap-3 text-[9px]">
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-xs bg-[#c4f042]" /> СВЯЗЬ ДО ШЛЮЗА
+              <span className="w-2 h-2 rounded-xs bg-emerald-500" /> СВЯЗЬ ДО ШЛЮЗА
             </span>
             <span className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-xs bg-red-500" /> ПЕРЕРЫВ
@@ -269,7 +269,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         <div className="relative flex flex-col gap-1 bg-[#080b11] p-1.5 rounded-lg border border-[#182232]">
           {/* Vertical Playhead across all rows */}
           <div
-            className="absolute top-0 bottom-0 w-0.5 bg-[#c4f042] z-10 pointer-events-none shadow-[0_0_8px_#c4f042]"
+            className="absolute top-0 bottom-0 w-0.5 bg-[#00f0ff] z-10 pointer-events-none shadow-[0_0_8px_#00f0ff]"
             style={{ left: `calc(${playheadPercent}% + 88px * (1 - ${playheadPercent / 100}))` }}
           />
 
@@ -283,7 +283,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
               <div
                 key={c.id}
                 className={`flex items-center gap-2 rounded-md transition-colors ${
-                  isSelected ? 'bg-[#c4f042]/5' : ''
+                  isSelected ? 'bg-[#00f0ff]/5' : ''
                 }`}
               >
                 {/* Client Label & Badge */}
@@ -291,14 +291,14 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                   onClick={() => onSelectClient(c.id)}
                   className={`w-20 shrink-0 text-left px-1.5 py-0.5 rounded-md font-mono text-xs flex items-center justify-between border transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-[#c4f042]/15 border-[#c4f042]/60 text-[#c4f042] font-bold'
+                      ? 'bg-[#00f0ff]/15 border-[#00f0ff]/50 text-[#00f0ff] font-bold'
                       : 'bg-[#0c1017] border-[#182232] text-slate-300 hover:border-slate-500'
                   }`}
                 >
                   <span>{c.id}</span>
                   <span
                     className={`text-[9px] font-mono ${
-                      meetsTarget ? 'text-[#c4f042]' : 'text-amber-400'
+                      meetsTarget ? 'text-emerald-400' : 'text-amber-400'
                     }`}
                   >
                     {availRatio}%
@@ -320,7 +320,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                           style={{ width: `${100 / totalSlots}%` }}
                           className={`h-full ${
                             slot.hasPath
-                              ? 'bg-[#c4f042]/85 hover:bg-[#c4f042]'
+                              ? 'bg-emerald-500/80 hover:bg-emerald-400'
                               : 'bg-red-500/80 hover:bg-red-400'
                           }`}
                         />
@@ -336,10 +336,10 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       {/* Floating Tooltip */}
       {tooltipData && (
         <div
-          className="fixed z-50 pointer-events-none bg-[#0c1017] text-slate-100 text-xs px-3 py-2 rounded-lg border border-[#c4f042]/50 shadow-2xl backdrop-blur-md transform -translate-x-1/2 -translate-y-full"
+          className="fixed z-50 pointer-events-none bg-[#0c1017] text-slate-100 text-xs px-3 py-2 rounded-lg border border-[#00f0ff]/40 shadow-2xl backdrop-blur-md transform -translate-x-1/2 -translate-y-full"
           style={{ left: tooltipData.x, top: tooltipData.y }}
         >
-          <div className="flex items-center gap-2 font-mono font-bold text-[#c4f042] border-b border-[#182232] pb-1 mb-1">
+          <div className="flex items-center gap-2 font-mono font-bold text-[#00f0ff] border-b border-[#182232] pb-1 mb-1">
             <span>{tooltipData.clientId}</span>
             <span>{formatTime(tooltipData.slot.t_s)}</span>
             <span className="text-[10px] text-slate-400">
@@ -349,8 +349,8 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           <div className="flex items-center gap-1.5 text-[11px]">
             {tooltipData.slot.hasPath ? (
               <>
-                <CheckCircle className="w-3.5 h-3.5 text-[#c4f042]" />
-                <span className="text-[#c4f042] font-semibold">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-300 font-semibold">
                   Связь доступна (Хопов: {tooltipData.slot.hops})
                 </span>
               </>

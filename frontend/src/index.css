@@ -5,12 +5,12 @@
   --color-brand-card: #0c1017;
   --color-brand-card-subtle: #080b11;
   --color-brand-border: #182232;
-  --color-brand-border-focus: #c4f042;
+  --color-brand-border-focus: #00f0ff;
   
-  --color-brand-lime: #c4f042;
-  --color-brand-lime-hover: #b3dc32;
-  --color-brand-lime-dim: rgba(196, 240, 66, 0.12);
-  --color-brand-lime-border: rgba(196, 240, 66, 0.35);
+  --color-brand-cyan: #00f0ff;
+  --color-brand-cyan-hover: #38bdf8;
+  --color-brand-cyan-dim: rgba(0, 240, 255, 0.12);
+  --color-brand-cyan-border: rgba(0, 240, 255, 0.35);
 
   --color-brand-muted: #8b9bb4;
   --color-brand-dim: #475569;
@@ -34,7 +34,7 @@
   }
 
   ::selection {
-    background-color: #c4f042;
+    background-color: #00f0ff;
     color: #000000;
   }
 
@@ -55,7 +55,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at center, rgba(196, 240, 66, 0.04) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
 }
 
 /* Custom crisp technical scrollbar */

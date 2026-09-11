@@ -87,7 +87,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               onClick={() => onSelectClient(c.id)}
               className={`p-2.5 rounded-xl border font-mono transition-all cursor-pointer relative overflow-hidden ${
                 isSelected
-                  ? 'bg-[#0e131d] border-[#c4f042] shadow-[0_0_16px_rgba(196,240,66,0.12)]'
+                  ? 'bg-[#0b1322] border-[#00f0ff] shadow-[0_0_16px_rgba(0,240,255,0.15)]'
                   : 'bg-[#0c1017] border-[#182232] hover:border-slate-600 hover:bg-[#101622]'
               }`}
             >
@@ -96,7 +96,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 <div className="flex items-center gap-1.5">
                   <span
                     className={`w-2 h-2 rounded-full shrink-0 ${
-                      isOnlineNow ? 'bg-[#c4f042] shadow-[0_0_8px_#c4f042]' : 'bg-red-400'
+                      isOnlineNow ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-red-400'
                     }`}
                   />
                   <span className="font-bold text-xs tracking-wider text-slate-100">
@@ -106,7 +106,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                     {c.lat_deg}°N
                   </span>
                 </div>
-                <Badge variant={meetsTarget ? 'lime' : 'amber'}>
+                <Badge variant={meetsTarget ? 'emerald' : 'amber'}>
                   {availPct}%
                 </Badge>
               </div>
@@ -133,12 +133,12 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
       <Card noPadding className="p-3">
         <CardHeader className="pb-2 mb-2.5">
           <CardTitle>
-            <Radio className="w-3.5 h-3.5 text-[#c4f042]" />
+            <Radio className="w-3.5 h-3.5 text-[#00f0ff]" />
             <span>МАРШРУТ: {selectedClientId} // {scenario.ground_sites.find((g) => g.id === selectedClientId)?.name}</span>
           </CardTitle>
           <div className="flex items-center gap-2 text-xs font-mono">
             <span className="text-slate-400 text-[10px] uppercase">ШЛЮЗ MUR:</span>
-            <Badge variant={isGatewayOutage ? 'red' : 'lime'}>
+            <Badge variant={isGatewayOutage ? 'red' : 'emerald'}>
               {isGatewayOutage ? 'ОТКАЗ' : 'ONLINE'}
             </Badge>
           </div>
@@ -160,7 +160,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                         ? 'bg-amber-950/60 border-amber-600/60 text-amber-300'
                         : isLast
                         ? 'bg-blue-950/60 border-blue-600/60 text-blue-300'
-                        : 'bg-[#c4f042]/10 border-[#c4f042]/30 text-[#c4f042]'
+                        : 'bg-[#00f0ff]/12 border-[#00f0ff]/40 text-[#00f0ff]'
                     }`}
                   >
                     <span className="font-bold">{nodeId}</span>
@@ -168,8 +168,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
                   {/* Connecting Arrow */}
                   {!isLast && (
-                    <div className="flex items-center text-[#c4f042]">
-                      <ArrowRight className="w-3 h-3 text-[#c4f042]/80" />
+                    <div className="flex items-center text-[#00f0ff]">
+                      <ArrowRight className="w-3 h-3 text-[#00f0ff]/80" />
                       <span className="text-[8px] font-mono text-slate-400 mx-0.5">
                         {idx === 0 ? 'GSL' : idx === activeRoute.length - 2 ? 'GSL' : 'ISL'}
                       </span>
@@ -182,10 +182,10 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             <div className="ml-auto flex items-center gap-2.5 font-mono text-[10px]">
               {routeLatencyMs && (
                 <span className="text-slate-300">
-                  RTT <span className="text-[#c4f042] font-semibold">{routeLatencyMs} ms</span>
+                  RTT <span className="text-[#00f0ff] font-semibold">{routeLatencyMs} ms</span>
                 </span>
               )}
-              <Badge variant="lime">
+              <Badge variant="cyan">
                 {activeRoute.length - 1} HOPS
               </Badge>
             </div>

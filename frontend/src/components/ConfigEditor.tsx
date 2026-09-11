@@ -143,7 +143,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
       {/* Header */}
       <CardHeader className="pb-2.5">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#121824] border border-[#182232] flex items-center justify-center text-[#c4f042]">
+          <div className="w-7 h-7 rounded-lg bg-[#121824] border border-[#182232] flex items-center justify-center text-[#00f0ff]">
             <Sliders className="w-3.5 h-3.5" />
           </div>
           <div>
@@ -195,7 +195,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Launch Stage & Environment */}
         <div className="bg-[#080b11] p-3 rounded-xl border border-[#182232] flex flex-col gap-2.5">
-          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#c4f042] uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#00f0ff] uppercase tracking-wider">
             <Rocket className="w-3.5 h-3.5" />
             <span>ОЧЕРЕДЬ РАЗВЕРТЫВАНИЯ (LAUNCH STAGE)</span>
           </div>
@@ -211,7 +211,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                   onClick={() => handleLaunchStageChange(stg)}
                   className={`py-2 px-2 rounded-lg border text-xs font-mono font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-[#c4f042] border-[#c4f042] text-black shadow-md shadow-[#c4f042]/10'
+                      ? 'bg-[#00f0ff] border-[#00f0ff] text-black shadow-md shadow-[#00f0ff]/10'
                       : 'bg-[#0c1017] border-[#182232] text-slate-300 hover:border-slate-500'
                   }`}
                 >
@@ -228,7 +228,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
 
           {/* Environment Parameters */}
           <div className="flex items-center gap-2 text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
-            <Globe className="w-4 h-4 text-[#c4f042]" />
+            <Globe className="w-4 h-4 text-[#00f0ff]" />
             <span>Параметры окружения и связи</span>
           </div>
 
@@ -244,7 +244,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                     onClick={() => handleEnvChange('isl_range_km', val)}
                     className={`flex-1 py-1.5 px-2 rounded-lg font-mono text-xs font-bold border transition-colors cursor-pointer ${
                       draft.environment.isl_range_km === val
-                        ? 'bg-[#c4f042]/15 border-[#c4f042] text-[#c4f042]'
+                        ? 'bg-[#00f0ff]/15 border-[#00f0ff] text-[#00f0ff]'
                         : 'bg-[#0c1017] border-[#182232] text-slate-300 hover:bg-[#121824]'
                     }`}
                   >
@@ -265,7 +265,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 step="1"
                 value={draft.environment.min_elevation_deg}
                 onChange={(e) => handleEnvChange('min_elevation_deg', Number(e.target.value))}
-                className="w-full bg-[#0c1017] border border-[#182232] rounded-lg py-1.5 px-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-[#c4f042]"
+                className="w-full bg-[#0c1017] border border-[#182232] rounded-lg py-1.5 px-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-[#00f0ff]"
               />
             </div>
           </div>
@@ -273,7 +273,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
 
         {/* Plane Orientation & RAAN / Phase Shift */}
         <div className="bg-[#080b11] p-3.5 rounded-xl border border-[#182232] flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#c4f042] uppercase tracking-wider font-mono">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#00f0ff] uppercase tracking-wider font-mono">
             <Radio className="w-4 h-4" />
             <span>Орбитальные плоскости (RAAN &amp; Фазовый сдвиг)</span>
           </div>
@@ -285,7 +285,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 className="bg-[#0c1017] p-2.5 rounded-lg border border-[#182232] flex flex-col gap-1.5"
               >
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-mono font-bold text-[#c4f042]">
+                  <span className="font-mono font-bold text-[#00f0ff]">
                     Плоскость {p.id}
                   </span>
                   <span className="text-[10px] text-slate-400 font-mono">16 аппаратов</span>
@@ -304,7 +304,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                       step="1"
                       value={p.raan_deg}
                       onChange={(e) => handlePlaneChange(p.id, 'raan_deg', Number(e.target.value))}
-                      className="w-full h-1 bg-[#182232] rounded accent-[#c4f042] cursor-pointer"
+                      className="w-full h-1 bg-[#182232] rounded accent-[#00f0ff] cursor-pointer"
                     />
                   </div>
 
@@ -320,7 +320,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                       step="0.5"
                       value={p.phase_deg}
                       onChange={(e) => handlePlaneChange(p.id, 'phase_deg', Number(e.target.value))}
-                      className="w-full h-1 bg-[#182232] rounded accent-[#c4f042] cursor-pointer"
+                      className="w-full h-1 bg-[#182232] rounded accent-[#00f0ff] cursor-pointer"
                     />
                   </div>
                 </div>
@@ -346,7 +346,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
             <select
               value={newFailSat}
               onChange={(e) => setNewFailSat(e.target.value)}
-              className="bg-[#080b11] border border-[#182232] text-slate-200 py-1 px-1.5 rounded font-mono text-xs focus:outline-none focus:border-[#c4f042]"
+              className="bg-[#080b11] border border-[#182232] text-slate-200 py-1 px-1.5 rounded font-mono text-xs focus:outline-none focus:border-[#00f0ff]"
             >
               {draft.design.satellites.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -364,7 +364,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 step="120"
                 value={newFailStart}
                 onChange={(e) => setNewFailStart(Number(e.target.value))}
-                className="w-16 bg-[#080b11] border border-[#182232] px-1 py-0.5 rounded text-slate-200 font-mono text-xs focus:outline-none focus:border-[#c4f042]"
+                className="w-16 bg-[#080b11] border border-[#182232] px-1 py-0.5 rounded text-slate-200 font-mono text-xs focus:outline-none focus:border-[#00f0ff]"
               />
               <span className="text-slate-400">До:</span>
               <input
@@ -374,7 +374,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 step="120"
                 value={newFailEnd}
                 onChange={(e) => setNewFailEnd(Number(e.target.value))}
-                className="w-16 bg-[#080b11] border border-[#182232] px-1 py-0.5 rounded text-slate-200 font-mono text-xs focus:outline-none focus:border-[#c4f042]"
+                className="w-16 bg-[#080b11] border border-[#182232] px-1 py-0.5 rounded text-slate-200 font-mono text-xs focus:outline-none focus:border-[#00f0ff]"
               />
             </div>
 
@@ -426,7 +426,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
         <div className="bg-[#080b11] p-3.5 rounded-xl border border-[#182232] flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5 font-mono">
-              <Globe className="w-3.5 h-3.5 text-[#c4f042]" />
+              <Globe className="w-3.5 h-3.5 text-[#00f0ff]" />
               Недоступность шлюза Murmansk ({draft.gateway_outages.length})
             </span>
           </div>
@@ -442,7 +442,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 step="120"
                 value={newGwStart}
                 onChange={(e) => setNewGwStart(Number(e.target.value))}
-                className="w-16 bg-[#080b11] border border-[#182232] px-1 py-0.5 rounded text-slate-200 font-mono text-xs focus:outline-none focus:border-[#c4f042]"
+                className="w-16 bg-[#080b11] border border-[#182232] px-1 py-0.5 rounded text-slate-200 font-mono text-xs focus:outline-none focus:border-[#00f0ff]"
               />
               <span className="text-slate-400">До:</span>
               <input
@@ -452,7 +452,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 step="120"
                 value={newGwEnd}
                 onChange={(e) => setNewGwEnd(Number(e.target.value))}
-                className="w-16 bg-[#080b11] border border-[#182232] px-1 py-0.5 rounded text-slate-200 font-mono text-xs focus:outline-none focus:border-[#c4f042]"
+                className="w-16 bg-[#080b11] border border-[#182232] px-1 py-0.5 rounded text-slate-200 font-mono text-xs focus:outline-none focus:border-[#00f0ff]"
               />
             </div>
 

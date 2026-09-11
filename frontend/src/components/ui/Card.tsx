@@ -10,7 +10,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     const variantStyles = {
       default: 'bg-[#0c1017] border-[#182232] text-slate-100 shadow-sm',
       subtle: 'bg-[#080b11] border-[#141b26] text-slate-200',
-      accent: 'bg-[#c4f042] border-[#c4f042] text-black shadow-lg shadow-[#c4f042]/10',
+      accent: 'bg-[#00f0ff] border-[#00f0ff] text-black shadow-lg shadow-[#00f0ff]/10',
     }[variant]
 
     return (

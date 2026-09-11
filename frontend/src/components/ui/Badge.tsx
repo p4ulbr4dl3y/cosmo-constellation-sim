@@ -1,7 +1,7 @@
 import React from 'react'
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: 'lime' | 'emerald' | 'amber' | 'red' | 'blue' | 'neutral'
+  variant?: 'cyan' | 'lime' | 'emerald' | 'amber' | 'red' | 'blue' | 'neutral'
 }
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -11,7 +11,8 @@ export const Badge: React.FC<BadgeProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    lime: 'bg-[#c4f042]/15 text-[#c4f042] border-[#c4f042]/40',
+    cyan: 'bg-[#00f0ff]/12 text-[#00f0ff] border-[#00f0ff]/35',
+    lime: 'bg-[#00f0ff]/12 text-[#00f0ff] border-[#00f0ff]/35',
     emerald: 'bg-emerald-950/60 text-emerald-300 border-emerald-700/60',
     amber: 'bg-amber-950/60 text-amber-300 border-amber-700/60',
     red: 'bg-red-950/60 text-red-300 border-red-700/60',

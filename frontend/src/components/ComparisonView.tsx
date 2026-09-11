@@ -52,7 +52,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     return (
       <span
         className={`flex items-center gap-0.5 font-bold font-mono ${
-          isPositive ? 'text-[#c4f042]' : 'text-red-400'
+          isPositive ? 'text-emerald-400' : 'text-red-400'
         }`}
       >
         {isPositive ? (
@@ -80,7 +80,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     return (
       <span
         className={`flex items-center gap-0.5 font-bold font-mono ${
-          isBetter ? 'text-[#c4f042]' : 'text-red-400'
+          isBetter ? 'text-emerald-400' : 'text-red-400'
         }`}
       >
         {isBetter ? (
@@ -98,7 +98,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
       {/* Header */}
       <CardHeader className="pb-2.5">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#121824] border border-[#182232] flex items-center justify-center text-[#c4f042]">
+          <div className="w-7 h-7 rounded-lg bg-[#121824] border border-[#182232] flex items-center justify-center text-[#00f0ff]">
             <Scale className="w-3.5 h-3.5" />
           </div>
           <div>
@@ -230,7 +230,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
               ТАБЛИЦА СРАВНЕНИЯ МЕТРИК СВЯЗИ
             </span>
-            <span className="text-[10px] text-[#c4f042]">
+            <span className="text-[10px] text-[#00f0ff]">
               ЦЕЛЕВОЙ ПОРОГ SLA: ≥ 90.0%
             </span>
           </div>
@@ -276,7 +276,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                           {renderDeltaPct(mA.availability_ratio, mB.availability_ratio)}
                         </td>
                         <td className="py-2 px-3" rowSpan={3}>
-                          <Badge variant={meetsSlaB ? 'lime' : 'red'}>
+                          <Badge variant={meetsSlaB ? 'emerald' : 'red'}>
                             {meetsSlaB ? 'СООТВЕТСТВУЕТ' : 'НИЖЕ ЦЕЛИ'}
                           </Badge>
                         </td>

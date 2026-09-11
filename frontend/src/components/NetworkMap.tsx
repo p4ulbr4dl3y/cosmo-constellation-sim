@@ -398,9 +398,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     // Draw ACTIVE ROUTE with glowing neon lime beam
     if (activeRoute.length >= 2) {
       ctx.save()
-      ctx.shadowColor = '#c4f042'
+      ctx.shadowColor = '#00f0ff'
       ctx.shadowBlur = 12
-      ctx.strokeStyle = '#c4f042'
+      ctx.strokeStyle = '#00f0ff'
       ctx.lineWidth = 3
 
       for (let k = 0; k < activeRoute.length - 1; k++) {
@@ -420,8 +420,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         // Hop badge
         const midX = (p1[0] + p2[0]) / 2
         const midY = (p1[1] + p2[1]) / 2
-        ctx.fillStyle = '#1e2d09'
-        ctx.strokeStyle = '#c4f042'
+        ctx.fillStyle = '#062d3e'
+        ctx.strokeStyle = '#00f0ff'
         ctx.lineWidth = 1
         ctx.beginPath()
         ctx.arc(midX, midY, 8, 0, Math.PI * 2)
@@ -565,7 +565,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       // Satellite ID Label
       if (showLabels || isOnRoute || isInspected) {
         ctx.fillStyle = isOnRoute
-          ? '#c4f042'
+          ? '#00f0ff'
           : sat.failed
           ? '#f87171'
           : !sat.active
@@ -751,9 +751,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     // Draw ACTIVE ROUTE in 3D
     if (activeRoute.length >= 2) {
       ctx.save()
-      ctx.shadowColor = '#c4f042'
+      ctx.shadowColor = '#00f0ff'
       ctx.shadowBlur = 12
-      ctx.strokeStyle = '#c4f042'
+      ctx.strokeStyle = '#00f0ff'
       ctx.lineWidth = 3
 
       for (let k = 0; k < activeRoute.length - 1; k++) {
@@ -778,40 +778,26 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       const isGateway = g.role === 'gateway'
       const isSelected = g.id === selectedClientId
 
-      if (isGateway) {
-        ctx.fillStyle = '#38bdf8'
-        ctx.strokeStyle = '#ffffff'
-        ctx.lineWidth = 2
-        ctx.save()
-        ctx.translate(p.x, p.y)
-        ctx.rotate(Math.PI / 4)
-        ctx.fillRect(-6, -6, 12, 12)
-        ctx.strokeRect(-6, -6, 12, 12)
-        ctx.restore()
+      ctx.fillStyle = isGateway ? '#3b82f6' : isSelected ? '#f59e0b' : '#94a3b8'
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, isGateway ? 6 : 4, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = 1
+      ctx.stroke()
 
-        ctx.fillStyle = '#e0f2fe'
-        ctx.font = 'bold 10px monospace'
-        ctx.textAlign = 'left'
-        ctx.fillText(`⯌ ${g.id}`, p.x + 8, p.y)
-      } else {
-        ctx.fillStyle = isSelected ? '#eab308' : '#38bdf8'
-        ctx.strokeStyle = isSelected ? '#fef08a' : '#0284c7'
-        ctx.lineWidth = 1.5
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, isSelected ? 7 : 5, 0, Math.PI * 2)
-        ctx.fill()
-        ctx.stroke()
-
-        ctx.fillStyle = isSelected ? '#fef08a' : '#cbd5e1'
-        ctx.font = isSelected ? 'bold 10px monospace' : '9px monospace'
-        ctx.textAlign = 'left'
-        ctx.fillText(`● ${g.id}`, p.x + 8, p.y)
+      if (showLabels && p.visible) {
+        ctx.fillStyle = '#cbd5e1'
+        ctx.font = '8px monospace'
+        ctx.textAlign = 'center'
+        ctx.fillText(g.id, p.x, p.y - 6)
       }
     }
 
     // Draw Satellites in 3D
     for (const sat of snapshot.satellites) {
-      if (!showUnlaunched && !sat.active && !sat.failed) continue
+      if (!sat.active && !showUnlaunched) continue
+
       const p = sat3DMap.get(sat.id)
       if (!p || !p.visible) continue
 
@@ -830,7 +816,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2)
         ctx.stroke()
       } else {
-        ctx.fillStyle = isOnRoute ? '#c4f042' : pCol.stroke
+        ctx.fillStyle = isOnRoute ? '#00f0ff' : pCol.stroke
         ctx.strokeStyle = '#ffffff'
         ctx.lineWidth = isOnRoute ? 2 : 1
         ctx.beginPath()
@@ -840,7 +826,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       }
 
       if (showLabels && p.visible) {
-        ctx.fillStyle = isOnRoute ? '#c4f042' : '#94a3b8'
+        ctx.fillStyle = isOnRoute ? '#00f0ff' : '#94a3b8'
         ctx.font = '8px monospace'
         ctx.textAlign = 'center'
         ctx.fillText(sat.id, p.x, p.y + 6)
@@ -892,7 +878,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
               onClick={() => setViewMode('2d')}
               className={`px-2 py-0.5 text-xs font-semibold rounded-sm flex items-center gap-1 transition-all cursor-pointer ${
                 viewMode === '2d'
-                  ? 'bg-[#c4f042]/15 text-[#c4f042] border border-[#c4f042]/40 shadow-sm'
+                  ? 'bg-[#00f0ff]/15 text-[#00f0ff] border border-[#00f0ff]/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
@@ -903,7 +889,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
               onClick={() => setViewMode('3d')}
               className={`px-2 py-0.5 text-xs font-semibold rounded-sm flex items-center gap-1 transition-all cursor-pointer ${
                 viewMode === '3d'
-                  ? 'bg-[#c4f042]/15 text-[#c4f042] border border-[#c4f042]/40 shadow-sm'
+                  ? 'bg-[#00f0ff]/15 text-[#00f0ff] border border-[#00f0ff]/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
@@ -918,9 +904,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           <button
             onClick={focusArctic}
             title="Сфокусировать вид на Арктическом регионе (Севморпуть)"
-            className="px-2 py-0.5 rounded-md bg-[#080b11] hover:bg-[#121824] text-slate-300 hover:text-[#c4f042] border border-[#182232] text-xs flex items-center gap-1 cursor-pointer transition-colors"
+            className="px-2 py-0.5 rounded-md bg-[#080b11] hover:bg-[#121824] text-slate-300 hover:text-[#00f0ff] border border-[#182232] text-xs flex items-center gap-1 cursor-pointer transition-colors"
           >
-            <Compass className="w-3 h-3 text-[#c4f042]" />
+            <Compass className="w-3 h-3 text-[#00f0ff]" />
             <span>АРКТИКА</span>
           </button>
 
@@ -929,7 +915,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
             onClick={() => setShowIsl((v) => !v)}
             className={`px-2 py-0.5 rounded-md text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
               showIsl
-                ? 'bg-[#c4f042]/15 border-[#c4f042]/40 text-[#c4f042]'
+                ? 'bg-[#00f0ff]/12 border-[#00f0ff]/40 text-[#00f0ff]'
                 : 'bg-[#080b11] border-[#182232] text-slate-400'
             }`}
           >
@@ -941,7 +927,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
             onClick={() => setShowGroundLinks((v) => !v)}
             className={`px-2 py-0.5 rounded-md text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
               showGroundLinks
-                ? 'bg-[#c4f042]/15 border-[#c4f042]/40 text-[#c4f042]'
+                ? 'bg-[#00f0ff]/12 border-[#00f0ff]/40 text-[#00f0ff]'
                 : 'bg-[#080b11] border-[#182232] text-slate-400'
             }`}
           >
@@ -953,7 +939,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
             onClick={() => setShowLabels((v) => !v)}
             className={`px-2 py-0.5 rounded-md text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
               showLabels
-                ? 'bg-[#c4f042]/15 border-[#c4f042]/40 text-[#c4f042]'
+                ? 'bg-[#00f0ff]/12 border-[#00f0ff]/40 text-[#00f0ff]'
                 : 'bg-[#080b11] border-[#182232] text-slate-400'
             }`}
           >
@@ -965,7 +951,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
             onClick={() => setShowUnlaunched((v) => !v)}
             className={`px-2 py-0.5 rounded-md text-xs border transition-colors flex items-center gap-1 cursor-pointer ${
               showUnlaunched
-                ? 'bg-[#c4f042]/15 border-[#c4f042]/40 text-[#c4f042]'
+                ? 'bg-[#00f0ff]/12 border-[#00f0ff]/40 text-[#00f0ff]'
                 : 'bg-[#080b11] border-[#182232] text-slate-400'
             }`}
             title="Показывать неразвернутые аппараты (резервные очереди)"
@@ -990,7 +976,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
                     onClick={() => onSelectClient(c.id)}
                     className={`px-2 py-0.5 text-xs font-bold rounded-md flex items-center gap-1 transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#c4f042] text-black shadow-sm'
+                        ? 'bg-[#00f0ff] text-black shadow-sm'
                         : 'bg-[#080b11] text-slate-400 hover:text-slate-200 border border-[#182232]'
                     }`}
                   >
@@ -1041,7 +1027,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
       {/* Floating HUD Card for Inspected Satellite */}
       {inspectedSat && (
-        <div className="absolute bottom-3 left-3 z-20 bg-[#0c1017]/95 backdrop-blur-md p-3 rounded-xl border border-[#c4f042]/40 shadow-2xl max-w-xs text-xs font-mono">
+        <div className="absolute bottom-3 left-3 z-20 bg-[#0c1017]/95 backdrop-blur-md p-3 rounded-xl border border-[#00f0ff]/40 shadow-2xl max-w-xs text-xs font-mono">
           <div className="flex items-center justify-between gap-3 border-b border-[#182232] pb-1.5 mb-2">
             <div className="flex items-center gap-1.5">
               <span
@@ -1049,11 +1035,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
                   inspectedSat.failed
                     ? 'bg-red-500'
                     : inspectedSat.active
-                    ? 'bg-[#c4f042]'
+                    ? 'bg-emerald-400'
                     : 'bg-slate-500'
                 }`}
               />
-              <span className="font-bold text-xs tracking-wider text-[#c4f042]">
+              <span className="font-bold text-xs tracking-wider text-[#00f0ff]">
                 SAT // {inspectedSat.id}
               </span>
               <span className="text-[10px] bg-[#080b11] text-slate-400 border border-[#182232] px-1 py-0.2 rounded">
@@ -1076,7 +1062,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
                   inspectedSat.failed
                     ? 'text-red-400 font-bold'
                     : inspectedSat.active
-                    ? 'text-[#c4f042] font-semibold'
+                    ? 'text-emerald-400 font-semibold'
                     : 'text-slate-400'
                 }
               >
@@ -1112,7 +1098,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
               onClick={() => onToggleFailure(inspectedSat.id)}
               className={`w-full py-1.5 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 inspectedSat.failed
-                  ? 'bg-[#c4f042] hover:bg-[#b3dc32] text-black font-semibold'
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-semibold'
                   : 'bg-red-950/60 hover:bg-red-900/80 border border-red-800/60 text-red-300'
               }`}
             >

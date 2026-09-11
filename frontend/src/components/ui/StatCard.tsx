@@ -23,10 +23,9 @@ export const StatCard: React.FC<StatCardProps> = ({
   ...props
 }) => {
   if (variant === 'accent') {
-    // Like the highlighted lime card in reference IMG_1125.WEBP
     return (
       <div
-        className={`bg-[#c4f042] text-black rounded-xl p-3 sm:p-4 flex flex-col justify-between border border-[#c4f042] shadow-lg shadow-[#c4f042]/10 transition-all ${className}`}
+        className={`bg-[#00f0ff] text-black rounded-xl p-3 sm:p-4 flex flex-col justify-between border border-[#00f0ff] shadow-lg shadow-[#00f0ff]/10 transition-all ${className}`}
         {...props}
       >
         <div className="flex items-start justify-between gap-2">
@@ -76,7 +75,6 @@ export const StatCard: React.FC<StatCardProps> = ({
     )
   }
 
-  // Default dark card matching IMG_1125.WEBP "Payments" style
   return (
     <div
       className={`bg-[#0c1017] border border-[#182232] rounded-xl p-3 sm:p-4 flex flex-col justify-between hover:border-slate-700 transition-all ${className}`}
@@ -103,7 +101,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           <div
             className={`flex items-center gap-1 text-xs font-mono font-medium ${
               trend === 'up'
-                ? 'text-[#c4f042]'
+                ? 'text-[#00f0ff]'
                 : trend === 'down'
                 ? 'text-red-400'
                 : 'text-slate-400'

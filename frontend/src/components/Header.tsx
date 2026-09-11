@@ -111,11 +111,11 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Brand & Title */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-[#121824] border border-[#1e293b] flex items-center justify-center">
-          <Radio className="w-4 h-4 text-[#c4f042] animate-pulse" />
+          <Radio className="w-4 h-4 text-[#00f0ff] animate-pulse" />
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold tracking-widest text-[#c4f042] uppercase font-mono">
+            <span className="text-[11px] font-bold tracking-widest text-[#00f0ff] uppercase font-mono">
               КОСМОХАКАТОН 2026
             </span>
             <Badge variant="neutral">cosmo-A-1.0</Badge>
@@ -137,13 +137,13 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('monitor')}
           className={`px-3 py-1.5 text-xs font-mono font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'monitor'
-              ? 'bg-[#c4f042]/10 text-[#c4f042] border border-[#c4f042]/30 shadow-sm'
+              ? 'bg-[#00f0ff]/12 text-[#00f0ff] border border-[#00f0ff]/35 shadow-sm'
               : 'text-slate-400 hover:text-slate-200 border border-transparent'
           }`}
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              activeTab === 'monitor' ? 'bg-[#c4f042] animate-pulse' : 'bg-slate-600'
+              activeTab === 'monitor' ? 'bg-[#00f0ff] animate-pulse' : 'bg-slate-600'
             }`}
           />
           <span>01 // МОНИТОРИНГ</span>
@@ -152,13 +152,13 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('config')}
           className={`px-3 py-1.5 text-xs font-mono font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'config'
-              ? 'bg-[#c4f042]/10 text-[#c4f042] border border-[#c4f042]/30 shadow-sm'
+              ? 'bg-[#00f0ff]/12 text-[#00f0ff] border border-[#00f0ff]/35 shadow-sm'
               : 'text-slate-400 hover:text-slate-200 border border-transparent'
           }`}
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              activeTab === 'config' ? 'bg-[#c4f042] animate-pulse' : 'bg-slate-600'
+              activeTab === 'config' ? 'bg-[#00f0ff] animate-pulse' : 'bg-slate-600'
             }`}
           />
           <span>02 // КОНФИГУРАЦИЯ</span>
@@ -167,13 +167,13 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('compare')}
           className={`px-3 py-1.5 text-xs font-mono font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'compare'
-              ? 'bg-[#c4f042]/10 text-[#c4f042] border border-[#c4f042]/30 shadow-sm'
+              ? 'bg-[#00f0ff]/12 text-[#00f0ff] border border-[#00f0ff]/35 shadow-sm'
               : 'text-slate-400 hover:text-slate-200 border border-transparent'
           }`}
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              activeTab === 'compare' ? 'bg-[#c4f042] animate-pulse' : 'bg-slate-600'
+              activeTab === 'compare' ? 'bg-[#00f0ff] animate-pulse' : 'bg-slate-600'
             }`}
           />
           <span>03 // A/B СРАВНЕНИЕ</span>
@@ -191,7 +191,7 @@ export const Header: React.FC<HeaderProps> = ({
             const preset = PRESET_SCENARIOS.find((p) => p.id === e.target.value)
             if (preset) onSelectPreset(preset.data)
           }}
-          className="bg-[#0c1017] hover:bg-[#121824] border border-[#182232] text-xs text-slate-200 font-mono py-1.5 px-2.5 rounded-lg focus:outline-none focus:border-[#c4f042] transition-colors cursor-pointer"
+          className="bg-[#0c1017] hover:bg-[#121824] border border-[#182232] text-xs text-slate-200 font-mono py-1.5 px-2.5 rounded-lg focus:outline-none focus:border-[#00f0ff] transition-colors cursor-pointer"
         >
           <option value="" disabled>
             Выбрать пресет...
@@ -217,7 +217,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => fileInputRef.current?.click()}
           title="Загрузить пользовательский сценарий JSON (cosmo-A-1.0)"
         >
-          <Upload className="w-3.5 h-3.5 text-slate-300 hover:text-[#c4f042]" />
+          <Upload className="w-3.5 h-3.5 text-slate-300 hover:text-[#00f0ff]" />
         </Button>
 
         {/* Reset */}
@@ -239,7 +239,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={handleExportScenario}
           title="Экспортировать сценарий (cosmo-A-1.0)"
         >
-          <FileCode className="w-3.5 h-3.5 text-[#c4f042]" />
+          <FileCode className="w-3.5 h-3.5 text-[#00f0ff]" />
           <span>Сценарий</span>
         </Button>
 
@@ -257,12 +257,12 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Target SLA compliance badge */}
         <Badge
-          variant={allMeetTarget ? 'lime' : 'amber'}
+          variant={allMeetTarget ? 'emerald' : 'amber'}
           className="py-1 px-2 text-[11px]"
         >
           {allMeetTarget ? (
             <>
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#c4f042]" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
               <span>SLA ≥{targetPct}% OK</span>
             </>
           ) : (
