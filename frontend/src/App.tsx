@@ -95,7 +95,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans select-none overflow-hidden">
+    <div className="h-screen w-screen bg-[#06090e] text-zinc-100 flex flex-col font-sans select-none overflow-hidden">
       {/* Top Navigation Bar */}
       <Header
         currentScenario={scenario}
@@ -115,7 +115,7 @@ export default function App() {
             {/* Upper Split: Map (65%) & Metrics (35%) */}
             <div className="shrink-0 lg:shrink lg:flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-2">
               {/* Map & Network Visualization */}
-              <div className="lg:col-span-8 h-[290px] sm:h-[380px] lg:h-full min-h-[250px] lg:min-h-0 flex overflow-hidden rounded-xl border border-white/10">
+              <div className="lg:col-span-8 h-[290px] sm:h-[380px] lg:h-full min-h-[250px] lg:min-h-0 flex overflow-hidden rounded-md border border-[#1a2636]">
                 <NetworkMap
                   scenario={scenario}
                   snapshot={snapshot}

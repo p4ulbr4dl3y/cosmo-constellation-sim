@@ -32,13 +32,13 @@ export const ReportView: React.FC<ReportViewProps> = ({
   return (
     <div className="h-full flex flex-col gap-2 font-mono text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
       {/* 1. Header & Quick Context */}
-      <div className="bg-[#121215] px-3 py-2 rounded-lg border border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
+      <div className="bg-[#0b1017] px-3 py-2 rounded-md border border-[#1a2636] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-bold text-zinc-100 uppercase tracking-wider text-xs">
-            АНАЛИТИЧЕСКИЙ ОТЧЁТ И СИНТЕЗ РЕКОМЕНДАЦИЙ
+          <span className="font-semibold text-zinc-100 text-xs">
+            Аналитический отчёт и синтез рекомендаций
           </span>
-          <Badge variant="neutral">КЕЙС 2 · АРКТИКА</Badge>
-          <Badge variant="neutral">48 КА · 3 ПЛОСКОСТИ</Badge>
+          <Badge variant="neutral">Кейс 2 · Арктика</Badge>
+          <Badge variant="neutral">48 КА · 3 плоскости</Badge>
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
@@ -52,12 +52,12 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   liveStats.allMeetTarget ? 'bg-emerald-400' : 'bg-amber-400'
                 }`}
               />
-              <span>АКТИВНЫЙ СЦЕНАРИЙ: {liveStats.meanAvail}%</span>
+              <span>Активный сценарий: {liveStats.meanAvail}%</span>
             </Badge>
           ) : (
             <Badge variant="emerald" className="px-2 py-0.5 text-xs font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>БАЗОВЫЙ SLA: 98.10%</span>
+              <span>Базовый SLA: 98.10%</span>
             </Badge>
           )}
 
@@ -90,7 +90,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
             {/* Stage 1 */}
-            <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
+            <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between text-[11px] text-zinc-400">
                   <span>Очередь 1</span>
@@ -98,7 +98,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 </div>
                 <div className="text-base font-bold font-mono text-rose-400 mt-1">18.56%</div>
                 <div className="w-full bg-zinc-800/80 h-1.5 rounded-full overflow-hidden mt-1.5 border border-white/5">
-                  <div className="bg-rose-500 h-full shadow-[0_0_8px_rgba(244,63,94,0.6)]" style={{ width: '18.56%' }} />
+                  <div className="bg-rose-500 h-full" style={{ width: '18.56%' }} />
                 </div>
               </div>
               <div className="text-[10px] text-zinc-400 mt-2">
@@ -107,7 +107,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
             </div>
 
             {/* Stage 2 */}
-            <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
+            <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between text-[11px] text-zinc-400">
                   <span>Очередь 2</span>
@@ -115,7 +115,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 </div>
                 <div className="text-base font-bold font-mono text-amber-400 mt-1">64.80%</div>
                 <div className="w-full bg-zinc-800/80 h-1.5 rounded-full overflow-hidden mt-1.5 border border-white/5">
-                  <div className="bg-amber-400 h-full shadow-[0_0_8px_rgba(251,191,36,0.5)]" style={{ width: '64.80%' }} />
+                  <div className="bg-amber-400 h-full" style={{ width: '64.80%' }} />
                 </div>
               </div>
               <div className="text-[10px] text-zinc-400 mt-2">
@@ -124,7 +124,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
             </div>
 
             {/* Stage 3 */}
-            <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
+            <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between text-[11px] text-zinc-400">
                   <span>Очередь 3</span>
@@ -132,7 +132,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 </div>
                 <div className="text-base font-bold font-mono text-emerald-400 mt-1">98.10%</div>
                 <div className="w-full bg-zinc-800/80 h-1.5 rounded-full overflow-hidden mt-1.5 border border-white/5">
-                  <div className="bg-emerald-400 h-full shadow-[0_0_8px_rgba(52,211,153,0.5)]" style={{ width: '98.10%' }} />
+                  <div className="bg-emerald-400 h-full" style={{ width: '98.10%' }} />
                 </div>
               </div>
               <div className="text-[10px] text-emerald-400 mt-2 font-medium">
@@ -141,8 +141,8 @@ export const ReportView: React.FC<ReportViewProps> = ({
             </div>
           </div>
 
-          <div className="p-2 rounded-md bg-[#0d0d10] border border-zinc-800/80 text-[11px] text-zinc-300 leading-relaxed">
-            <span className="text-zinc-100 font-semibold uppercase">Вывод орбитальной механики:</span>{' '}
+          <div className="p-2 rounded-md bg-[#070b10] border border-[#1a2636]/80 text-[11px] text-zinc-300 leading-relaxed">
+            <span className="text-zinc-100 font-semibold">Вывод орбитальной механики:</span>{' '}
             1 плоскость замыкает внутриплоскостной пояс, но суточное вращение Земли (15°/ч) уводит её из видимости пунктов на 3–5 витков. Непрерывность в Арктике гарантируют только <span className="text-zinc-100 font-semibold">3 плоскости с разносом узлов ΔΩ = 60°</span>.
           </div>
         </Card>
@@ -151,11 +151,11 @@ export const ReportView: React.FC<ReportViewProps> = ({
         <Card className="flex flex-col gap-2">
           <CardHeader>
             <CardTitle>2. Матрица уязвимостей и узких мест</CardTitle>
-            <Badge variant="neutral">3 ФАКТОРА</Badge>
+            <Badge variant="neutral">3 фактора</Badge>
           </CardHeader>
 
           <div className="space-y-1.5">
-            <div className="p-2 rounded-md bg-[#0d0d10] border border-zinc-800 flex items-start gap-2">
+            <div className="p-2 rounded-md bg-[#070b10] border border-[#1a2636] flex items-start gap-2">
               <Badge variant="red" className="shrink-0">SPOF</Badge>
               <div className="flex-1">
                 <div className="font-semibold text-zinc-200">Одиночный шлюз Мурманск (G_MUR)</div>
@@ -165,7 +165,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               </div>
             </div>
 
-            <div className="p-2 rounded-md bg-[#0d0d10] border border-zinc-800 flex items-start gap-2">
+            <div className="p-2 rounded-md bg-[#070b10] border border-[#1a2636] flex items-start gap-2">
               <Badge variant="amber" className="shrink-0">ISL</Badge>
               <div className="flex-1">
                 <div className="font-semibold text-zinc-200">Порог дальности ISL (сценарий 04)</div>
@@ -175,7 +175,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               </div>
             </div>
 
-            <div className="p-2 rounded-md bg-[#0d0d10] border border-zinc-800 flex items-start gap-2">
+            <div className="p-2 rounded-md bg-[#070b10] border border-[#1a2636] flex items-start gap-2">
               <Badge variant="cyan" className="shrink-0">NODE</Badge>
               <div className="flex-1">
                 <div className="font-semibold text-zinc-200">Отказ 10 аппаратов (сценарий 03)</div>
@@ -191,12 +191,12 @@ export const ReportView: React.FC<ReportViewProps> = ({
         <Card className="flex flex-col gap-2 lg:col-span-2">
           <CardHeader>
             <CardTitle>3. Инженерные рекомендации по устойчивости</CardTitle>
-            <Badge variant="emerald">ЦЕЛЕВОЙ ЭФФЕКТ: SLA &gt; 99.7%</Badge>
+            <Badge variant="emerald">Целевой эффект: SLA &gt; 99.7%</Badge>
           </CardHeader>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             {/* Rec 1 */}
-            <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
+            <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Резервный шлюз</span>
@@ -206,14 +206,14 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   Размещение 2-го шлюза в восточном секторе (Тикси 71.6°N или Анадырь 64.7°N). Устраняет единую точку отказа (SPOF).
                 </p>
               </div>
-              <div className="mt-2.5 pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px]">
+              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
                 <span className="text-zinc-400">Прирост SLA:</span>
                 <span className="text-emerald-400 font-bold font-mono">98.1% → 99.7%</span>
               </div>
             </div>
 
             {/* Rec 2 */}
-            <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
+            <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Порог ISL ≥ 2800 км</span>
@@ -223,14 +223,14 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   Энергетический потенциал межспутникового линка радио/лазер не менее 2800 км для устойчивости сетки на высоких широтах.
                 </p>
               </div>
-              <div className="mt-2.5 pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px]">
+              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
                 <span className="text-zinc-400">Связность рёбер:</span>
                 <span className="text-cyan-300 font-bold font-mono">100% выше 60°N</span>
               </div>
             </div>
 
             {/* Rec 3 */}
-            <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
+            <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Фазировка Walker Delta</span>
@@ -240,14 +240,14 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   Сдвиг истинной аномалии между соседними плоскостями на ΔM = 7.5°. Исключает регулярные слепые пятна между витками.
                 </p>
               </div>
-              <div className="mt-2.5 pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px]">
+              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
                 <span className="text-zinc-400">Слепые зоны:</span>
                 <span className="text-zinc-200 font-bold font-mono">Исключены</span>
               </div>
             </div>
 
             {/* Rec 4 */}
-            <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
+            <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Кольцевой Rerouting</span>
@@ -257,7 +257,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   Автоматическое замыкание трафика по кольцу плоскости при разрыве межплоскостного линка с субсекундной сходимостью.
                 </p>
               </div>
-              <div className="mt-2.5 pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px]">
+              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
                 <span className="text-zinc-400">Сходимость:</span>
                 <span className="text-amber-400 font-bold font-mono">&lt; 1 с</span>
               </div>
@@ -266,13 +266,13 @@ export const ReportView: React.FC<ReportViewProps> = ({
         </Card>
 
         {/* Section 4: Operating Envelope */}
-        <div className="bg-[#121215] p-2.5 rounded-lg border border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 lg:col-span-2 text-[11px] text-zinc-400">
+        <div className="bg-[#0b1017] p-2.5 rounded-md border border-[#1a2636] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 lg:col-span-2 text-[11px] text-zinc-400">
           <div>
-            <span className="text-zinc-200 font-semibold uppercase">Границы применимости модели:</span>{' '}
+            <span className="text-zinc-200 font-semibold">Границы применимости модели:</span>{' '}
             Оптимизировано для широт &gt; 60°N (Арктика). Базовый расчет радиовидимости: угол места θ ≥ 10°.
           </div>
           <div className="shrink-0">
-            <Badge variant="neutral">СХЕМА: cosmo-A-1.0 / cosmo-A-result-1.0</Badge>
+            <Badge variant="neutral">Схема: cosmo-A-1.0 / cosmo-A-result-1.0</Badge>
           </div>
         </div>
       </div>

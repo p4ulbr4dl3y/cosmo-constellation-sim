@@ -36,7 +36,7 @@ export function SegmentedControl<T extends string | number>({
   return (
     <div
       role="group"
-      className={`inline-flex items-center bg-white/[0.03] border border-zinc-800 font-sans select-none shrink-0 ${sizeStyles} ${className}`}
+      className={`inline-flex items-center bg-[#070b10] border border-[#1a2636] font-sans select-none shrink-0 ${sizeStyles} ${className}`}
     >
       {options.map((opt) => {
         const isSelected = opt.value === value

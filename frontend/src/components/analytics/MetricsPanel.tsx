@@ -180,11 +180,11 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
       />
 
       {/* 2. Client Details & Route Card */}
-      <div className="flex-1 flex flex-col bg-[#121215] p-2.5 rounded-lg border border-zinc-800 gap-2 overflow-y-auto">
+      <div className="flex-1 flex flex-col bg-[#0b1017] p-2.5 rounded-md border border-[#1a2636] gap-2 overflow-y-auto">
         {/* Header & Gateway Status */}
-        <div className="flex items-center justify-between pb-1.5 border-b border-zinc-800 shrink-0">
+        <div className="flex items-center justify-between pb-1.5 border-b border-[#1a2636] shrink-0">
           <span className="font-semibold text-zinc-200 text-xs">
-            {selectedClient?.id} · {selectedClient?.name?.split('(')[0]?.trim() || selectedClientId}
+            {selectedClient?.id}: {selectedClient?.name?.split('(')[0]?.trim() || selectedClientId}
           </span>
           {isGatewayOutage && (
             <Badge variant="red">Шлюз: техокно</Badge>
@@ -194,7 +194,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
         {/* Current Route or Outage Diagnosis */}
         <div className="shrink-0">
           {hasRoute ? (
-            <div className="bg-[#0d0d10] p-2 rounded-md border border-zinc-800 flex flex-wrap items-center gap-1.5">
+            <div className="bg-[#070b10] p-2 rounded border border-[#1a2636] flex flex-wrap items-center gap-1.5">
               {activeRoute.map((nodeId, idx) => {
                 const isFirst = idx === 0
                 const isLast = idx === activeRoute.length - 1
@@ -249,7 +249,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
         {/* 3. 2x2 Key Metrics Grid */}
         {selectedMetrics && (
-          <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-zinc-800 shrink-0">
+          <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-[#1a2636] shrink-0">
             <StatCard
               variant="compact"
               label="Доступность SLA"
@@ -280,8 +280,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
         {/* 4. Active Satellite Telemetry / Failure Injection */}
         {primeSat ? (
-          <div className="mt-auto bg-[#0d0d10] border border-zinc-800 rounded-md p-2 flex flex-col gap-1.5 text-[11px]">
-            <div className="flex items-center justify-between border-b border-zinc-800/60 pb-1">
+          <div className="mt-auto bg-[#070b10] border border-[#1a2636] rounded p-2 flex flex-col gap-1.5 text-[11px]">
+            <div className="flex items-center justify-between border-b border-[#1a2636]/60 pb-1">
               <div className="flex items-center gap-1.5">
                 <span
                   className={`w-2 h-2 rounded-full ${
@@ -328,7 +328,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             )}
           </div>
         ) : (
-          <div className="mt-auto bg-[#0d0d10] border border-zinc-800/60 rounded-md p-2 text-center text-[11px] text-zinc-500 font-sans">
+          <div className="mt-auto bg-[#070b10] border border-[#1a2636]/60 rounded p-2 text-center text-[11px] text-zinc-500 font-sans">
             Ожидание радиозахвата космического аппарата
           </div>
         )}

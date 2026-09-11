@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-bg: #09090b;
-  --color-brand-card: #121215;
-  --color-brand-card-subtle: #0d0d11;
-  --color-brand-border: #27272a;
-  --color-brand-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-brand-bg: #06090e;
+  --color-brand-card: #0b1017;
+  --color-brand-card-subtle: #0f1722;
+  --color-brand-border: #1a2636;
+  --color-brand-border-subtle: rgba(255, 255, 255, 0.06);
   --color-brand-border-focus: #38bdf8;
   
   --color-brand-cyan: #38bdf8;
   --color-brand-cyan-hover: #7dd3fc;
-  --color-brand-cyan-dim: rgba(56, 189, 248, 0.1);
-  --color-brand-cyan-border: rgba(56, 189, 248, 0.28);
+  --color-brand-cyan-dim: rgba(56, 189, 248, 0.08);
+  --color-brand-cyan-border: rgba(56, 189, 248, 0.24);
 
-  --color-brand-muted: #a1a1aa;
-  --color-brand-dim: #71717a;
+  --color-brand-muted: #94a3b8;
+  --color-brand-dim: #64748b;
 }
 
 @layer base {
@@ -27,8 +27,8 @@
   body {
     margin: 0;
     padding: 0;
-    background-color: #09090b;
-    color: #f4f4f5;
+    background-color: #06090e;
+    color: #e2e8f0;
     font-family: var(--font-display);
     overflow-x: hidden;
     letter-spacing: -0.01em;
@@ -44,26 +44,18 @@
   }
 }
 
-/* Technical subtle grid background pattern */
-.bg-grid-tech {
-  background-size: 24px 24px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-}
-
 /* Custom crisp technical scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: #06090e;
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #1a2636;
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #27374d;
 }

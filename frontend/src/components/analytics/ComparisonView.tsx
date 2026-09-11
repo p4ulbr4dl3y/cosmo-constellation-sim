@@ -102,10 +102,10 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
   return (
     <div className="h-full flex flex-col gap-2 font-mono text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
       {/* Action Header */}
-      <div className="bg-[#121215] px-2.5 sm:px-3 py-2 rounded-xl border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
+      <div className="bg-[#0b1017] px-2.5 sm:px-3 py-2 rounded-md border border-[#1a2636] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <span className="font-bold text-zinc-200 uppercase tracking-wider text-xs">
-            A/B СРАВНЕНИЕ ВАРИАНТОВ
+          <span className="font-semibold text-zinc-200 text-xs">
+            A/B Сравнение вариантов
           </span>
           <span className="text-[10px] text-zinc-400 hidden xs:inline">
             (оценка дельты SLA, времени простоя и сетевых хопов)
@@ -142,9 +142,9 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
       {/* Variant Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 shrink-0">
         {/* Card A */}
-        <div className="bg-[#121215] p-3 rounded-xl border border-white/10 flex flex-col gap-2">
-          <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-            <span className="font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+        <div className="bg-[#0b1017] p-3 rounded-md border border-[#1a2636] flex flex-col gap-2">
+          <div className="flex items-center justify-between border-b border-[#1a2636] pb-1.5">
+            <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-cyan-400" />
               Вариант A (базовый)
             </span>
@@ -191,9 +191,9 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         </div>
 
         {/* Card B */}
-        <div className="bg-[#121215] p-3 rounded-xl border border-white/10 flex flex-col gap-2">
-          <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-            <span className="font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+        <div className="bg-[#0b1017] p-3 rounded-md border border-[#1a2636] flex flex-col gap-2">
+          <div className="flex items-center justify-between border-b border-[#1a2636] pb-1.5">
+            <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-purple-400" />
               Вариант B (целевой)
             </span>
@@ -242,9 +242,9 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
       {/* Side-by-Side Metrics Table */}
       {resultA && resultB && (
-        <div className="bg-[#121215] rounded-xl border border-white/10 overflow-hidden flex-1 flex flex-col min-h-0">
-          <div className="px-3 py-1.5 bg-[#09090c] border-b border-white/10 flex items-center justify-between shrink-0">
-            <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider">
+        <div className="bg-[#0b1017] rounded-md border border-[#1a2636] overflow-hidden flex-1 flex flex-col min-h-0">
+          <div className="px-3 py-1.5 bg-[#070b10] border-b border-[#1a2636] flex items-center justify-between shrink-0">
+            <span className="text-xs font-semibold text-zinc-200">
               Сводная матрица метрик
             </span>
             <span className="text-[10px] text-cyan-400">
@@ -255,7 +255,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[560px]">
               <thead>
-                <tr className="bg-[#09090c] text-zinc-400 border-b border-white/10 text-[10px] uppercase">
+                <tr className="bg-[#070b10] text-zinc-400 border-b border-[#1a2636] text-[10px]">
                   <th className="py-2 px-3 text-left">Терминал</th>
                   <th className="py-2 px-3 text-left">Параметр</th>
                   <th className="py-2 px-3 text-right text-cyan-300">Вариант A</th>
@@ -340,8 +340,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           </div>
 
           {/* Comparative SLA Progress Bars */}
-          <div className="p-3 bg-[#09090c] border-t border-white/10 shrink-0">
-            <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+          <div className="p-3 bg-[#070b10] border-t border-[#1a2636] shrink-0">
+            <div className="text-[10px] font-semibold text-zinc-400 mb-2 flex items-center justify-between">
               <span>Сравнение доступности SLA (Порог ≥ 90%)</span>
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1 text-[10px] text-zinc-300">
@@ -362,7 +362,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                 const pctB = mB.availability_ratio * 100
 
                 return (
-                  <div key={c.id} className="bg-[#121215] p-2 rounded-lg border border-white/5 space-y-1.5">
+                  <div key={c.id} className="bg-[#0b1017] p-2 rounded border border-[#1a2636]/60 space-y-1.5">
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="font-bold text-zinc-200">{c.id} ({c.lat_deg}° с.ш.)</span>
                       <span className="text-[10px] text-zinc-500 font-mono">{c.name}</span>

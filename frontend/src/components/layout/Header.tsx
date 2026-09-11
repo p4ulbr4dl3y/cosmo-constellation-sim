@@ -156,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
     'Пресеты...'
 
   return (
-    <header className="h-11 shrink-0 bg-[#121215] border-b border-zinc-800 px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
+    <header className="h-11 shrink-0 bg-[#0b1017] border-b border-[#1a2636] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
       {/* Navigation Tabs */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <SegmentedControl
@@ -167,7 +167,7 @@ export const Header: React.FC<HeaderProps> = ({
         />
 
         {isModified && (
-          <Badge variant="amber" className="hidden sm:inline-flex gap-1.5 animate-pulse">
+          <Badge variant="amber" className="hidden sm:inline-flex gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             <span>изменен</span>
           </Badge>
@@ -208,8 +208,8 @@ export const Header: React.FC<HeaderProps> = ({
           </Button>
 
           {isPresetOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-64 bg-[#121215] border border-zinc-700/80 rounded-lg shadow-2xl py-1 z-50 backdrop-blur-md">
-              <div className="px-2.5 py-1 text-[10px] font-mono text-zinc-500 uppercase tracking-wider border-b border-zinc-800 mb-1">
+            <div className="absolute right-0 top-full mt-1.5 w-64 bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
+              <div className="px-2.5 py-1 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
                 Выберите сценарий
               </div>
               {PRESET_SCENARIOS.map((p) => {
@@ -231,7 +231,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="flex items-center gap-2 min-w-0">
                       <span
                         className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                          isSelected ? 'bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]' : 'bg-transparent'
+                          isSelected ? 'bg-cyan-400' : 'bg-transparent'
                         }`}
                       />
                       <span className="truncate text-[11px]">{p.label}</span>

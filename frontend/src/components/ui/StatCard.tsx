@@ -25,12 +25,12 @@ export const StatCard: React.FC<StatCardProps> = ({
   if (variant === 'accent') {
     return (
       <div
-        className={`bg-sky-950/20 text-zinc-100 rounded-lg p-3 sm:p-4 flex flex-col justify-between border border-sky-500/35 shadow-[0_0_15px_rgba(56,189,248,0.05)] transition-all ${className}`}
+        className={`bg-sky-950/20 text-zinc-100 rounded-md p-3 sm:p-3.5 flex flex-col justify-between border border-sky-500/30 transition-all ${className}`}
         {...props}
       >
         <div className="flex items-start justify-between gap-2">
           <div>
-            <span className="text-xs font-medium tracking-wider text-sky-300 block font-sans uppercase">
+            <span className="text-xs font-medium text-sky-300 block font-sans">
               {label}
             </span>
             {sublabel && (
@@ -61,10 +61,10 @@ export const StatCard: React.FC<StatCardProps> = ({
   if (variant === 'compact') {
     return (
       <div
-        className={`bg-[#0d0d10] border border-zinc-800/60 rounded-md p-2 font-mono ${className}`}
+        className={`bg-[#0d0d10] border border-zinc-800/60 rounded p-2 font-mono ${className}`}
         {...props}
       >
-        <div className="text-[9px] uppercase tracking-wider text-zinc-400 block mb-0.5">
+        <div className="text-[9px] text-zinc-400 block mb-0.5 font-medium">
           {label}
         </div>
         <div className="flex items-baseline justify-between gap-1">
@@ -77,12 +77,12 @@ export const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div
-      className={`bg-[#121215] border border-zinc-800 rounded-lg p-3 sm:p-4 flex flex-col justify-between hover:border-zinc-700 transition-all ${className}`}
+      className={`bg-[#0b1017] border border-[#1a2636] rounded-md p-3 sm:p-3.5 flex flex-col justify-between hover:border-zinc-700 transition-all ${className}`}
       {...props}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <span className="text-xs font-medium text-zinc-400 font-sans uppercase tracking-wider block">
+          <span className="text-xs font-medium text-zinc-400 font-sans block">
             {label}
           </span>
           {sublabel && (

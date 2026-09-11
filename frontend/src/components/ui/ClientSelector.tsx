@@ -36,7 +36,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
   if (variant === 'grid') {
     return (
       <div
-        className={`grid grid-cols-3 gap-1 p-1 bg-[#121215] border border-zinc-800 rounded-lg shrink-0 ${className}`}
+        className={`grid grid-cols-3 gap-1 p-1 bg-[#0b1017] border border-[#1a2636] rounded-md shrink-0 ${className}`}
       >
         {clients.map((c) => {
           const tl = timelines?.[c.id]
@@ -110,7 +110,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
               className={`h-4.5 px-1 rounded text-[10px] flex items-center justify-between border transition-all cursor-pointer ${
                 isSelected
                   ? 'bg-white/15 border-white/30 text-white font-medium shadow-xs'
-                  : 'bg-[#121215] border-zinc-800/80 text-zinc-400 hover:text-zinc-200'
+                  : 'bg-[#0b1017] border-[#1a2636]/80 text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <span>{c.id}</span>
@@ -138,7 +138,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
             className={`flex items-center gap-1.5 rounded-md border font-sans font-medium transition-all cursor-pointer select-none ${sizeStyles} ${
               isSelected
                 ? 'bg-white/15 border-white/30 text-white shadow-xs'
-                : 'bg-white/[0.03] border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.06]'
+                : 'bg-white/[0.03] border-[#1a2636] text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.06]'
             }`}
           >
             <span>{c.id}</span>

@@ -175,7 +175,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
   }
 
   return (
-    <div className="p-2 bg-[#121215] border border-zinc-800 rounded-xl flex flex-col gap-1.5 select-none font-mono">
+    <div className="p-2 bg-[#0b1017] border border-[#1a2636] rounded-md flex flex-col gap-1.5 select-none font-mono">
       {/* Top Row: Playback Controls & Time readout */}
       <div className="flex items-center justify-between gap-1 sm:gap-2">
         {/* Play / Step Buttons & Speed */}
@@ -186,7 +186,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             size="icon"
             onClick={() => onTimeChange(0)}
             title="В начало (00:00:00)"
-            className="h-7 w-6 sm:w-7 border border-zinc-800 bg-white/5 hover:bg-white/10 shrink-0"
+            className="h-7 w-6 sm:w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0"
           >
             <RotateCcw className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
           </Button>
@@ -197,7 +197,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             size="icon"
             onClick={() => onTimeChange(Math.max(0, currentTime - step_s))}
             title="Шаг назад (-120с)"
-            className="h-7 w-6 sm:w-7 border border-zinc-800 bg-white/5 hover:bg-white/10 shrink-0"
+            className="h-7 w-6 sm:w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0"
           >
             <ChevronLeft className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
           </Button>
@@ -219,7 +219,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             size="icon"
             onClick={() => onTimeChange(Math.min(horizon_s - step_s, currentTime + step_s))}
             title="Шаг вперед (+120с)"
-            className="h-7 w-6 sm:w-7 border border-zinc-800 bg-white/[0.04] hover:bg-white/[0.08] shrink-0"
+            className="h-7 w-6 sm:w-7 border border-[#1a2636] bg-white/[0.04] hover:bg-white/[0.08] shrink-0"
           >
             <ChevronRight className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
           </Button>
@@ -235,7 +235,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
 
         {/* Current Time Display */}
-        <div className="h-7 flex items-center gap-1 sm:gap-1.5 bg-[#121215] border border-zinc-800 px-2 sm:px-2.5 rounded-md text-xs font-mono shrink-0">
+        <div className="h-7 flex items-center gap-1 sm:gap-1.5 bg-[#070b10] border border-[#1a2636] px-2 sm:px-2.5 rounded text-xs font-mono shrink-0">
           <span className="font-semibold text-white tracking-wider text-[11px] sm:text-xs whitespace-nowrap">
             {formatTime(currentTime)}
           </span>
@@ -256,7 +256,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       </div>
 
       {/* Gantt & Timeline Scrubber Area */}
-      <div className="flex gap-1.5 bg-[#0d0d10] p-2 rounded-lg border border-zinc-800">
+      <div className="flex gap-1.5 bg-[#070b10] p-2 rounded border border-[#1a2636]">
         {/* Left Column: Client Pills */}
         <div className="w-14 shrink-0 flex flex-col gap-1.5">
           <div className="h-3.5 flex items-center justify-center text-[9px] text-zinc-400 font-mono">
@@ -326,7 +326,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                 key={c.id}
                 onMouseMove={(e) => handleGanttMouseMove(e, c.id)}
                 onMouseLeave={() => setTooltipData(null)}
-                className="relative w-full h-4.5 bg-[#121215] rounded-xs overflow-hidden flex border border-white/5"
+                className="relative w-full h-4.5 bg-[#0b1017] rounded-xs overflow-hidden flex border border-[#1a2636]/60"
               >
                 {tl &&
                   tl.slots.map((slot, idx) => (
@@ -349,10 +349,10 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       {/* Floating Tooltip */}
       {tooltipData && (
         <div
-          className="fixed z-50 pointer-events-none bg-[#121215] text-zinc-100 text-[11px] px-2.5 py-1.5 rounded-md border border-zinc-700 shadow-xl transform -translate-x-1/2 -translate-y-full"
+          className="fixed z-50 pointer-events-none bg-[#0b1017] text-zinc-100 text-[11px] px-2.5 py-1.5 rounded border border-[#1a2636] shadow-xl transform -translate-x-1/2 -translate-y-full"
           style={{ left: tooltipData.x, top: tooltipData.y }}
         >
-          <div className="flex items-center gap-2 font-bold text-cyan-300 border-b border-zinc-800 pb-1 mb-1">
+          <div className="flex items-center gap-2 font-semibold text-cyan-300 border-b border-[#1a2636] pb-1 mb-1">
             <span>{tooltipData.clientId}</span>
             <span>{formatTime(tooltipData.slot.t_s)}</span>
             <span className="text-[9px] text-zinc-400">

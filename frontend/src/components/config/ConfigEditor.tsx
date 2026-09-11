@@ -154,10 +154,10 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
   return (
     <div className="h-full flex flex-col gap-2 font-mono text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
       {/* Top Action Bar */}
-      <div className="bg-[#121215] px-3 py-2 rounded-xl border border-white/10 flex flex-wrap items-center justify-between gap-2 shrink-0">
+      <div className="bg-[#0b1017] px-3 py-2 rounded-md border border-[#1a2636] flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-zinc-200 uppercase tracking-wider">
-            КОНФИГУРАЦИЯ СИМУЛЯЦИИ
+          <span className="font-semibold text-zinc-200">
+            Конфигурация симуляции
           </span>
           <span className="text-[10px] text-zinc-400">
             (этапы развертывания, ISL, плоскости, отказы)
@@ -198,8 +198,8 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
         {/* Left: Constellation Geometry & Planes */}
         <div className="flex flex-col gap-2 overflow-y-auto">
           {/* Launch Stage & Environment */}
-          <div className="bg-[#121215] p-3 rounded-xl border border-white/10 flex flex-col gap-2.5">
-            <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider">
+          <div className="bg-[#0b1017] p-3 rounded-md border border-[#1a2636] flex flex-col gap-2.5">
+            <span className="text-xs font-semibold text-zinc-200">
               Очередь развертывания
             </span>
 
@@ -213,10 +213,10 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                   <button
                     key={stg}
                     onClick={() => handleLaunchStageChange(stg)}
-                    className={`py-1.5 px-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
+                    className={`py-1.5 px-2 rounded border text-xs font-semibold flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-white/15 border-white/30 text-white'
-                        : 'bg-[#09090c] border-white/10 text-zinc-400 hover:text-zinc-200'
+                        : 'bg-[#070b10] border-[#1a2636] text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
                     <span>Этап {stg}</span>
@@ -231,7 +231,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
             <div className="h-px bg-white/10 my-0.5" />
 
             {/* Environment Parameters */}
-            <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-zinc-200">
               Параметры окружения и ISL
             </span>
 
@@ -296,8 +296,8 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
           </div>
 
           {/* Plane Orientation & RAAN / Phase Shift */}
-          <div className="bg-[#121215] p-3 rounded-xl border border-white/10 flex flex-col gap-2.5">
-            <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider">
+          <div className="bg-[#0b1017] p-3 rounded-md border border-[#1a2636] flex flex-col gap-2.5">
+            <span className="text-xs font-semibold text-zinc-200">
               Орбитальные плоскости (RAAN и фаза)
             </span>
 
@@ -305,7 +305,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
               {draft.design.planes.map((p) => (
                 <div
                   key={p.id}
-                  className="bg-[#09090c] p-2 rounded-lg border border-white/10 flex flex-col gap-1.5"
+                  className="bg-[#070b10] p-2 rounded border border-[#1a2636] flex flex-col gap-1.5"
                 >
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-cyan-300">
@@ -362,13 +362,13 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
         {/* Right: Failures & Gateway Outages */}
         <div className="flex flex-col gap-2 overflow-y-auto">
           {/* Satellite Outages */}
-          <div className="bg-[#121215] p-3 rounded-xl border border-white/10 flex flex-col gap-2.5">
-            <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider flex items-center justify-between">
+          <div className="bg-[#0b1017] p-3 rounded-md border border-[#1a2636] flex flex-col gap-2.5">
+            <span className="text-xs font-semibold text-zinc-200 flex items-center justify-between">
               <span>Отказы спутников ({draft.failures.length})</span>
             </span>
 
             {/* Add failure row */}
-            <div className="flex flex-wrap items-center gap-1.5 bg-[#09090c] p-1.5 rounded-lg border border-white/10 text-xs">
+            <div className="flex flex-wrap items-center gap-1.5 bg-[#070b10] p-1.5 rounded border border-[#1a2636] text-xs">
               <div className="relative">
                 <select
                   value={newFailSat}
@@ -455,13 +455,13 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
           </div>
 
           {/* Gateway Outages */}
-          <div className="bg-[#121215] p-3 rounded-xl border border-white/10 flex flex-col gap-2.5">
-            <span className="text-xs font-bold text-zinc-200 uppercase tracking-wider flex items-center justify-between">
+          <div className="bg-[#0b1017] p-3 rounded-md border border-[#1a2636] flex flex-col gap-2.5">
+            <span className="text-xs font-semibold text-zinc-200 flex items-center justify-between">
               <span>Окна обслуживания наземных шлюзов ({draft.gateway_outages.length})</span>
             </span>
 
             {/* Add gateway outage row */}
-            <div className="flex flex-wrap items-center gap-1.5 bg-[#09090c] p-1.5 rounded-lg border border-white/10 text-xs">
+            <div className="flex flex-wrap items-center gap-1.5 bg-[#070b10] p-1.5 rounded border border-[#1a2636] text-xs">
               {gateways.length > 1 && (
                 <div className="relative">
                   <select
