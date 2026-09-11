@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Scenario } from '../../types/scenario'
 import { calculateFullTimeline } from '../../lib/orbit'
-import { Button } from '../ui'
+import { Button, Badge } from '../ui'
 import { formatDurationHuman } from '../../lib/formatters'
 
 interface ComparisonViewProps {
@@ -54,7 +54,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     return (
       <span
         className={`font-bold font-mono ${
-          isPositive ? 'text-emerald-400' : 'text-amber-400'
+          isPositive ? 'text-emerald-400' : diff < -5 ? 'text-rose-400' : 'text-amber-400'
         }`}
       >
         {isPositive ? `+${Math.abs(diff).toFixed(1)}%` : `-${Math.abs(diff).toFixed(1)}%`}
@@ -78,7 +78,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     return (
       <span
         className={`font-bold font-mono ${
-          isBetter ? 'text-emerald-400' : 'text-amber-400'
+          isBetter ? 'text-emerald-400' : diffSec > 600 ? 'text-rose-400' : 'text-amber-400'
         }`}
       >
         {isBetter ? `-${absFormatted}` : `+${absFormatted}`}
@@ -252,7 +252,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             </span>
           </div>
 
-          <div className="overflow-x-auto flex-1">
+          <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[560px]">
               <thead>
                 <tr className="bg-[#09090c] text-zinc-400 border-b border-white/10 text-[10px] uppercase">
@@ -261,7 +261,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                   <th className="py-2 px-3 text-right text-cyan-300">Вариант A</th>
                   <th className="py-2 px-3 text-right text-purple-300">Вариант B</th>
                   <th className="py-2 px-3 text-right">Дельта (B - A)</th>
-                  <th className="py-2 px-4 text-left">Статус SLA (B)</th>
+                  <th className="py-2 px-3 text-left">Статус (B)</th>
                 </tr>
               </thead>
               <tbody>
@@ -292,17 +292,10 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                         <td className="py-1.5 px-3 text-right font-mono tabular-nums">
                           {renderDeltaPct(mA.availability_ratio, mB.availability_ratio)}
                         </td>
-                        <td className="py-1.5 px-4 align-middle border-l border-white/[0.04]" rowSpan={3}>
-                          <span className="inline-flex items-center gap-1.5 font-mono text-[11px]">
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                meetsSlaB ? 'bg-emerald-400' : 'bg-amber-400'
-                              }`}
-                            />
-                            <span className={meetsSlaB ? 'text-emerald-400 font-medium' : 'text-amber-400 font-medium'}>
-                              {meetsSlaB ? 'В норме' : 'Ниже цели'}
-                            </span>
-                          </span>
+                        <td className="py-1.5 px-3 text-left">
+                          <Badge variant={meetsSlaB ? 'emerald' : 'red'}>
+                            {meetsSlaB ? 'В норме' : 'Ниже цели'}
+                          </Badge>
                         </td>
                       </tr>
 
@@ -318,6 +311,11 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                         <td className="py-1.5 px-3 text-right font-mono tabular-nums">
                           {renderDeltaTime(mA.max_gap_s, mB.max_gap_s)}
                         </td>
+                        <td className="py-1.5 px-3 text-left">
+                          <Badge variant={mB.max_gap_s <= 480 ? 'neutral' : 'amber'}>
+                            {mB.max_gap_s <= 480 ? '≤ 8 мин' : '> 8 мин'}
+                          </Badge>
+                        </td>
                       </tr>
 
                       {/* Row 3: Hops */}
@@ -330,12 +328,83 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                         <td className="py-1.5 px-3 text-right font-mono tabular-nums">
                           {renderDeltaHops(mA.avg_hops, mB.avg_hops)}
                         </td>
+                        <td className="py-1.5 px-3 text-left text-zinc-600 font-mono text-[10px]">
+                          —
+                        </td>
                       </tr>
                     </React.Fragment>
                   )
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* Comparative SLA Progress Bars */}
+          <div className="p-3 bg-[#09090c] border-t border-white/10 shrink-0">
+            <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+              <span>Сравнение доступности SLA (Порог ≥ 90%)</span>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 text-[10px] text-zinc-300">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400" /> Вариант A
+                </span>
+                <span className="flex items-center gap-1 text-[10px] text-zinc-300">
+                  <span className="w-2 h-2 rounded-full bg-purple-400" /> Вариант B
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+              {clients.map((c) => {
+                const mA = resultA.timelines[c.id]?.metrics
+                const mB = resultB.timelines[c.id]?.metrics
+                if (!mA || !mB) return null
+                const pctA = mA.availability_ratio * 100
+                const pctB = mB.availability_ratio * 100
+
+                return (
+                  <div key={c.id} className="bg-[#121215] p-2 rounded-lg border border-white/5 space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-zinc-200">{c.id} ({c.lat_deg}° с.ш.)</span>
+                      <span className="text-[10px] text-zinc-500 font-mono">{c.name}</span>
+                    </div>
+
+                    {/* Bar A */}
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between text-[10px] text-zinc-400 font-mono">
+                        <span className="text-cyan-400">A</span>
+                        <span>{pctA.toFixed(1)}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-zinc-800/80 rounded-full overflow-hidden relative">
+                        <div
+                          className="h-full bg-cyan-400 rounded-full transition-all"
+                          style={{ width: `${Math.min(100, pctA)}%` }}
+                        />
+                        <div className="absolute top-0 bottom-0 left-[90%] w-0.5 bg-white/40" title="Цель 90%" />
+                      </div>
+                    </div>
+
+                    {/* Bar B */}
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between text-[10px] text-zinc-400 font-mono">
+                        <span className="text-purple-400">B</span>
+                        <span className={pctB >= 90 ? 'text-zinc-200' : 'text-rose-400 font-bold'}>
+                          {pctB.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full bg-zinc-800/80 rounded-full overflow-hidden relative">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            pctB >= 90 ? 'bg-purple-400' : 'bg-rose-500'
+                          }`}
+                          style={{ width: `${Math.min(100, pctB)}%` }}
+                        />
+                        <div className="absolute top-0 bottom-0 left-[90%] w-0.5 bg-white/40" title="Цель 90%" />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       )}
