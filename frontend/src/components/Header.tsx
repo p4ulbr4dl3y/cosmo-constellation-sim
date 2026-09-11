@@ -107,15 +107,15 @@ export const Header: React.FC<HeaderProps> = ({
   const targetPct = Math.round((currentScenario.environment.target_availability ?? 0.9) * 100)
 
   return (
-    <header className="bg-[#0c1017] border-b border-[#182232] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 select-none">
+    <header className="bg-[#0c1017] border-b border-white/10 px-4 py-2 flex flex-wrap items-center justify-between gap-3 select-none">
       {/* Brand & Title */}
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#121824] border border-[#1e293b] flex items-center justify-center">
-          <Radio className="w-4 h-4 text-[#00f0ff] animate-pulse" />
+        <div className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center">
+          <Radio className="w-3.5 h-3.5 text-cyan-400" />
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold tracking-widest text-[#00f0ff] uppercase font-mono">
+            <span className="text-[11px] font-bold tracking-wider text-slate-200 uppercase font-mono">
               КОСМОХАКАТОН 2026
             </span>
             <Badge variant="neutral">cosmo-A-1.0</Badge>
@@ -125,58 +125,58 @@ export const Header: React.FC<HeaderProps> = ({
               </Badge>
             )}
           </div>
-          <h1 className="text-xs font-semibold text-slate-300">
-            Орбитальное проектирование &amp; сетевая доступность Арктики
+          <h1 className="text-xs text-slate-400 font-normal">
+            Орбитальное проектирование &amp; доступность связи в Арктике
           </h1>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex items-center bg-[#07090e] p-1 rounded-xl border border-[#182232]">
+      {/* Clean Navigation Tabs */}
+      <div className="flex items-center bg-black/40 p-1 rounded-xl border border-white/10">
         <button
           onClick={() => setActiveTab('monitor')}
-          className={`px-3 py-1.5 text-xs font-mono font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'monitor'
-              ? 'bg-[#00f0ff]/12 text-[#00f0ff] border border-[#00f0ff]/35 shadow-sm'
+              ? 'bg-white/10 text-white border border-white/15 shadow-xs'
               : 'text-slate-400 hover:text-slate-200 border border-transparent'
           }`}
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              activeTab === 'monitor' ? 'bg-[#00f0ff] animate-pulse' : 'bg-slate-600'
+              activeTab === 'monitor' ? 'bg-cyan-400' : 'bg-slate-600'
             }`}
           />
-          <span>01 // МОНИТОРИНГ</span>
+          <span>Мониторинг</span>
         </button>
         <button
           onClick={() => setActiveTab('config')}
-          className={`px-3 py-1.5 text-xs font-mono font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'config'
-              ? 'bg-[#00f0ff]/12 text-[#00f0ff] border border-[#00f0ff]/35 shadow-sm'
+              ? 'bg-white/10 text-white border border-white/15 shadow-xs'
               : 'text-slate-400 hover:text-slate-200 border border-transparent'
           }`}
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              activeTab === 'config' ? 'bg-[#00f0ff] animate-pulse' : 'bg-slate-600'
+              activeTab === 'config' ? 'bg-cyan-400' : 'bg-slate-600'
             }`}
           />
-          <span>02 // КОНФИГУРАЦИЯ</span>
+          <span>Конфигурация</span>
         </button>
         <button
           onClick={() => setActiveTab('compare')}
-          className={`px-3 py-1.5 text-xs font-mono font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'compare'
-              ? 'bg-[#00f0ff]/12 text-[#00f0ff] border border-[#00f0ff]/35 shadow-sm'
+              ? 'bg-white/10 text-white border border-white/15 shadow-xs'
               : 'text-slate-400 hover:text-slate-200 border border-transparent'
           }`}
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              activeTab === 'compare' ? 'bg-[#00f0ff] animate-pulse' : 'bg-slate-600'
+              activeTab === 'compare' ? 'bg-cyan-400' : 'bg-slate-600'
             }`}
           />
-          <span>03 // A/B СРАВНЕНИЕ</span>
+          <span>A/B Сравнение</span>
         </button>
       </div>
 
@@ -191,7 +191,7 @@ export const Header: React.FC<HeaderProps> = ({
             const preset = PRESET_SCENARIOS.find((p) => p.id === e.target.value)
             if (preset) onSelectPreset(preset.data)
           }}
-          className="bg-[#0c1017] hover:bg-[#121824] border border-[#182232] text-xs text-slate-200 font-mono py-1.5 px-2.5 rounded-lg focus:outline-none focus:border-[#00f0ff] transition-colors cursor-pointer"
+          className="bg-[#0c1017] hover:bg-[#121824] border border-white/10 text-xs text-slate-200 font-mono py-1.5 px-2.5 rounded-lg focus:outline-none focus:border-cyan-500/50 transition-colors cursor-pointer"
         >
           <option value="" disabled>
             Выбрать пресет...
@@ -217,7 +217,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => fileInputRef.current?.click()}
           title="Загрузить пользовательский сценарий JSON (cosmo-A-1.0)"
         >
-          <Upload className="w-3.5 h-3.5 text-slate-300 hover:text-[#00f0ff]" />
+          <Upload className="w-3.5 h-3.5 text-slate-300 hover:text-cyan-400" />
         </Button>
 
         {/* Reset */}
@@ -239,7 +239,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={handleExportScenario}
           title="Экспортировать сценарий (cosmo-A-1.0)"
         >
-          <FileCode className="w-3.5 h-3.5 text-[#00f0ff]" />
+          <FileCode className="w-3.5 h-3.5 text-cyan-400" />
           <span>Сценарий</span>
         </Button>
 

@@ -19,6 +19,15 @@ interface ComparisonViewProps {
   onLoadVariantIntoEditor: (scenario: Scenario) => void
 }
 
+function formatDurationHuman(sec: number): string {
+  if (!sec || sec <= 0) return '0 мин'
+  const totalMinutes = Math.round(sec / 60)
+  if (totalMinutes < 60) return `${totalMinutes} мин`
+  const h = Math.floor(totalMinutes / 60)
+  const m = totalMinutes % 60
+  return m > 0 ? `${h} ч ${m} мин` : `${h} ч`
+}
+
 export const ComparisonView: React.FC<ComparisonViewProps> = ({
   currentScenario,
   variantA,
@@ -38,6 +47,11 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
   const clients = currentScenario.ground_sites.filter((g) => g.role === 'client')
 
+  // Check differences between variant A and B for highlighting
+  const stageDiff = variantA && variantB && variantA.design.launch_stage !== variantB.design.launch_stage
+  const islDiff = variantA && variantB && variantA.environment.isl_range_km !== variantB.environment.isl_range_km
+  const failDiff = variantA && variantB && variantA.failures.length !== variantB.failures.length
+
   // Helper for delta formatting
   const renderDeltaPct = (valA: number, valB: number) => {
     const diff = (valB - valA) * 100
@@ -52,7 +66,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     return (
       <span
         className={`flex items-center gap-0.5 font-bold font-mono ${
-          isPositive ? 'text-emerald-400' : 'text-red-400'
+          isPositive ? 'text-emerald-400' : 'text-amber-400'
         }`}
       >
         {isPositive ? (
@@ -77,10 +91,11 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     }
     // For gap, negative delta is BETTER (less outage duration)
     const isBetter = diffSec < 0
+    const absFormatted = formatDurationHuman(Math.abs(diffSec))
     return (
       <span
         className={`flex items-center gap-0.5 font-bold font-mono ${
-          isBetter ? 'text-emerald-400' : 'text-red-400'
+          isBetter ? 'text-emerald-400' : 'text-amber-400'
         }`}
       >
         {isBetter ? (
@@ -88,7 +103,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         ) : (
           <TrendingUp className="w-3 h-3" />
         )}
-        {diffMin > 0 ? `+${diffMin} мин` : `${diffMin} мин`}
+        {isBetter ? `-${absFormatted}` : `+${absFormatted}`}
       </span>
     )
   }
@@ -98,15 +113,15 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
       {/* Header */}
       <CardHeader className="pb-2.5">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#121824] border border-[#182232] flex items-center justify-center text-[#00f0ff]">
+          <div className="w-7 h-7 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-cyan-400">
             <Scale className="w-3.5 h-3.5" />
           </div>
           <div>
             <CardTitle>
-              A/B СРАВНЕНИЕ ПРОЕКТНЫХ ВАРИАНТОВ (TRADE-OFF STUDY)
+              A/B сравнение проектных вариантов
             </CardTitle>
-            <p className="text-[10px] font-mono text-slate-400 mt-0.5">
-              Сопоставление архитектур группировки, плотности сетки ISL и дельты показателей SLA
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Сопоставление архитектур группировки, плотности ISL и дельты показателей доступности
             </p>
           </div>
         </div>
@@ -117,59 +132,81 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             size="sm"
             variant="outline"
             onClick={() => onSetVariantA(currentScenario)}
-            className="border-blue-500/40 text-blue-300 hover:text-blue-200 gap-1.5"
+            className="border-white/15 text-slate-200 hover:text-white gap-1.5"
+            title="Зафиксировать текущую конфигурацию как Вариант A"
           >
-            <Pin className="w-3 h-3 text-blue-400" />
-            <span>ФИКСИРОВАТЬ [A]</span>
+            <Pin className="w-3 h-3 text-cyan-400" />
+            <span>Зафиксировать А</span>
           </Button>
           <Button
             size="sm"
             variant="outline"
             onClick={() => onSetVariantB(currentScenario)}
-            className="border-purple-500/40 text-purple-300 hover:text-purple-200 gap-1.5"
+            className="border-white/15 text-slate-200 hover:text-white gap-1.5"
+            title="Зафиксировать текущую конфигурацию как Вариант B"
           >
             <Pin className="w-3 h-3 text-purple-400" />
-            <span>ФИКСИРОВАТЬ [B]</span>
+            <span>Зафиксировать B</span>
           </Button>
         </div>
       </CardHeader>
 
-      {/* Top Banner: Variant Cards */}
+      {/* Top Banner: Variant Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Card A */}
-        <div className="bg-[#080b11] p-3 rounded-xl border border-blue-500/30 flex flex-col gap-2 font-mono">
+        <div className="bg-[#080b11] p-3 rounded-xl border border-white/10 flex flex-col gap-2 font-mono">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-blue-400" />
-              ВАРИАНТ A (БАЗА)
+            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-cyan-400" />
+              Вариант A (базовый)
             </span>
             {variantA && (
               <button
                 onClick={() => onLoadVariantIntoEditor(variantA)}
-                className="text-[10px] text-blue-300 hover:underline cursor-pointer"
+                className="text-[10px] text-cyan-400 hover:underline cursor-pointer"
               >
                 Загрузить в симулятор ↗
               </button>
             )}
           </div>
           {variantA ? (
-            <div className="text-xs font-mono text-slate-300 space-y-1">
+            <div className="text-xs font-mono text-slate-300 space-y-1.5">
               <div className="text-slate-100 font-bold">{variantA.meta.title}</div>
-              <div className="flex justify-between text-slate-400">
+              <div className="flex justify-between items-center text-slate-400 text-[11px]">
                 <span>Очередь запуска:</span>
-                <span className="text-slate-200">
+                <span
+                  className={
+                    stageDiff
+                      ? 'px-1.5 py-0.2 rounded bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/30'
+                      : 'text-slate-300'
+                  }
+                >
                   Этап {variantA.design.launch_stage} ({variantA.design.launch_stage * 16} КА)
                 </span>
               </div>
-              <div className="flex justify-between text-slate-400">
+              <div className="flex justify-between items-center text-slate-400 text-[11px]">
                 <span>Предельная дальность ISL:</span>
-                <span className="text-slate-200">
+                <span
+                  className={
+                    islDiff
+                      ? 'px-1.5 py-0.2 rounded bg-cyan-500/15 text-cyan-300 font-bold border border-cyan-500/30'
+                      : 'text-slate-400'
+                  }
+                >
                   {variantA.environment.isl_range_km} км
                 </span>
               </div>
-              <div className="flex justify-between text-slate-400">
-                <span>Активных отказов спутников:</span>
-                <span className="text-slate-200">{variantA.failures.length}</span>
+              <div className="flex justify-between items-center text-slate-400 text-[11px]">
+                <span>Активных отказов КА:</span>
+                <span
+                  className={
+                    failDiff
+                      ? 'px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30'
+                      : 'text-slate-400'
+                  }
+                >
+                  {variantA.failures.length}
+                </span>
               </div>
             </div>
           ) : (
@@ -180,43 +217,63 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         </div>
 
         {/* Card B */}
-        <div className="bg-[#080b11] p-3 rounded-xl border border-purple-500/30 flex flex-col gap-2 font-mono">
+        <div className="bg-[#080b11] p-3 rounded-xl border border-white/10 flex flex-col gap-2 font-mono">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-purple-400" />
-              ВАРИАНТ B (ОПТИМИЗАЦИЯ)
+              Вариант B (целевой)
             </span>
             {variantB && (
               <button
                 onClick={() => onLoadVariantIntoEditor(variantB)}
-                className="text-[10px] text-purple-300 hover:underline cursor-pointer"
+                className="text-[10px] text-purple-400 hover:underline cursor-pointer"
               >
-                ЗАГРУЗИТЬ В СИМУЛЯТОР ↗
+                Загрузить в симулятор ↗
               </button>
             )}
           </div>
           {variantB ? (
-            <div className="text-xs text-slate-300 space-y-1">
+            <div className="text-xs font-mono text-slate-300 space-y-1.5">
               <div className="text-slate-100 font-bold">{variantB.meta.title}</div>
-              <div className="flex justify-between text-slate-400 text-[11px]">
+              <div className="flex justify-between items-center text-slate-400 text-[11px]">
                 <span>Очередь запуска:</span>
-                <span className="text-slate-200">
+                <span
+                  className={
+                    stageDiff
+                      ? 'px-1.5 py-0.2 rounded bg-purple-500/15 text-purple-300 font-bold border border-purple-500/30'
+                      : 'text-slate-300'
+                  }
+                >
                   Этап {variantB.design.launch_stage} ({variantB.design.launch_stage * 16} КА)
                 </span>
               </div>
-              <div className="flex justify-between text-slate-400 text-[11px]">
+              <div className="flex justify-between items-center text-slate-400 text-[11px]">
                 <span>Предельная дальность ISL:</span>
-                <span className="text-slate-200">
+                <span
+                  className={
+                    islDiff
+                      ? 'px-1.5 py-0.2 rounded bg-purple-500/15 text-purple-300 font-bold border border-purple-500/30'
+                      : 'text-slate-400'
+                  }
+                >
                   {variantB.environment.isl_range_km} км
                 </span>
               </div>
-              <div className="flex justify-between text-slate-400 text-[11px]">
-                <span>Активных отказов спутников:</span>
-                <span className="text-slate-200">{variantB.failures.length}</span>
+              <div className="flex justify-between items-center text-slate-400 text-[11px]">
+                <span>Активных отказов КА:</span>
+                <span
+                  className={
+                    failDiff
+                      ? 'px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-300 font-bold border border-amber-500/30'
+                      : 'text-slate-400'
+                  }
+                >
+                  {variantB.failures.length}
+                </span>
               </div>
             </div>
           ) : (
-            <div className="py-6 text-center text-xs text-slate-500 italic">
+            <div className="py-6 text-center text-xs text-slate-500 font-mono italic">
               Вариант B еще не зафиксирован. Нажмите кнопку выше.
             </div>
           )}
@@ -225,29 +282,29 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
       {/* Side-by-Side Metrics Table */}
       {resultA && resultB && (
-        <div className="bg-[#080b11] rounded-xl border border-[#182232] overflow-hidden font-mono">
-          <div className="px-3 py-2 bg-[#0c1017] border-b border-[#182232] flex items-center justify-between">
+        <div className="bg-[#080b11] rounded-xl border border-white/10 overflow-hidden font-mono">
+          <div className="px-3 py-2 bg-[#0c1017] border-b border-white/10 flex items-center justify-between">
             <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-              ТАБЛИЦА СРАВНЕНИЯ МЕТРИК СВЯЗИ
+              Таблица сравнения сетевых метрик
             </span>
-            <span className="text-[10px] text-[#00f0ff]">
-              ЦЕЛЕВОЙ ПОРОГ SLA: ≥ 90.0%
+            <span className="text-[10px] text-cyan-400 font-mono">
+              Целевой порог SLA: ≥ 90.0%
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-[#0c1017] text-slate-400 border-b border-[#182232] text-[10px] uppercase">
-                  <th className="py-2.5 px-3">НАЗЕМНЫЙ ПУНКТ</th>
-                  <th className="py-2.5 px-3">ПАРАМЕТР</th>
-                  <th className="py-2.5 px-3 text-blue-300">ВАРИАНТ A</th>
-                  <th className="py-2.5 px-3 text-purple-300">ВАРИАНТ B</th>
-                  <th className="py-2.5 px-3">ДЕЛЬТА (B - A)</th>
-                  <th className="py-2.5 px-3">SLA СТАТУС (B)</th>
+                <tr className="bg-[#0c1017] text-slate-400 border-b border-white/10 text-[10px] uppercase">
+                  <th className="py-2.5 px-3">Наземный пункт</th>
+                  <th className="py-2.5 px-3">Параметр</th>
+                  <th className="py-2.5 px-3 text-cyan-300">Вариант A</th>
+                  <th className="py-2.5 px-3 text-purple-300">Вариант B</th>
+                  <th className="py-2.5 px-3">Дельта (B - A)</th>
+                  <th className="py-2.5 px-3">SLA статус (B)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#182232]">
+              <tbody className="divide-y divide-white/10">
                 {clients.map((c) => {
                   const mA = resultA.timelines[c.id]?.metrics
                   const mB = resultB.timelines[c.id]?.metrics
@@ -259,53 +316,55 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                   return (
                     <React.Fragment key={c.id}>
                       {/* Row 1: Availability */}
-                      <tr className="hover:bg-[#121824]/50">
+                      <tr className="hover:bg-white/[0.02]">
                         <td className="py-2.5 px-3 font-bold text-slate-200" rowSpan={3}>
                           {c.id} ({c.lat_deg}°N)
                         </td>
-                        <td className="py-2 px-3 text-slate-300 font-semibold">
-                          Доступность пути
+                        <td className="py-2 px-3 text-slate-200 font-medium">
+                          Доступность SLA
                         </td>
-                        <td className="py-2 px-3 text-slate-200">
+                        <td className="py-2 px-3 text-slate-300">
                           {(mA.availability_ratio * 100).toFixed(1)}%
                         </td>
-                        <td className="py-2 px-3 text-slate-200 font-bold">
+                        <td className="py-2 px-3 text-white font-bold">
                           {(mB.availability_ratio * 100).toFixed(1)}%
                         </td>
                         <td className="py-2 px-3">
                           {renderDeltaPct(mA.availability_ratio, mB.availability_ratio)}
                         </td>
-                        <td className="py-2 px-3" rowSpan={3}>
-                          <Badge variant={meetsSlaB ? 'emerald' : 'red'}>
-                            {meetsSlaB ? 'СООТВЕТСТВУЕТ' : 'НИЖЕ ЦЕЛИ'}
+                        <td className="py-2 px-3">
+                          <Badge variant={meetsSlaB ? 'emerald' : 'amber'}>
+                            {meetsSlaB ? 'SLA ≥90% OK' : 'Ниже нормы'}
                           </Badge>
                         </td>
                       </tr>
 
                       {/* Row 2: Max Gap */}
-                      <tr className="hover:bg-[#121824]/50">
+                      <tr className="hover:bg-white/[0.02]">
                         <td className="py-2 px-3 text-slate-400">Макс. перерыв связи</td>
                         <td className="py-2 px-3 text-slate-300">
-                          {Math.round(mA.max_gap_s / 60)} мин ({mA.max_gap_s}с)
+                          {formatDurationHuman(mA.max_gap_s)}
                         </td>
-                        <td className="py-2 px-3 text-slate-300 font-bold">
-                          {Math.round(mB.max_gap_s / 60)} мин ({mB.max_gap_s}с)
+                        <td className="py-2 px-3 text-slate-200 font-medium">
+                          {formatDurationHuman(mB.max_gap_s)}
                         </td>
                         <td className="py-2 px-3">
                           {renderDeltaTime(mA.max_gap_s, mB.max_gap_s)}
                         </td>
+                        <td className="py-2 px-3 text-slate-500 text-[11px]">—</td>
                       </tr>
 
                       {/* Row 3: Hops */}
-                      <tr className="hover:bg-[#121824]/50">
+                      <tr className="hover:bg-white/[0.02]">
                         <td className="py-2 px-3 text-slate-400">Среднее число хопов</td>
                         <td className="py-2 px-3 text-slate-300">{mA.avg_hops.toFixed(1)}</td>
-                        <td className="py-2 px-3 text-slate-300 font-bold">
+                        <td className="py-2 px-3 text-slate-200 font-medium">
                           {mB.avg_hops.toFixed(1)}
                         </td>
                         <td className="py-2 px-3 text-slate-400">
-                          {(mB.avg_hops - mA.avg_hops).toFixed(1)}
+                          {(mB.avg_hops - mA.avg_hops) > 0 ? `+${(mB.avg_hops - mA.avg_hops).toFixed(1)}` : (mB.avg_hops - mA.avg_hops).toFixed(1)}
                         </td>
+                        <td className="py-2 px-3 text-slate-500 text-[11px]">—</td>
                       </tr>
                     </React.Fragment>
                   )

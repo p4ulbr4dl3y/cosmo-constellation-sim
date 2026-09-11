@@ -8,8 +8,8 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className = '', variant = 'default', noPadding = false, children, ...props }, ref) => {
     const variantStyles = {
-      default: 'bg-[#0c1017] border-[#182232] text-slate-100 shadow-sm',
-      subtle: 'bg-[#080b11] border-[#141b26] text-slate-200',
+      default: 'bg-[#0c1017] border-white/10 text-slate-100 shadow-sm',
+      subtle: 'bg-[#080b11] border-white/5 text-slate-200',
       accent: 'bg-[#00f0ff] border-[#00f0ff] text-black shadow-lg shadow-[#00f0ff]/10',
     }[variant]
 
@@ -29,7 +29,7 @@ Card.displayName = 'Card'
 export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export const CardHeader: React.FC<CardHeaderProps> = ({ className = '', children, ...props }) => (
-  <div className={`flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-[#182232] ${className}`} {...props}>
+  <div className={`flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-white/10 ${className}`} {...props}>
     {children}
   </div>
 )
