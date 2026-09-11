@@ -290,7 +290,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Export Result */}
         <Button
           type="button"
-          variant="accent"
+          variant="outline"
           size="sm"
           onClick={handleExportResult}
           title="Экспорт cosmo-A-result-1.0"
