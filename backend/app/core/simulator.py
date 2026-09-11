@@ -24,13 +24,9 @@ def run_simulation(
     horizon_s = int(env["horizon_s"])
     target_avail = float(env.get("target_availability", 0.9))
 
-    clients = [
-        g["id"] for g in scenario.get("ground_sites", []) if g.get("role") == "client"
-    ]
+    clients = [g["id"] for g in scenario.get("ground_sites", []) if g.get("role") == "client"]
     all_clients_set = set(clients)
-    gateways = [
-        g["id"] for g in scenario.get("ground_sites", []) if g.get("role") == "gateway"
-    ]
+    gateways = [g["id"] for g in scenario.get("ground_sites", []) if g.get("role") == "gateway"]
     all_gw_set = set(gateways)
     gw_outages = scenario.get("gateway_outages", [])
 
@@ -67,9 +63,7 @@ def run_simulation(
         adj = build_adjacency(snap["edges"])
 
         # Online gateways at this time step
-        cur_gw_outages = {
-            f["gateway_id"] for f in gw_outages if f["start_s"] <= t_s < f["end_s"]
-        }
+        cur_gw_outages = {f["gateway_id"] for f in gw_outages if f["start_s"] <= t_s < f["end_s"]}
         online_gateways = {gid for gid in all_gw_set if gid not in cur_gw_outages}
 
         # Any active satellite visible to any online gateway?

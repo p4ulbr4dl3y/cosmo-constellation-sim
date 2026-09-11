@@ -98,9 +98,7 @@ def find_route(
 
             if new_cost < best_cost.get(nxt, (float("inf"), float("inf"))):
                 best_cost[nxt] = new_cost
-                heapq.heappush(
-                    pq, (new_cost[0], new_cost[1], nxt, path + [nxt], new_dist)
-                )
+                heapq.heappush(pq, (new_cost[0], new_cost[1], nxt, path + [nxt], new_dist))
 
     return [], 0.0
 

@@ -117,9 +117,7 @@ def compare_scenarios(
         hops_a = ma["mean_hops"]
         hops_b = mb["mean_hops"]
         delta_hops = (
-            round(hops_b - hops_a, 2)
-            if (hops_a is not None and hops_b is not None)
-            else None
+            round(hops_b - hops_a, 2) if (hops_a is not None and hops_b is not None) else None
         )
 
         client_deltas[cid] = {
@@ -141,32 +139,22 @@ def compare_scenarios(
 
     sum_a = sim_a["summary"]
     sum_b = sim_b["summary"]
-    avg_delta = round(
-        sum_b["average_availability_pct"] - sum_a["average_availability_pct"], 2
-    )
+    avg_delta = round(sum_b["average_availability_pct"] - sum_a["average_availability_pct"], 2)
     min_delta = round(sum_b["min_availability_pct"] - sum_a["min_availability_pct"], 2)
 
     # Engineering recommendation
     notes = []
     if avg_delta > 0:
-        notes.append(
-            f"Вариант B превосходит вариант A по средней доступности на +{avg_delta}%."
-        )
+        notes.append(f"Вариант B превосходит вариант A по средней доступности на +{avg_delta}%.")
     elif avg_delta < 0:
-        notes.append(
-            f"Вариант B уступает варианту A по средней доступности на {avg_delta}%."
-        )
+        notes.append(f"Вариант B уступает варианту A по средней доступности на {avg_delta}%.")
     else:
         notes.append("Средняя доступность вариантов идентична.")
 
     if sum_b["all_meet_target"] and not sum_a["all_meet_target"]:
-        notes.append(
-            "В варианте B все пункты вышли на целевой уровень доступности (>= 90%)."
-        )
+        notes.append("В варианте B все пункты вышли на целевой уровень доступности (>= 90%).")
     elif not sum_b["all_meet_target"] and sum_a["all_meet_target"]:
-        notes.append(
-            "В варианте B утрачено соответствие целевому уровню доступности (>= 90%)."
-        )
+        notes.append("В варианте B утрачено соответствие целевому уровню доступности (>= 90%).")
 
     recommendation = " ".join(notes)
 

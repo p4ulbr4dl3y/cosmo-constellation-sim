@@ -112,9 +112,7 @@ def get_preset(name: str) -> dict[str, Any]:
         )
 
 
-@router.post(
-    "/validate", response_model=ValidateResponse, summary="Validate scenario body"
-)
+@router.post("/validate", response_model=ValidateResponse, summary="Validate scenario body")
 def validate(scenario: dict[str, Any]) -> ValidateResponse:
     errors = validate_scenario(scenario)
     return ValidateResponse(valid=len(errors) == 0, errors=errors)
@@ -160,9 +158,7 @@ def compute_snapshot(req: SnapshotRequest) -> dict[str, Any]:
     all_gw_set = set(gateways)
     gw_outages = scenario.get("gateway_outages", [])
 
-    cur_gw_outages = {
-        f["gateway_id"] for f in gw_outages if f["start_s"] <= t_s < f["end_s"]
-    }
+    cur_gw_outages = {f["gateway_id"] for f in gw_outages if f["start_s"] <= t_s < f["end_s"]}
     online_gateways = {gid for gid in all_gw_set if gid not in cur_gw_outages}
 
     # Gateway sat visibility

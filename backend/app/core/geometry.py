@@ -7,9 +7,7 @@ from app.core.constants import EARTH_OMEGA, EARTH_RADIUS_KM, EARTH_MU
 
 
 def finite(x: object) -> bool:
-    return (
-        isinstance(x, (int, float)) and (not isinstance(x, bool)) and math.isfinite(x)
-    )
+    return isinstance(x, (int, float)) and (not isinstance(x, bool)) and math.isfinite(x)
 
 
 def compute_positions(s: dict, t_s: float) -> tuple[list[str], np.ndarray, np.ndarray]:
@@ -25,8 +23,7 @@ def compute_positions(s: dict, t_s: float) -> tuple[list[str], np.ndarray, np.nd
 
     u = np.array(
         [
-            math.radians(float(x["slot_deg"]) + float(pmap[x["plane_id"]]["phase_deg"]))
-            + n * t_s
+            math.radians(float(x["slot_deg"]) + float(pmap[x["plane_id"]]["phase_deg"])) + n * t_s
             for x in d["satellites"]
         ],
         dtype=np.float64,
@@ -85,11 +82,7 @@ def snapshot(s: dict, t_s: float) -> dict:
     e, d = (s["environment"], s["design"])
     ids, inertial, xyz = compute_positions(s, t_s)
 
-    failed = {
-        f["satellite_id"]
-        for f in s.get("failures", [])
-        if f["start_s"] <= t_s < f["end_s"]
-    }
+    failed = {f["satellite_id"] for f in s.get("failures", []) if f["start_s"] <= t_s < f["end_s"]}
     active = np.array(
         [
             sat["launch_batch"] <= d["launch_stage"] and sat["id"] not in failed
@@ -106,16 +99,9 @@ def snapshot(s: dict, t_s: float) -> dict:
         delta = xyz[j] - xyz[i]
         dist = np.linalg.norm(delta, axis=1)
         denom = np.sum(delta * delta, axis=1)
-        lam = np.clip(
-            -np.sum(xyz[i] * delta, axis=1) / np.maximum(denom, 1e-12), 0.0, 1.0
-        )
+        lam = np.clip(-np.sum(xyz[i] * delta, axis=1) / np.maximum(denom, 1e-12), 0.0, 1.0)
         closest = np.linalg.norm(xyz[i] + lam[:, None] * delta, axis=1)
-        ok = (
-            (dist < float(e["isl_range_km"]))
-            & (closest > EARTH_RADIUS_KM)
-            & active[i]
-            & active[j]
-        )
+        ok = (dist < float(e["isl_range_km"])) & (closest > EARTH_RADIUS_KM) & active[i] & active[j]
         for a, b, dd in zip(i[ok], j[ok], dist[ok]):
             edges.append([ids[a], ids[b], float(dd)])
 

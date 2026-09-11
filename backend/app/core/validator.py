@@ -7,9 +7,7 @@ from app.core.constants import SCHEMA_VERSION_INPUT
 
 
 def is_finite_number(x: Any) -> bool:
-    return (
-        isinstance(x, (int, float)) and (not isinstance(x, bool)) and math.isfinite(x)
-    )
+    return isinstance(x, (int, float)) and (not isinstance(x, bool)) and math.isfinite(x)
 
 
 def validate_scenario(s: dict[str, Any]) -> list[str]:
@@ -32,9 +30,7 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
     # 2. environment
     env = s.get("environment")
     if not isinstance(env, dict):
-        errors.append(
-            "Отсутствует обязательный раздел 'environment' (параметры среды и расчета)."
-        )
+        errors.append("Отсутствует обязательный раздел 'environment' (параметры среды и расчета).")
         env = {}
     else:
         env_keys = (
@@ -49,13 +45,9 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
         )
         for key in env_keys:
             if key not in env:
-                errors.append(
-                    f"В разделе 'environment' отсутствует обязательное поле '{key}'."
-                )
+                errors.append(f"В разделе 'environment' отсутствует обязательное поле '{key}'.")
             elif not is_finite_number(env[key]):
-                errors.append(
-                    f"Поле '{key}' в 'environment' должно быть конечным числом."
-                )
+                errors.append(f"Поле '{key}' в 'environment' должно быть конечным числом.")
 
         if "altitude_km" in env and is_finite_number(env["altitude_km"]):
             if not (200.0 <= env["altitude_km"] <= 1200.0):
@@ -73,12 +65,8 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
         horizon_s = env.get("horizon_s")
         valid_time_types = True
 
-        if step_s is not None and (
-            not isinstance(step_s, int) or isinstance(step_s, bool)
-        ):
-            errors.append(
-                "Шаг расчета step_s должен быть целым положительным числом секунд."
-            )
+        if step_s is not None and (not isinstance(step_s, int) or isinstance(step_s, bool)):
+            errors.append("Шаг расчета step_s должен быть целым положительным числом секунд.")
             valid_time_types = False
 
         if horizon_s is not None and (
@@ -112,9 +100,7 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
                     f"Недопустимая дальность ISL isl_range_km={env['isl_range_km']} км. Допустимо: (0, 10000]."
                 )
 
-        if "target_availability" in env and is_finite_number(
-            env["target_availability"]
-        ):
+        if "target_availability" in env and is_finite_number(env["target_availability"]):
             if not (0.0 <= env["target_availability"] <= 1.0):
                 errors.append(
                     f"Целевая доступность target_availability={env['target_availability']} должна быть в диапазоне [0.0, 1.0]."
@@ -126,31 +112,21 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
     sat_ids: set[str] = set()
 
     if not isinstance(design, dict):
-        errors.append(
-            "Отсутствует обязательный раздел 'design' (конфигурация группировки)."
-        )
+        errors.append("Отсутствует обязательный раздел 'design' (конфигурация группировки).")
     else:
         stage = design.get("launch_stage")
-        if (
-            not isinstance(stage, int)
-            or isinstance(stage, bool)
-            or stage not in (1, 2, 3)
-        ):
+        if not isinstance(stage, int) or isinstance(stage, bool) or stage not in (1, 2, 3):
             errors.append(
                 f"Параметр launch_stage должен быть целым числом 1, 2 или 3. Получено: {stage}"
             )
 
         planes = design.get("planes")
         if not isinstance(planes, list) or not planes:
-            errors.append(
-                "Список орбитальных плоскостей 'planes' пуст или отсутствует."
-            )
+            errors.append("Список орбитальных плоскостей 'planes' пуст или отсутствует.")
         else:
             for idx, p in enumerate(planes):
                 if not isinstance(p, dict):
-                    errors.append(
-                        f"Элемент #{idx} в 'planes' должен быть объектом (dict)."
-                    )
+                    errors.append(f"Элемент #{idx} в 'planes' должен быть объектом (dict).")
                     continue
                 pid = p.get("id")
                 if not pid or not isinstance(pid, str):
@@ -173,9 +149,7 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
         else:
             for idx, sat in enumerate(sats):
                 if not isinstance(sat, dict):
-                    errors.append(
-                        f"Элемент #{idx} в 'satellites' должен быть объектом (dict)."
-                    )
+                    errors.append(f"Элемент #{idx} в 'satellites' должен быть объектом (dict).")
                     continue
                 sid = sat.get("id")
                 if not sid or not isinstance(sid, str):
@@ -192,11 +166,7 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
                     )
 
                 batch = sat.get("launch_batch")
-                if (
-                    not isinstance(batch, int)
-                    or isinstance(batch, bool)
-                    or batch not in (1, 2, 3)
-                ):
+                if not isinstance(batch, int) or isinstance(batch, bool) or batch not in (1, 2, 3):
                     errors.append(
                         f"Спутник '{sid}' имеет недопустимый launch_batch={batch}. Допустимо: 1, 2 или 3."
                     )
@@ -219,9 +189,7 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
     else:
         for idx, g in enumerate(ground):
             if not isinstance(g, dict):
-                errors.append(
-                    f"Элемент #{idx} в 'ground_sites' должен быть объектом (dict)."
-                )
+                errors.append(f"Элемент #{idx} в 'ground_sites' должен быть объектом (dict).")
                 continue
             gid = g.get("id")
             if not gid or not isinstance(gid, str):
@@ -263,16 +231,10 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
                 "В сценарии должен присутствовать хотя бы один клиентский пункт (role='client')."
             )
         if not has_gateway:
-            errors.append(
-                "В сценарии должен присутствовать хотя бы один шлюз (role='gateway')."
-            )
+            errors.append("В сценарии должен присутствовать хотя бы один шлюз (role='gateway').")
 
     # 5. failures & gateway_outages
-    max_h = (
-        env.get("horizon_s", 172800)
-        if isinstance(env.get("horizon_s"), int)
-        else 172800
-    )
+    max_h = env.get("horizon_s", 172800) if isinstance(env.get("horizon_s"), int) else 172800
 
     failures = s.get("failures", [])
     if not isinstance(failures, list):
@@ -280,21 +242,15 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
     else:
         for idx, f in enumerate(failures):
             if not isinstance(f, dict):
-                errors.append(
-                    f"Элемент #{idx} в 'failures' должен быть объектом (dict)."
-                )
+                errors.append(f"Элемент #{idx} в 'failures' должен быть объектом (dict).")
                 continue
             sid = f.get("satellite_id")
             if sid not in sat_ids:
-                errors.append(
-                    f"Отказ #{idx} ссылается на неизвестный satellite_id='{sid}'."
-                )
+                errors.append(f"Отказ #{idx} ссылается на неизвестный satellite_id='{sid}'.")
             start_s = f.get("start_s")
             end_s = f.get("end_s")
             if not is_finite_number(start_s) or not is_finite_number(end_s):
-                errors.append(
-                    f"Интервал отказа #{idx} должен содержать числовые start_s и end_s."
-                )
+                errors.append(f"Интервал отказа #{idx} должен содержать числовые start_s и end_s.")
             elif not (0 <= start_s < end_s <= max_h):
                 errors.append(
                     f"Отказ #{idx} для спутника '{sid}' имеет некорректный интервал [{start_s}, {end_s}). "
@@ -307,9 +263,7 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
     else:
         for idx, f in enumerate(gw_outages):
             if not isinstance(f, dict):
-                errors.append(
-                    f"Элемент #{idx} в 'gateway_outages' должен быть объектом (dict)."
-                )
+                errors.append(f"Элемент #{idx} в 'gateway_outages' должен быть объектом (dict).")
                 continue
             gid = f.get("gateway_id")
             if gid not in gateway_ids:

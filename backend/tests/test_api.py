@@ -98,9 +98,7 @@ def test_api_simulate():
 
 def test_api_export():
     scenario = get_preset_scenario()
-    res = client.post(
-        "/api/export", json={"scenario": scenario, "routing_metric": "hops"}
-    )
+    res = client.post("/api/export", json={"scenario": scenario, "routing_metric": "hops"})
     assert res.status_code == 200
     body = res.json()
     assert body["schema_version"] == "cosmo-A-result-1.0"
