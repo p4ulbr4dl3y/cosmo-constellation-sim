@@ -83,6 +83,17 @@ def test_api_snapshot():
     assert body["client_routes"]["C65"]["status"] == "ok"
 
 
+def test_api_snapshot_outage():
+    scenario = get_preset_scenario("02_first_launch.json")
+    # At t_s = 0.0, first launch has client outages
+    res = client.post("/api/snapshot", json={"scenario": scenario, "t_s": 0.0})
+    assert res.status_code == 200
+    body = res.json()
+    outage_routes = [r for r in body["client_routes"].values() if r["status"] == "outage"]
+    assert len(outage_routes) > 0
+    assert outage_routes[0]["failure_code"] is not None
+
+
 def test_api_simulate():
     scenario = get_preset_scenario()
     res = client.post(
@@ -143,3 +154,69 @@ def test_api_report_export():
     res_md = client.get("/api/report/export?format=markdown")
     assert res_md.status_code == 200
     assert "Инженерный отчет" in res_md.text
+
+
+def test_api_root():
+    res = client.get("/")
+    assert res.status_code == 200
+    assert res.json()["service"] == "cosmo-constellation-backend"
+
+
+def test_api_compare_validation_errors():
+    s_valid = get_preset_scenario("01_full_constellation.json")
+    s_invalid = {"schema_version": "bad"}
+
+    res_a = client.post(
+        "/api/compare",
+        json={"scenario_a": s_invalid, "scenario_b": s_valid, "routing_metric": "hops"},
+    )
+    assert res_a.status_code == 422
+    assert "Сценарий A содержит ошибки валидации" in res_a.json()["detail"]["message"]
+
+    res_b = client.post(
+        "/api/compare",
+        json={"scenario_a": s_valid, "scenario_b": s_invalid, "routing_metric": "hops"},
+    )
+    assert res_b.status_code == 422
+    assert "Сценарий B содержит ошибки валидации" in res_b.json()["detail"]["message"]
+
+
+def test_api_simulate_and_export_validation_errors():
+    s_invalid = {"schema_version": "bad"}
+
+    res_sim = client.post("/api/simulate", json={"scenario": s_invalid})
+    assert res_sim.status_code == 422
+
+    res_snap = client.post("/api/snapshot", json={"scenario": s_invalid, "t_s": 0.0})
+    assert res_snap.status_code == 422
+
+    res_exp = client.post("/api/export", json={"scenario": s_invalid})
+    assert res_exp.status_code == 422
+
+
+def test_api_report_export_fallback_and_preset_errors(tmp_path: Path):
+    from unittest.mock import patch
+
+    with patch("app.api.v1.analysis.find_recommendations_doc", return_value=None):
+        res = client.get("/api/report/export")
+        assert res.status_code == 200
+        assert "SLA: 98.10%" in res.json()["markdown"]
+
+    with patch("app.api.v1.presets.find_data_dir", return_value=tmp_path / "empty_nonexistent"):
+        res = client.get("/api/presets")
+        assert res.status_code == 200
+        assert res.json() == []
+
+    # Corrupted preset file
+    bad_dir = tmp_path / "presets"
+    bad_dir.mkdir()
+    (bad_dir / "corrupted.json").write_text("invalid json", encoding="utf-8")
+    with patch("app.api.v1.presets.find_data_dir", return_value=bad_dir):
+        # get_presets skips corrupt files
+        res_list = client.get("/api/presets")
+        assert res_list.status_code == 200
+        assert res_list.json() == []
+
+        # get_preset returns 500
+        res_single = client.get("/api/presets/corrupted")
+        assert res_single.status_code == 500

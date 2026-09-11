@@ -39,7 +39,7 @@ export interface Environment {
   step_s: number
   min_elevation_deg: number
   isl_range_km: number
-  target_availability: number
+  target_availability?: number
 }
 
 export interface Design {
@@ -81,6 +81,7 @@ export interface Snapshot {
   elevations: Record<string, Record<string, number>> // siteId -> satId -> deg
   routes: Record<string, string[]> // clientId -> [clientId, sat..., gatewayId]
   outageReasons: Record<string, string> // clientId -> reason if no route
+  outageCodes?: Record<string, string> // clientId -> failure code (no_client_satellite, etc.)
 }
 
 export interface ClientMetrics {
@@ -103,15 +104,15 @@ export interface RouteRecord {
 
 export interface ResultExport {
   schema_version: 'cosmo-A-result-1.0'
-  meta?: {
+  meta: {
     generator: string
     calculated_at: string
   }
   effective_scenario: Scenario
   routes: RouteRecord[]
-  metrics?: Record<string, ClientMetrics>
-  summary_metrics?: Record<string, ClientMetrics>
-  summary?: {
+  metrics: Record<string, ClientMetrics>
+  summary_metrics: Record<string, ClientMetrics>
+  summary: {
     mean_availability: number
     mean_hops: number
     all_clients_meet_sla: boolean
@@ -124,6 +125,7 @@ export interface TimelineSlot {
   isVisible: boolean
   hops: number
   reason?: string
+  failureCode?: string
 }
 
 export interface ClientTimeline {

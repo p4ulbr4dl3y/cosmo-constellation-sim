@@ -9,7 +9,7 @@ export interface NetworkMapProps {
 }
 
 export interface BadgeLayoutItem {
-  id: string
+  id?: string
   text: string
   anchorX: number
   anchorY: number

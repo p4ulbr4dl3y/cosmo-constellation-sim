@@ -16,6 +16,7 @@ def get_health() -> dict[str, str]:
     }
 
 
+router.include_router(v1_router, prefix="/v1")
 router.include_router(v1_router)
 
 __all__ = ["router"]

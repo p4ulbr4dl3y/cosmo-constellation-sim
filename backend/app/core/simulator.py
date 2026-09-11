@@ -244,3 +244,8 @@ def run_simulation(
         "client_metrics": client_metrics,
         "routes": all_routes,
     }
+
+
+simulate_scenario = run_simulation
+
+__all__ = ["run_simulation", "simulate_scenario"]

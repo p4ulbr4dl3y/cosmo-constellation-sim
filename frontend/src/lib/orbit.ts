@@ -12,6 +12,36 @@ export const R_EARTH = 6371.0
 export const MU = 398600.435507
 export const OMEGA = (2 * Math.PI) / 86164.09054
 
+export const FAILURE_REASON_NO_CLIENT_SAT = 'no_client_satellite'
+export const FAILURE_REASON_GATEWAY_OFFLINE = 'gateway_offline'
+export const FAILURE_REASON_NO_GW_SAT = 'no_gateway_satellite'
+export const FAILURE_REASON_ISL_DISCONNECTED = 'isl_disconnected'
+
+export const FAILURE_DESCRIPTIONS_RU: Record<string, string> = {
+  [FAILURE_REASON_NO_CLIENT_SAT]: 'Нет активного спутника над клиентским пунктом (вне зоны видимости)',
+  [FAILURE_REASON_GATEWAY_OFFLINE]: 'Все наземные шлюзы на техобслуживании / отключены',
+  [FAILURE_REASON_NO_GW_SAT]: 'Нет активного спутника над наземным шлюзом (шлюз вне зоны видимости)',
+  [FAILURE_REASON_ISL_DISCONNECTED]: 'Разрыв межспутниковой сети (нет связного пути через ISL)',
+}
+
+export function classifyFailure(
+  hasClientSatellite: boolean,
+  onlineGatewaysCount: number,
+  hasGatewaySatellite: boolean
+): { code: string; description: string } {
+  let code: string
+  if (!hasClientSatellite) {
+    code = FAILURE_REASON_NO_CLIENT_SAT
+  } else if (onlineGatewaysCount === 0) {
+    code = FAILURE_REASON_GATEWAY_OFFLINE
+  } else if (!hasGatewaySatellite) {
+    code = FAILURE_REASON_NO_GW_SAT
+  } else {
+    code = FAILURE_REASON_ISL_DISCONNECTED
+  }
+  return { code, description: FAILURE_DESCRIPTIONS_RU[code] }
+}
+
 export interface GroundPos {
   id: string
   name: string
@@ -24,7 +54,8 @@ export interface GroundPos {
 }
 
 export function getGroundPositions(scenario: Scenario): GroundPos[] {
-  return scenario.ground_sites.map((g) => {
+  const sites = Array.isArray(scenario?.ground_sites) ? scenario.ground_sites : []
+  return sites.map((g) => {
     const lat = (g.lat_deg * Math.PI) / 180
     const lon = (g.lon_deg * Math.PI) / 180
     return {
@@ -36,7 +67,7 @@ export function getGroundPositions(scenario: Scenario): GroundPos[] {
   })
 }
 
-interface PQItem {
+export interface PQItem {
   pri: number
   sec: number
   curr: string
@@ -44,7 +75,7 @@ interface PQItem {
   totalDist: number
 }
 
-class MinHeap {
+export class MinHeap {
   private data: PQItem[] = []
 
   push(item: PQItem) {
@@ -369,6 +400,7 @@ export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
 
   const routes: Record<string, string[]> = {}
   const outageReasons: Record<string, string> = {}
+  const outageCodes: Record<string, string> = {}
 
   for (const g of groundPositions) {
     if (g.role !== 'client') continue
@@ -398,6 +430,8 @@ export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
       routes[g.id] = path
     } else {
       routes[g.id] = []
+      const { code } = classifyFailure(clientHasVisible, onlineGateways.size, anyGatewayVisible)
+      outageCodes[g.id] = code
       // Precedence: 1. no client sat -> 2. gateway offline -> 3. no gateway sat -> 4. isl disconnected
       if (!clientHasVisible) {
         outageReasons[g.id] = `Нет спутников над ${g.id} (уг. места < ${minEl}°)`
@@ -418,6 +452,7 @@ export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
     elevations,
     routes,
     outageReasons,
+    outageCodes,
   }
 }
 
@@ -477,6 +512,7 @@ export function calculateFullTimeline(scenario: Scenario): {
       )
       const hops = hasPath ? path.length - 1 : 0
       const reason = !hasPath ? snap.outageReasons[c.id] : undefined
+      const failureCode = !hasPath ? snap.outageCodes?.[c.id] : undefined
 
       clientTimelines[c.id].slots.push({
         t_s,
@@ -484,6 +520,7 @@ export function calculateFullTimeline(scenario: Scenario): {
         isVisible: visibleSats,
         hops,
         reason,
+        failureCode,
       })
     }
   }
@@ -584,3 +621,6 @@ export function exportResultFile(
     },
   }
 }
+
+export const exportResults = exportResultFile
+

@@ -264,7 +264,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             const isSelected = c.id === selectedClientId
             const availRatio = tl ? (tl.metrics.availability_ratio * 100).toFixed(1) : '0'
             const meetsTarget = tl
-              ? tl.metrics.availability_ratio >= scenario.environment.target_availability
+              ? tl.metrics.availability_ratio >= (scenario.environment.target_availability ?? 0.9)
               : false
 
             return (
