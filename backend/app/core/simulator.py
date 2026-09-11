@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 from app.core.geometry import snapshot
-from app.core.routing import RoutingMetric, build_adjacency, classify_failure, find_route
+from app.core.routing import (
+    RoutingMetric,
+    build_adjacency,
+    classify_failure,
+    find_route,
+)
 
 
 def run_simulation(
@@ -19,9 +24,13 @@ def run_simulation(
     horizon_s = int(env["horizon_s"])
     target_avail = float(env.get("target_availability", 0.9))
 
-    clients = [g["id"] for g in scenario.get("ground_sites", []) if g.get("role") == "client"]
+    clients = [
+        g["id"] for g in scenario.get("ground_sites", []) if g.get("role") == "client"
+    ]
     all_clients_set = set(clients)
-    gateways = [g["id"] for g in scenario.get("ground_sites", []) if g.get("role") == "gateway"]
+    gateways = [
+        g["id"] for g in scenario.get("ground_sites", []) if g.get("role") == "gateway"
+    ]
     all_gw_set = set(gateways)
     gw_outages = scenario.get("gateway_outages", [])
 
@@ -59,9 +68,7 @@ def run_simulation(
 
         # Online gateways at this time step
         cur_gw_outages = {
-            f["gateway_id"]
-            for f in gw_outages
-            if f["start_s"] <= t_s < f["end_s"]
+            f["gateway_id"] for f in gw_outages if f["start_s"] <= t_s < f["end_s"]
         }
         online_gateways = {gid for gid in all_gw_set if gid not in cur_gw_outages}
 
@@ -75,7 +82,8 @@ def run_simulation(
         for cid in clients:
             cdata = client_data[cid]
             client_visible_sats = [
-                nxt for nxt, _ in adj.get(cid, [])
+                nxt
+                for nxt, _ in adj.get(cid, [])
                 if nxt not in all_clients_set and nxt not in all_gw_set
             ]
             has_client_sat = len(client_visible_sats) > 0
@@ -91,11 +99,13 @@ def run_simulation(
                 metric=metric,
             )
 
-            all_routes.append({
-                "t_s": t_s,
-                "client_id": cid,
-                "path": path,
-            })
+            all_routes.append(
+                {
+                    "t_s": t_s,
+                    "client_id": cid,
+                    "path": path,
+                }
+            )
 
             has_path = len(path) > 0
 
@@ -108,28 +118,32 @@ def run_simulation(
                 # Close ongoing outage interval if one was active
                 if cdata["current_outage_steps"] > 0:
                     outage_dur = cdata["current_outage_steps"] * step_s
-                    cdata["outage_intervals"].append({
-                        "start_s": cdata["current_outage_start"],
-                        "end_s": t_s,
-                        "duration_s": outage_dur,
-                        "reason": cdata["current_outage_reason"],
-                    })
+                    cdata["outage_intervals"].append(
+                        {
+                            "start_s": cdata["current_outage_start"],
+                            "end_s": t_s,
+                            "duration_s": outage_dur,
+                            "reason": cdata["current_outage_reason"],
+                        }
+                    )
                     cdata["current_outage_steps"] = 0
                     cdata["current_outage_start"] = None
                     cdata["current_outage_reason"] = None
 
                 if include_timeline:
-                    cdata["timeline"].append({
-                        "t_s": t_s,
-                        "status": "ok",
-                        "has_route": True,
-                        "has_visibility": has_client_sat,
-                        "hops": hops,
-                        "path": path,
-                        "distance_km": round(total_dist, 2),
-                        "failure_code": None,
-                        "failure_reason": None,
-                    })
+                    cdata["timeline"].append(
+                        {
+                            "t_s": t_s,
+                            "status": "ok",
+                            "has_route": True,
+                            "has_visibility": has_client_sat,
+                            "hops": hops,
+                            "path": path,
+                            "distance_km": round(total_dist, 2),
+                            "failure_code": None,
+                            "failure_reason": None,
+                        }
+                    )
             else:
                 fail_code, fail_desc = classify_failure(
                     has_client_satellite=has_client_sat,
@@ -147,29 +161,33 @@ def run_simulation(
                     cdata["max_outage_steps"] = cdata["current_outage_steps"]
 
                 if include_timeline:
-                    cdata["timeline"].append({
-                        "t_s": t_s,
-                        "status": "outage",
-                        "has_route": False,
-                        "has_visibility": has_client_sat,
-                        "hops": 0,
-                        "path": [],
-                        "distance_km": 0.0,
-                        "failure_code": fail_code,
-                        "failure_reason": fail_desc,
-                    })
+                    cdata["timeline"].append(
+                        {
+                            "t_s": t_s,
+                            "status": "outage",
+                            "has_route": False,
+                            "has_visibility": has_client_sat,
+                            "hops": 0,
+                            "path": [],
+                            "distance_km": 0.0,
+                            "failure_code": fail_code,
+                            "failure_reason": fail_desc,
+                        }
+                    )
 
     # Close any trailing outage interval at horizon_s
     for cid in clients:
         cdata = client_data[cid]
         if cdata["current_outage_steps"] > 0:
             outage_dur = cdata["current_outage_steps"] * step_s
-            cdata["outage_intervals"].append({
-                "start_s": cdata["current_outage_start"],
-                "end_s": horizon_s,
-                "duration_s": outage_dur,
-                "reason": cdata["current_outage_reason"],
-            })
+            cdata["outage_intervals"].append(
+                {
+                    "start_s": cdata["current_outage_start"],
+                    "end_s": horizon_s,
+                    "duration_s": outage_dur,
+                    "reason": cdata["current_outage_reason"],
+                }
+            )
 
     # Format final metrics
     client_metrics: dict[str, Any] = {}

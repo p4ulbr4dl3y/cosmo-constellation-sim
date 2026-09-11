@@ -27,8 +27,7 @@ def export_result(
     if client_metrics:
         for cid, m in client_metrics.items():
             clean_metrics[cid] = {
-                k: v for k, v in m.items()
-                if k not in ("timeline", "outage_intervals")
+                k: v for k, v in m.items() if k not in ("timeline", "outage_intervals")
             }
 
     return {

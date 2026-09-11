@@ -7,7 +7,9 @@ from app.core.constants import EARTH_OMEGA, EARTH_RADIUS_KM, EARTH_MU
 
 
 def finite(x: object) -> bool:
-    return isinstance(x, (int, float)) and (not isinstance(x, bool)) and math.isfinite(x)
+    return (
+        isinstance(x, (int, float)) and (not isinstance(x, bool)) and math.isfinite(x)
+    )
 
 
 def compute_positions(s: dict, t_s: float) -> tuple[list[str], np.ndarray, np.ndarray]:
@@ -20,22 +22,29 @@ def compute_positions(s: dict, t_s: float) -> tuple[list[str], np.ndarray, np.nd
     r = EARTH_RADIUS_KM + float(e["altitude_km"])
     n = math.sqrt(EARTH_MU / r**3)
     inc = math.radians(float(e["inclination_deg"]))
-    
-    u = np.array([
-        math.radians(float(x["slot_deg"]) + float(pmap[x["plane_id"]]["phase_deg"])) + n * t_s
-        for x in d["satellites"]
-    ], dtype=np.float64)
-    om = np.array([
-        math.radians(float(pmap[x["plane_id"]]["raan_deg"]))
-        for x in d["satellites"]
-    ], dtype=np.float64)
+
+    u = np.array(
+        [
+            math.radians(float(x["slot_deg"]) + float(pmap[x["plane_id"]]["phase_deg"]))
+            + n * t_s
+            for x in d["satellites"]
+        ],
+        dtype=np.float64,
+    )
+    om = np.array(
+        [math.radians(float(pmap[x["plane_id"]]["raan_deg"])) for x in d["satellites"]],
+        dtype=np.float64,
+    )
 
     cu, su, co, so = np.cos(u), np.sin(u), np.cos(om), np.sin(om)
-    xyz = r * np.stack((
-        co * cu - so * su * math.cos(inc),
-        so * cu + co * su * math.cos(inc),
-        su * math.sin(inc)
-    ), axis=1)
+    xyz = r * np.stack(
+        (
+            co * cu - so * su * math.cos(inc),
+            so * cu + co * su * math.cos(inc),
+            su * math.sin(inc),
+        ),
+        axis=1,
+    )
 
     th = math.radians(float(e["earth_angle0_deg"])) + EARTH_OMEGA * t_s
     c, ss = math.cos(th), math.sin(th)
@@ -48,11 +57,10 @@ def compute_positions(s: dict, t_s: float) -> tuple[list[str], np.ndarray, np.nd
 def ground_position(g: dict) -> np.ndarray:
     """Earth-fixed Cartesian position of a ground site [km]."""
     lat, lon = math.radians(float(g["lat_deg"])), math.radians(float(g["lon_deg"]))
-    return EARTH_RADIUS_KM * np.array([
-        math.cos(lat) * math.cos(lon),
-        math.cos(lat) * math.sin(lon),
-        math.sin(lat)
-    ], dtype=np.float64)
+    return EARTH_RADIUS_KM * np.array(
+        [math.cos(lat) * math.cos(lon), math.cos(lat) * math.sin(lon), math.sin(lat)],
+        dtype=np.float64,
+    )
 
 
 def ecef_to_geodetic(xyz: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -76,12 +84,19 @@ def snapshot(s: dict, t_s: float) -> dict:
     """
     e, d = (s["environment"], s["design"])
     ids, inertial, xyz = compute_positions(s, t_s)
-    
-    failed = {f["satellite_id"] for f in s.get("failures", []) if f["start_s"] <= t_s < f["end_s"]}
-    active = np.array([
-        sat["launch_batch"] <= d["launch_stage"] and sat["id"] not in failed
-        for sat in d["satellites"]
-    ], dtype=bool)
+
+    failed = {
+        f["satellite_id"]
+        for f in s.get("failures", [])
+        if f["start_s"] <= t_s < f["end_s"]
+    }
+    active = np.array(
+        [
+            sat["launch_batch"] <= d["launch_stage"] and sat["id"] not in failed
+            for sat in d["satellites"]
+        ],
+        dtype=bool,
+    )
 
     # Inter-satellite links (ISL)
     n_sats = len(ids)
@@ -91,9 +106,16 @@ def snapshot(s: dict, t_s: float) -> dict:
         delta = xyz[j] - xyz[i]
         dist = np.linalg.norm(delta, axis=1)
         denom = np.sum(delta * delta, axis=1)
-        lam = np.clip(-np.sum(xyz[i] * delta, axis=1) / np.maximum(denom, 1e-12), 0.0, 1.0)
+        lam = np.clip(
+            -np.sum(xyz[i] * delta, axis=1) / np.maximum(denom, 1e-12), 0.0, 1.0
+        )
         closest = np.linalg.norm(xyz[i] + lam[:, None] * delta, axis=1)
-        ok = (dist < float(e["isl_range_km"])) & (closest > EARTH_RADIUS_KM) & active[i] & active[j]
+        ok = (
+            (dist < float(e["isl_range_km"]))
+            & (closest > EARTH_RADIUS_KM)
+            & active[i]
+            & active[j]
+        )
         for a, b, dd in zip(i[ok], j[ok], dist[ok]):
             edges.append([ids[a], ids[b], float(dd)])
 
@@ -112,8 +134,8 @@ def snapshot(s: dict, t_s: float) -> dict:
         el = np.degrees(np.arcsin(dot))
 
         elevations[gid] = {ids[k]: float(el[k]) for k in active_indices}
-        
-        is_gw = (g.get("role") == "gateway")
+
+        is_gw = g.get("role") == "gateway"
         offline = False
         if is_gw:
             offline = any(
@@ -130,19 +152,21 @@ def snapshot(s: dict, t_s: float) -> dict:
     satellites_out = []
     for k, sid in enumerate(ids):
         sat_meta = d["satellites"][k]
-        satellites_out.append({
-            "id": sid,
-            "plane_id": sat_meta.get("plane_id"),
-            "launch_batch": sat_meta.get("launch_batch"),
-            "x_km": float(xyz[k, 0]),
-            "y_km": float(xyz[k, 1]),
-            "z_km": float(xyz[k, 2]),
-            "lat_deg": float(lat_arr[k]),
-            "lon_deg": float(lon_arr[k]),
-            "alt_km": float(alt_arr[k]),
-            "active": bool(active[k]),
-            "failed": bool(sid in failed),
-        })
+        satellites_out.append(
+            {
+                "id": sid,
+                "plane_id": sat_meta.get("plane_id"),
+                "launch_batch": sat_meta.get("launch_batch"),
+                "x_km": float(xyz[k, 0]),
+                "y_km": float(xyz[k, 1]),
+                "z_km": float(xyz[k, 2]),
+                "lat_deg": float(lat_arr[k]),
+                "lon_deg": float(lon_arr[k]),
+                "alt_km": float(alt_arr[k]),
+                "active": bool(active[k]),
+                "failed": bool(sid in failed),
+            }
+        )
 
     return {
         "t_s": t_s,

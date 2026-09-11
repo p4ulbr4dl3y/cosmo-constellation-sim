@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -82,7 +81,14 @@ def test_api_snapshot():
 
 def test_api_simulate():
     scenario = get_preset_scenario()
-    res = client.post("/api/simulate", json={"scenario": scenario, "routing_metric": "hops", "include_timeline": False})
+    res = client.post(
+        "/api/simulate",
+        json={
+            "scenario": scenario,
+            "routing_metric": "hops",
+            "include_timeline": False,
+        },
+    )
     assert res.status_code == 200
     body = res.json()
     assert body["total_steps"] == 720
@@ -92,7 +98,9 @@ def test_api_simulate():
 
 def test_api_export():
     scenario = get_preset_scenario()
-    res = client.post("/api/export", json={"scenario": scenario, "routing_metric": "hops"})
+    res = client.post(
+        "/api/export", json={"scenario": scenario, "routing_metric": "hops"}
+    )
     assert res.status_code == 200
     body = res.json()
     assert body["schema_version"] == "cosmo-A-result-1.0"
@@ -103,7 +111,10 @@ def test_api_export():
 def test_api_compare():
     s1 = get_preset_scenario("01_full_constellation.json")
     s2 = get_preset_scenario("02_first_launch.json")
-    res = client.post("/api/compare", json={"scenario_a": s1, "scenario_b": s2, "routing_metric": "hops"})
+    res = client.post(
+        "/api/compare",
+        json={"scenario_a": s1, "scenario_b": s2, "routing_metric": "hops"},
+    )
     assert res.status_code == 200
     body = res.json()
     assert "parameter_differences" in body

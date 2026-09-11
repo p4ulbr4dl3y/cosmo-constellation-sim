@@ -1,4 +1,3 @@
-import copy
 import json
 from pathlib import Path
 import pytest
@@ -19,12 +18,15 @@ def get_preset_path(name: str) -> Path:
     raise FileNotFoundError(f"Preset {name} not found")
 
 
-@pytest.mark.parametrize("filename", [
-    "01_full_constellation.json",
-    "02_first_launch.json",
-    "03_satellite_outages.json",
-    "04_link_range.json",
-])
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "01_full_constellation.json",
+        "02_first_launch.json",
+        "03_satellite_outages.json",
+        "04_link_range.json",
+    ],
+)
 def test_presets_valid(filename: str):
     path = get_preset_path(filename)
     scenario = json.loads(path.read_text(encoding="utf-8"))
@@ -101,4 +103,3 @@ def test_non_dict_collection_items():
     errors = validate_scenario(s)
     assert any("должен быть объектом" in e for e in errors)
     assert len(errors) >= 5
-

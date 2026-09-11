@@ -8,6 +8,7 @@ from app.core.geometry import compute_positions, snapshot as app_snapshot
 
 def get_ref_geometry():
     import sys
+
     candidates = [
         Path.cwd() / "Расчетный модуль",
         Path.cwd().parent / "Расчетный модуль",
@@ -19,6 +20,7 @@ def get_ref_geometry():
             if str(c) not in sys.path:
                 sys.path.insert(0, str(c))
             import geometry as ref
+
             return ref
     raise FileNotFoundError("Reference geometry module not found")
 

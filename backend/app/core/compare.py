@@ -16,21 +16,25 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
         va = env_a.get(k)
         vb = env_b.get(k)
         if va != vb:
-            diffs.append({
-                "field": f"environment.{k}",
-                "value_a": va,
-                "value_b": vb,
-            })
+            diffs.append(
+                {
+                    "field": f"environment.{k}",
+                    "value_a": va,
+                    "value_b": vb,
+                }
+            )
 
     # Design launch stage
     des_a = a.get("design", {})
     des_b = b.get("design", {})
     if des_a.get("launch_stage") != des_b.get("launch_stage"):
-        diffs.append({
-            "field": "design.launch_stage",
-            "value_a": des_a.get("launch_stage"),
-            "value_b": des_b.get("launch_stage"),
-        })
+        diffs.append(
+            {
+                "field": "design.launch_stage",
+                "value_a": des_a.get("launch_stage"),
+                "value_b": des_b.get("launch_stage"),
+            }
+        )
 
     # Planes count and parameters
     planes_a = {p["id"]: p for p in des_a.get("planes", [])}
@@ -39,41 +43,49 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
         pa = planes_a.get(pid)
         pb = planes_b.get(pid)
         if pa != pb:
-            diffs.append({
-                "field": f"design.planes[{pid}]",
-                "value_a": pa,
-                "value_b": pb,
-            })
+            diffs.append(
+                {
+                    "field": f"design.planes[{pid}]",
+                    "value_a": pa,
+                    "value_b": pb,
+                }
+            )
 
     # Satellites count
     sats_a = len(des_a.get("satellites", []))
     sats_b = len(des_b.get("satellites", []))
     if sats_a != sats_b:
-        diffs.append({
-            "field": "design.satellites_count",
-            "value_a": sats_a,
-            "value_b": sats_b,
-        })
+        diffs.append(
+            {
+                "field": "design.satellites_count",
+                "value_a": sats_a,
+                "value_b": sats_b,
+            }
+        )
 
     # Failures count
     fails_a = len(a.get("failures", []))
     fails_b = len(b.get("failures", []))
     if fails_a != fails_b:
-        diffs.append({
-            "field": "failures_count",
-            "value_a": fails_a,
-            "value_b": fails_b,
-        })
+        diffs.append(
+            {
+                "field": "failures_count",
+                "value_a": fails_a,
+                "value_b": fails_b,
+            }
+        )
 
     # Gateway outages count
     gw_a = len(a.get("gateway_outages", []))
     gw_b = len(b.get("gateway_outages", []))
     if gw_a != gw_b:
-        diffs.append({
-            "field": "gateway_outages_count",
-            "value_a": gw_a,
-            "value_b": gw_b,
-        })
+        diffs.append(
+            {
+                "field": "gateway_outages_count",
+                "value_a": gw_a,
+                "value_b": gw_b,
+            }
+        )
 
     return {"differences": diffs}
 
@@ -104,7 +116,11 @@ def compare_scenarios(
 
         hops_a = ma["mean_hops"]
         hops_b = mb["mean_hops"]
-        delta_hops = round(hops_b - hops_a, 2) if (hops_a is not None and hops_b is not None) else None
+        delta_hops = (
+            round(hops_b - hops_a, 2)
+            if (hops_a is not None and hops_b is not None)
+            else None
+        )
 
         client_deltas[cid] = {
             "client_id": cid,
@@ -115,30 +131,42 @@ def compare_scenarios(
             "delta_max_outage_s": delta_outage,
             "delta_mean_hops": delta_hops,
             "status_change": (
-                "improved" if delta_avail > 0.5
-                else "degraded" if delta_avail < -0.5
+                "improved"
+                if delta_avail > 0.5
+                else "degraded"
+                if delta_avail < -0.5
                 else "unchanged"
             ),
         }
 
     sum_a = sim_a["summary"]
     sum_b = sim_b["summary"]
-    avg_delta = round(sum_b["average_availability_pct"] - sum_a["average_availability_pct"], 2)
+    avg_delta = round(
+        sum_b["average_availability_pct"] - sum_a["average_availability_pct"], 2
+    )
     min_delta = round(sum_b["min_availability_pct"] - sum_a["min_availability_pct"], 2)
 
     # Engineering recommendation
     notes = []
     if avg_delta > 0:
-        notes.append(f"Вариант B превосходит вариант A по средней доступности на +{avg_delta}%.")
+        notes.append(
+            f"Вариант B превосходит вариант A по средней доступности на +{avg_delta}%."
+        )
     elif avg_delta < 0:
-        notes.append(f"Вариант B уступает варианту A по средней доступности на {avg_delta}%.")
+        notes.append(
+            f"Вариант B уступает варианту A по средней доступности на {avg_delta}%."
+        )
     else:
         notes.append("Средняя доступность вариантов идентична.")
 
     if sum_b["all_meet_target"] and not sum_a["all_meet_target"]:
-        notes.append("В варианте B все пункты вышли на целевой уровень доступности (>= 90%).")
+        notes.append(
+            "В варианте B все пункты вышли на целевой уровень доступности (>= 90%)."
+        )
     elif not sum_b["all_meet_target"] and sum_a["all_meet_target"]:
-        notes.append("В варианте B утрачено соответствие целевому уровню доступности (>= 90%).")
+        notes.append(
+            "В варианте B утрачено соответствие целевому уровню доступности (>= 90%)."
+        )
 
     recommendation = " ".join(notes)
 

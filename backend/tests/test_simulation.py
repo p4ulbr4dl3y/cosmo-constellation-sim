@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-import pytest
 
 from app.core.compare import compare_scenarios
 from app.core.export import export_result
@@ -21,7 +20,9 @@ def get_preset_path(name: str) -> Path:
 
 
 def test_simulate_preset_01_full():
-    scenario = json.loads(get_preset_path("01_full_constellation.json").read_text(encoding="utf-8"))
+    scenario = json.loads(
+        get_preset_path("01_full_constellation.json").read_text(encoding="utf-8")
+    )
     res = run_simulation(scenario, metric="hops", include_timeline=True)
 
     assert res["total_steps"] == 720
@@ -38,7 +39,9 @@ def test_simulate_preset_01_full():
 
 
 def test_simulate_preset_02_first_launch():
-    scenario = json.loads(get_preset_path("02_first_launch.json").read_text(encoding="utf-8"))
+    scenario = json.loads(
+        get_preset_path("02_first_launch.json").read_text(encoding="utf-8")
+    )
     res = run_simulation(scenario, metric="hops", include_timeline=False)
 
     assert res["total_steps"] == 720
@@ -52,7 +55,9 @@ def test_simulate_preset_02_first_launch():
 
 
 def test_simulate_preset_03_satellite_outages():
-    scenario = json.loads(get_preset_path("03_satellite_outages.json").read_text(encoding="utf-8"))
+    scenario = json.loads(
+        get_preset_path("03_satellite_outages.json").read_text(encoding="utf-8")
+    )
     res = run_simulation(scenario, metric="hops", include_timeline=False)
 
     assert res["total_steps"] == 720
@@ -62,7 +67,9 @@ def test_simulate_preset_03_satellite_outages():
 
 
 def test_simulate_preset_04_link_range():
-    scenario = json.loads(get_preset_path("04_link_range.json").read_text(encoding="utf-8"))
+    scenario = json.loads(
+        get_preset_path("04_link_range.json").read_text(encoding="utf-8")
+    )
     res = run_simulation(scenario, metric="hops", include_timeline=False)
 
     assert res["total_steps"] == 720
@@ -73,7 +80,9 @@ def test_simulate_preset_04_link_range():
 
 
 def test_export_format():
-    scenario = json.loads(get_preset_path("01_full_constellation.json").read_text(encoding="utf-8"))
+    scenario = json.loads(
+        get_preset_path("01_full_constellation.json").read_text(encoding="utf-8")
+    )
     exported = export_result(scenario, metric="hops")
 
     assert exported["schema_version"] == "cosmo-A-result-1.0"
@@ -89,9 +98,13 @@ def test_export_format():
 
 
 def test_compare_presets():
-    s1 = json.loads(get_preset_path("01_full_constellation.json").read_text(encoding="utf-8"))
+    s1 = json.loads(
+        get_preset_path("01_full_constellation.json").read_text(encoding="utf-8")
+    )
     s2 = json.loads(get_preset_path("02_first_launch.json").read_text(encoding="utf-8"))
 
     comp = compare_scenarios(s1, s2, metric="hops")
     assert comp["summary"]["delta_average_availability_pct"] < -50.0
-    assert any(d["field"] == "design.launch_stage" for d in comp["parameter_differences"])
+    assert any(
+        d["field"] == "design.launch_stage" for d in comp["parameter_differences"]
+    )
