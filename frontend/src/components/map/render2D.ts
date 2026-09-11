@@ -2,7 +2,6 @@ import { WORLD_LANDMASSES } from '../../data/worldCoastline'
 import type { Snapshot } from '../../types/scenario'
 import { drawBadgesWithLayout } from './badges'
 import {
-  clampPan2D,
   defaultPlaneColor,
   drawLine2DWithAntimeridian,
   planeColors,
@@ -83,12 +82,22 @@ export function render2DMap(options: Render2DOptions): void {
 
   const badges2D: BadgeLayoutItem[] = []
 
-  // Ocean background fills viewport
-  ctx.fillStyle = '#0b1322'
+  // Space/terminal canvas background
+  ctx.fillStyle = '#060b14'
   ctx.fillRect(0, 0, width, height)
 
-  // Lat/lon grid lines
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
+  // World bounds in canvas pixels
+  const [wX1, wY1] = project2D(-180, 90, width, height, zoom, pan2d)
+  const [wX2, wY2] = project2D(180, -90, width, height, zoom, pan2d)
+  const worldW = wX2 - wX1
+  const worldH = wY2 - wY1
+
+  // Ocean background strictly within world boundary
+  ctx.fillStyle = '#0b1322'
+  ctx.fillRect(wX1, wY1, worldW, worldH)
+
+  // Background coordinate grid lines
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)'
   ctx.lineWidth = 1
   ctx.fillStyle = 'rgba(148, 163, 184, 0.4)'
   ctx.font = '9px monospace'
@@ -97,7 +106,6 @@ export function render2DMap(options: Render2DOptions): void {
   const [x0, y0] = project2D(0, 0, width, height, zoom, pan2d)
   const [x30] = project2D(30, 0, width, height, zoom, pan2d)
   const [, y30] = project2D(0, 30, width, height, zoom, pan2d)
-  const [, yBot] = project2D(0, -90, width, height, zoom, pan2d)
   const stepX = Math.abs(x30 - x0)
   const stepY = Math.abs(y0 - y30)
 
@@ -105,7 +113,7 @@ export function render2DMap(options: Render2DOptions): void {
   if (stepX > 0) {
     const kMinX = Math.floor((0 - x0) / stepX) - 1
     const kMaxX = Math.ceil((width - x0) / stepX) + 1
-    const labelY = Math.min(height - 6, Math.max(16, yBot - 4))
+    const labelY = Math.min(height - 6, Math.max(16, wY2 - 4))
     for (let k = kMinX; k <= kMaxX; k++) {
       const x = x0 + k * stepX
       if (x < -1 || x > width + 1) continue
@@ -115,7 +123,10 @@ export function render2DMap(options: Render2DOptions): void {
       ctx.stroke()
 
       const normLon = ((k * 30) % 360 + 540) % 360 - 180
-      ctx.fillText(`${normLon}°`, x + 3, labelY)
+      // Label meridians within the world boundary
+      if (x >= wX1 - 2 && x <= wX2 + 2) {
+        ctx.fillText(`${normLon}°`, x + 3, labelY)
+      }
     }
   }
 
@@ -134,24 +145,24 @@ export function render2DMap(options: Render2DOptions): void {
       ctx.stroke()
 
       const lat = k * 30
-      if (lat >= -80 && lat <= 80) {
+      if (lat >= -80 && lat <= 80 && y >= wY1 - 2 && y <= wY2 + 2) {
         const latLabel = lat > 0 ? `${lat}°N` : `${Math.abs(lat)}°S`
         if (y >= 10 && y <= height - 5) {
-          ctx.fillText(latLabel, 8, y - 3)
+          ctx.fillText(latLabel, Math.max(8, wX1 + 6), y - 3)
         }
       }
     }
   }
 
-  // Equator line: spans full viewport width
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)'
+  // Equator line
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)'
   ctx.lineWidth = 1.5
   ctx.beginPath()
   ctx.moveTo(0, y0)
   ctx.lineTo(width, y0)
   ctx.stroke()
-  if (y0 >= 10 && y0 <= height - 5) {
-    ctx.fillText('0°', 8, y0 - 3)
+  if (y0 >= 10 && y0 <= height - 5 && y0 >= wY1 && y0 <= wY2) {
+    ctx.fillText('0°', Math.max(8, wX1 + 6), y0 - 3)
   }
 
   // Northern Sea Route / Arctic Operation Zone (65°N - 85°N, 30°E - 180°E)
@@ -162,7 +173,7 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)'
   ctx.strokeRect(nsrX1, nsrY1, nsrX2 - nsrX1, nsrY2 - nsrY1)
 
-  // Arctic Circle (66.5°N): spans full viewport width
+  // Arctic Circle (66.5°N)
   const [, arcticY] = project2D(0, 66.56, width, height, zoom, pan2d)
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)'
   ctx.lineWidth = 1
@@ -176,7 +187,7 @@ export function render2DMap(options: Render2DOptions): void {
   // Arctic circle label
   const arcticLabel = 'СЕВЕРНЫЙ ПОЛЯРНЫЙ КРУГ // 66.5°N'
   ctx.font = 'bold 8.5px monospace'
-  const arcLabelX = 28
+  const arcLabelX = Math.max(28, wX1 + 36)
   const arcLabelY = arcticY - 4
   const arcLabelW = ctx.measureText(arcticLabel).width
   ctx.fillStyle = 'rgba(7, 12, 22, 0.75)'
@@ -186,61 +197,74 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.fillStyle = 'rgba(56, 189, 248, 0.85)'
   ctx.fillText(arcticLabel, arcLabelX, arcLabelY)
 
-  // Determine visible longitude wrap offsets (-360, 0, +360, etc.)
-  const mapW = Math.min(width, height * 2)
-  const scale = mapW / 360
-  const cx = width / 2
-  const clampedPan = clampPan2D(pan2d, zoom, width, height)
-  const minVisibleLon = (0 - cx - clampedPan.x) / (scale * zoom)
-  const maxVisibleLon = (width - cx - clampedPan.x) / (scale * zoom)
+  // Draw Landmasses strictly inside world bounds
+  ctx.save()
+  ctx.beginPath()
+  ctx.rect(wX1, wY1, worldW, worldH)
+  ctx.clip()
 
-  const minOffset = Math.floor((minVisibleLon + 180) / 360) * 360
-  const maxOffset = Math.ceil((maxVisibleLon - 180) / 360) * 360
-
-  const visibleOffsets: number[] = []
-  for (let offset = minOffset; offset <= maxOffset; offset += 360) {
-    visibleOffsets.push(offset)
-  }
-  if (visibleOffsets.length === 0) {
-    visibleOffsets.push(0)
-  }
-
-  // Draw Landmasses with seamless antimeridian wrapping across viewport
   ctx.fillStyle = '#111a2c'
   ctx.strokeStyle = '#1d2d47'
   ctx.lineWidth = 1
 
-  for (const offset of visibleOffsets) {
-    // 1. Fill landmass polygons
-    for (const land of WORLD_LANDMASSES) {
-      ctx.beginPath()
-      for (let i = 0; i < land.points.length; i++) {
-        const [lon, lat] = land.points[i]
-        const [px, py] = project2D(lon + offset, lat, width, height, zoom, pan2d)
-        if (i === 0) ctx.moveTo(px, py)
-        else ctx.lineTo(px, py)
-      }
-      ctx.closePath()
-      ctx.fill()
-    }
-
-    // 2. Stroke real coastlines (skipping artificial antimeridian / pole cuts)
+  // 1. Fill landmass polygons
+  for (const land of WORLD_LANDMASSES) {
     ctx.beginPath()
-    for (const land of WORLD_LANDMASSES) {
-      const pts = land.points
-      for (let i = 0; i < pts.length; i++) {
-        const p1 = pts[i]
-        const p2 = pts[(i + 1) % pts.length]
-        if (isArtificialAntimeridianEdge(p1, p2)) continue
-
-        const [x1, y1] = project2D(p1[0] + offset, p1[1], width, height, zoom, pan2d)
-        const [x2, y2] = project2D(p2[0] + offset, p2[1], width, height, zoom, pan2d)
-        ctx.moveTo(x1, y1)
-        ctx.lineTo(x2, y2)
-      }
+    for (let i = 0; i < land.points.length; i++) {
+      const [lon, lat] = land.points[i]
+      const [px, py] = project2D(lon, lat, width, height, zoom, pan2d)
+      if (i === 0) ctx.moveTo(px, py)
+      else ctx.lineTo(px, py)
     }
-    ctx.stroke()
+    ctx.closePath()
+    ctx.fill()
   }
+
+  // 2. Stroke real coastlines (skipping artificial antimeridian / pole cuts)
+  ctx.beginPath()
+  for (const land of WORLD_LANDMASSES) {
+    const pts = land.points
+    for (let i = 0; i < pts.length; i++) {
+      const p1 = pts[i]
+      const p2 = pts[(i + 1) % pts.length]
+      if (isArtificialAntimeridianEdge(p1, p2)) continue
+
+      const [x1, y1] = project2D(p1[0], p1[1], width, height, zoom, pan2d)
+      const [x2, y2] = project2D(p2[0], p2[1], width, height, zoom, pan2d)
+      ctx.moveTo(x1, y1)
+      ctx.lineTo(x2, y2)
+    }
+  }
+  ctx.stroke()
+  ctx.restore()
+
+  // Tactical world map boundary frame
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)'
+  ctx.lineWidth = 1.5
+  ctx.strokeRect(wX1, wY1, worldW, worldH)
+
+  // Corner accent brackets on the world frame
+  const cornerLen = Math.min(14, worldW * 0.05)
+  ctx.strokeStyle = '#38bdf8'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  // Top-Left
+  ctx.moveTo(wX1, wY1 + cornerLen)
+  ctx.lineTo(wX1, wY1)
+  ctx.lineTo(wX1 + cornerLen, wY1)
+  // Top-Right
+  ctx.moveTo(wX2 - cornerLen, wY1)
+  ctx.lineTo(wX2, wY1)
+  ctx.lineTo(wX2, wY1 + cornerLen)
+  // Bottom-Left
+  ctx.moveTo(wX1, wY2 - cornerLen)
+  ctx.lineTo(wX1, wY2)
+  ctx.lineTo(wX1 + cornerLen, wY2)
+  // Bottom-Right
+  ctx.moveTo(wX2 - cornerLen, wY2)
+  ctx.lineTo(wX2, wY2)
+  ctx.lineTo(wX2, wY2 - cornerLen)
+  ctx.stroke()
 
   // Precalculate positions
   const satPosMap = new Map<string, [number, number]>()

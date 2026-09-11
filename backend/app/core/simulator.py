@@ -59,7 +59,7 @@ def run_simulation(
     all_routes: list[dict[str, Any]] = []
 
     for t_s in time_steps:
-        snap = snapshot(scenario, t_s)
+        snap = snapshot(scenario, t_s, fast_edges_only=True)
         adj = build_adjacency(snap["edges"])
 
         # Online gateways at this time step

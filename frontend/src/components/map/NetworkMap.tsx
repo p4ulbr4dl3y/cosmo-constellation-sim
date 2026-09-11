@@ -131,7 +131,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   }
 
   const zoomOut = () => {
-    const minZ = viewMode === '2d' ? 1.0 : 0.8
+    const minZ = 0.5
     setZoom((z) => {
       const nextZ = Math.max(minZ, Number((z - 0.25).toFixed(2)))
       if (nextZ <= 1.0 && viewMode === '2d') {
@@ -148,7 +148,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
-      const minZ = viewMode === '2d' ? 1.0 : 0.8
+      const minZ = 0.5
       const maxZ = viewMode === '2d' ? 4.0 : 3.0
       const factor = e.deltaY < 0 ? 1.12 : 0.89
 

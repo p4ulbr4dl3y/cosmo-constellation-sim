@@ -73,7 +73,7 @@ def ecef_to_geodetic(xyz: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarra
     return lat_deg, lon_deg, alt_km
 
 
-def snapshot(s: dict, t_s: float) -> dict:
+def snapshot(s: dict, t_s: float, fast_edges_only: bool = False) -> dict:
     """
     Calculate single time frame: satellite positions, active state, ISL and ground edges, elevations.
     Edges are potential bidirectional contacts; ground nodes cannot relay traffic.
@@ -96,14 +96,31 @@ def snapshot(s: dict, t_s: float) -> dict:
     edges: list[list[str | float]] = []
     if n_sats > 1:
         i, j = np.triu_indices(n_sats, 1)
-        delta = xyz[j] - xyz[i]
-        dist = np.linalg.norm(delta, axis=1)
-        denom = np.sum(delta * delta, axis=1)
-        lam = np.clip(-np.sum(xyz[i] * delta, axis=1) / np.maximum(denom, 1e-12), 0.0, 1.0)
-        closest = np.linalg.norm(xyz[i] + lam[:, None] * delta, axis=1)
-        ok = (dist < float(e["isl_range_km"])) & (closest > EARTH_RADIUS_KM) & active[i] & active[j]
-        for a, b, dd in zip(i[ok], j[ok], dist[ok]):
-            edges.append([ids[a], ids[b], float(dd)])
+        # Pre-filter by active status
+        both_active = active[i] & active[j]
+        i_cand = i[both_active]
+        j_cand = j[both_active]
+        if len(i_cand) > 0:
+            delta = xyz[j_cand] - xyz[i_cand]
+            denom = np.sum(delta * delta, axis=1)
+            isl_range = float(e["isl_range_km"])
+            isl_range_sq = isl_range * isl_range
+            range_ok = denom < isl_range_sq
+            if np.any(range_ok):
+                i_sub = i_cand[range_ok]
+                j_sub = j_cand[range_ok]
+                delta_sub = delta[range_ok]
+                denom_sub = denom[range_ok]
+                dist_sub = np.sqrt(denom_sub)
+                lam = np.clip(
+                    -np.sum(xyz[i_sub] * delta_sub, axis=1) / np.maximum(denom_sub, 1e-12),
+                    0.0,
+                    1.0,
+                )
+                closest = np.linalg.norm(xyz[i_sub] + lam[:, None] * delta_sub, axis=1)
+                ok = (dist_sub < isl_range) & (closest > EARTH_RADIUS_KM)
+                for a, b, dd in zip(i_sub[ok], j_sub[ok], dist_sub[ok]):
+                    edges.append([ids[a], ids[b], float(dd)])
 
     # Ground stations links
     elevations: dict[str, dict[str, float]] = {}
@@ -132,6 +149,14 @@ def snapshot(s: dict, t_s: float) -> dict:
         vis = (el >= min_elev) & active & (not offline)
         for k in np.where(vis)[0]:
             edges.append([gid, ids[k], float(dl[k])])
+
+    if fast_edges_only:
+        return {
+            "t_s": t_s,
+            "satellites": [],
+            "edges": edges,
+            "elevation_deg": elevations,
+        }
 
     lat_arr, lon_arr, alt_arr = ecef_to_geodetic(xyz)
 

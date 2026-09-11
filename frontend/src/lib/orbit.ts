@@ -519,6 +519,7 @@ export function calculateFullTimeline(scenario: Scenario): {
         hasPath,
         isVisible: visibleSats,
         hops,
+        path,
         reason,
         failureCode,
       })
@@ -539,18 +540,16 @@ export function calculateFullTimeline(scenario: Scenario): {
       if (slot.hasPath) {
         availCount++
         totalHops += slot.hops
-        if (currentGapSlots > maxGapSlots) {
-          maxGapSlots = currentGapSlots
-        }
         currentGapSlots = 0
       } else {
         currentGapSlots++
+        if (currentGapSlots > maxGapSlots) {
+          maxGapSlots = currentGapSlots
+        }
       }
     }
-    if (currentGapSlots > maxGapSlots) {
-      maxGapSlots = currentGapSlots
-    }
 
+    tl.metrics.total_slots = totalSlots
     tl.metrics.available_slots = availCount
     tl.metrics.visible_slots = visCount
     tl.metrics.availability_ratio = totalSlots > 0 ? availCount / totalSlots : 0
@@ -573,16 +572,34 @@ export function exportResultFile(
   const totalSlots = Math.floor(horizon_s / step_s)
   const clients = ground_sites.filter((g) => g.role === 'client')
 
-  for (let slotIdx = 0; slotIdx < totalSlots; slotIdx++) {
-    const t_s = slotIdx * step_s
-    const snap = calculateSnapshot(scenario, t_s)
+  // Check if timelines has cached slot paths
+  const hasCachedRoutes = clients.every(
+    (c) => timelines[c.id] && timelines[c.id].slots.length >= totalSlots && timelines[c.id].slots[0]?.path !== undefined
+  )
 
-    for (const c of clients) {
-      routes.push({
-        t_s,
-        client_id: c.id,
-        path: snap.routes[c.id] || [],
-      })
+  if (hasCachedRoutes) {
+    for (let slotIdx = 0; slotIdx < totalSlots; slotIdx++) {
+      const t_s = slotIdx * step_s
+      for (const c of clients) {
+        routes.push({
+          t_s,
+          client_id: c.id,
+          path: timelines[c.id].slots[slotIdx]?.path || [],
+        })
+      }
+    }
+  } else {
+    for (let slotIdx = 0; slotIdx < totalSlots; slotIdx++) {
+      const t_s = slotIdx * step_s
+      const snap = calculateSnapshot(scenario, t_s)
+
+      for (const c of clients) {
+        routes.push({
+          t_s,
+          client_id: c.id,
+          path: snap.routes[c.id] || [],
+        })
+      }
     }
   }
 
