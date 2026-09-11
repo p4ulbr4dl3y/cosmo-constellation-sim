@@ -37,21 +37,21 @@ def test_api_get_presets(api_client: TestClient) -> None:
 
 
 @pytest.mark.unit
-def test_api_get_presets_ignores_non_scenario_files(
-    api_client: TestClient, tmp_path: Path
-) -> None:
+def test_api_get_presets_ignores_non_scenario_files(api_client: TestClient, tmp_path: Path) -> None:
     # Write valid and invalid files to tmp_path
     (tmp_path / "result.json").write_text(
         json.dumps({"schema_version": "cosmo-A-result-1.0"}), encoding="utf-8"
     )
     (tmp_path / "valid.json").write_text(
-        json.dumps({
-            "schema_version": "cosmo-A-1.0",
-            "meta": {"id": "custom", "title": "Custom"},
-            "environment": {"horizon_s": 100, "step_s": 10, "isl_range_km": 3000},
-            "design": {"launch_stage": 1, "planes": [], "satellites": []},
-            "ground_sites": [],
-        }),
+        json.dumps(
+            {
+                "schema_version": "cosmo-A-1.0",
+                "meta": {"id": "custom", "title": "Custom"},
+                "environment": {"horizon_s": 100, "step_s": 10, "isl_range_km": 3000},
+                "design": {"launch_stage": 1, "planes": [], "satellites": []},
+                "ground_sites": [],
+            }
+        ),
         encoding="utf-8",
     )
     with patch("app.api.v1.presets.find_data_dir", return_value=tmp_path):

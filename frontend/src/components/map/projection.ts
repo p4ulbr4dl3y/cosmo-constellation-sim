@@ -81,7 +81,7 @@ export function project3D(
   const distToCenter = Math.hypot(x2, z2)
 
   // Object is visible if on front hemisphere (depth > 0) OR if outside Earth silhouette disc
-  const visible = y2 > 0 || distToCenter >= R_EARTH * 0.98
+  const visible = y2 > 0 || distToCenter >= R_EARTH
 
   return { x: screenX, y: screenY, visible, distToCenter, depth: y2 }
 }

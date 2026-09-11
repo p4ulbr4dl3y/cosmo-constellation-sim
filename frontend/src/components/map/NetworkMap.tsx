@@ -184,7 +184,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         const p = project3D(g.x, g.y, g.z, 1.0, width, height, globeRotX, globeRotY, zoom)
         px = p.x
         py = p.y
-        vis = p.depth > -50
+        vis = p.depth > 0
       }
       if (vis && Math.hypot(mouseX - px, mouseY - py) < 14) {
         hit = { id: g.id, type: 'ground', x: px, y: py }
@@ -215,7 +215,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           )
           px = p.x
           py = p.y
-          vis = p.visible
+          vis = p.visible && p.depth > 0
         }
         if (vis && Math.hypot(mouseX - px, mouseY - py) < 12) {
           hit = { id: s.id, type: 'sat', x: px, y: py }

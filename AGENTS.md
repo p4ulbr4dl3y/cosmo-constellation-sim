@@ -1,99 +1,50 @@
 # AGENTS.md
 
-Guidance for AI coding agents and developers working with the Cosmo Constellation Simulator codebase.
+Симулятор LEO созвездия (48 спутников, 3 плоскости), ISL меш, Арктика. Стек: FastAPI + NumPy бэкенд, React 19 + Vite + Tailwind фронтенд.
 
-## Project Overview
+## Команды
 
-Web service for LEO satellite constellation design, orbital network simulation, and communication availability analysis in Arctic regions (CosmoHackathon 2026, Case 2).
-- Simulates 48 satellites (altitude 550 km, inclination 87°, 3 orbital planes, 3 launch stages).
-- Dynamic routing: Client ground sites (`C65`, `C70`, `C72`) -> Satellites (ISL mesh) -> Gateway (`G_MUR`).
-- Failure diagnosis: `no_client_satellite`, `gateway_offline`, `no_gateway_satellite`, `isl_disconnected`.
-- Formats: input `cosmo-A-1.0`, export `cosmo-A-result-1.0`.
+### Бэкенд (Python >=3.13, только `uv`)
+- Все тесты: `cd backend && uv run pytest` (порог coverage >=95%).
+- Один тест: `cd backend && uv run pytest tests/test_simulation.py -k <имя> --no-cov` (без `--no-cov` упадет по coverage).
+- Линт: `cd backend && uv run ruff check && uv run ruff format --check`.
 
----
+### Фронтенд (React 19, `npm` / `bun`)
+- Дев сервер: `cd frontend && npm run dev`.
+- Все тесты: `cd frontend && npm test`.
+- Один тест: `cd frontend && npm test -- src/lib/orbit.test.ts -t "<имя>"`.
+- Линт и билд: `cd frontend && npm run lint && npm run build`.
 
-## Commands
+## Архитектура и паритет
 
-### Backend (Python + `uv` only)
-Always use `uv`. Never run bare `pip` or system `python`.
+- **Два движка (паритет обязателен)**: Физика, геометрия ISL, Дейкстра и диагностика сбоев дублированы в Python (`backend/app/core/`) и TypeScript (`frontend/src/lib/orbit.ts`).
+- **Offline First**: Фронт работает автономно на GitHub Pages без бэкенда.
+- **Эталон**: `reference/geometry.py`. Проверка: `test_geometry.py` и `parity.test.ts`.
 
-- `cd backend && uv sync` - Sync virtualenv and install dependencies
-- `cd backend && uv run uvicorn app.main:app --reload --port 8000` - Run development API server
-- `cd backend && uv run pytest --cov=app --cov-report=term` - Run test suite with coverage
-- `cd backend && uv run ruff check` - Lint codebase
-- `cd backend && uv run ruff format --check` - Verify code formatting
+## Инженерные правила
 
-### Frontend (React + Vite + Bun / npm)
-Can use `bun` or `npm`.
+### 1. Сначала повторный юз, потом рефактор
+- Не писать с нуля. Искать в `backend/app/core/` (`geometry.py`, `routing.py`, `validator.py`, `compare.py`) и `frontend/src/lib/` (`orbit.ts`, `formatters.ts`).
+- Расширять существующие типы и утилиты. Не плодить дубли.
 
-- `cd frontend && npm run dev` (or `bun run dev`) - Start Vite dev server on port 5173
-- `cd frontend && npm test` (or `bun test`) - Run Vitest unit tests for client-side math
-- `cd frontend && npm run lint` - Run Oxlint
-- `cd frontend && npm run build` - TypeScript check + production Vite build to `frontend/dist/`
-- `cd frontend && npm run preview` - Serve production build locally
+### 2. Регрессионные тесты
+- Любой `fix` -> обязательный минимальный тест в `backend/tests/` или `frontend/src/**/*.test.ts`.
+- Трог орбит/маршрутов -> синхронный апдейт Python + TS + `parity.test.ts`.
+- Coverage бэкенда >= 95%.
 
----
+### 3. Физика и координаты
+- `R_EARTH = 6371.0` км. Время строго `t_s` (сек).
+- Не путать ECI (инерциальная) и ECEF (земная вращающаяся).
+- Углы: в схемах/UI градусы, в расчетах радианы.
+- Отрисовка: только чистый Canvas 2D/3D. Никаких Three.js, Cesium.
 
-## Architecture & Design Patterns
+### 4. Зависимости
+- Бэкенд: строго `uv` (`uv run`, `uv add`, `uv sync`). Запрещены голые `pip`/`python`. Без тяжелых либ.
+- Фронтенд: React 19, Tailwind v4, Lucide.
 
-### 1. Dual Execution Engine (High Availability)
-- **Backend API**: FastAPI + vectorized NumPy engine (`backend/app/core/`). Exposes endpoints `/api/simulate`, `/api/snapshot`, `/api/validate`, `/api/export`, `/api/compare`.
-- **Frontend Fallback**: `frontend/src/lib/orbit.ts` replicates identical celestial physics, coordinates, ISL geometry, Dijkstra shortest-path routing, and outage diagnostics in TypeScript. Enables fully functional standalone execution on static hostings (GitHub Pages) without backend dependencies.
+### 5. Стиль ассистента
+- Режим `caveman`: ультра-кратко, технично, без воды.
 
-### 2. Visualization & State
-- Canvas-based visualizer: 2D equirectangular projection and 3D orthographic globe (`NetworkMap.tsx`).
-- 24h timeline player with scrub slider and speed control (1x/5x/20x/60x) (`TimelinePlayer.tsx`).
-- Interactive availability Gantt chart per client with outage tooltips.
-- A/B comparison view with parameter delta and SLA compliance breakdown (`ComparisonView.tsx`).
-
-### 3. CI/CD & Production
-- Workflow: `.github/workflows/deploy.yml`.
-- Parallel jobs: `backend-checks` (ruff, pytest-cov) and `frontend-checks` (oxlint, vitest, build).
-- Deployment: Deploys `frontend/dist/` to GitHub Pages and to VPS via `rsync` over SSH (`state3407.space/cosmo/`).
-
----
-
-## File Organization
-
-```
-case_2_satellite_constellation/
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── v1/
-│   │   │   │   ├── simulation.py  # /simulate, /snapshot, /validate, /export
-│   │   │   │   ├── analysis.py    # /compare, /recommendations, /report/export
-│   │   │   │   └── presets.py     # /presets
-│   │   │   └── routes.py          # Backward-compat router export
-│   │   ├── core/                  # Orbital math, routing, SLA simulation
-│   │   └── main.py                # FastAPI entrypoint & CORS
-│   └── tests/                     # 35 pytest unit and integration tests
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── layout/            # Header
-│   │   │   ├── config/            # ConfigEditor
-│   │   │   ├── timeline/          # TimelinePlayer
-│   │   │   ├── analytics/         # MetricsPanel, ComparisonView, ReportView
-│   │   │   ├── map/               # Modular NetworkMap, Controls, HUD, Renderers
-│   │   │   └── ui/                # UI primitives
-│   │   ├── lib/orbit.ts           # Client-side orbital & routing engine
-│   │   ├── lib/orbit.test.ts      # Vitest test suite
-│   │   └── types/scenario.ts      # TypeScript interfaces
-│   └── vite.config.ts             # Relative base './' and /api proxy
-├── docs/                          # Specifications, recommendations, pdf/, assets/
-├── data/                          # 4 benchmark scenario datasets (01..04)
-├── reference/                     # Reference physics module (geometry.py)
-└── .github/workflows/deploy.yml   # Multi-job CI/CD pipeline
-```
-
----
-
-## Commit Guidelines
-
-Follow single-line Conventional Commits, max 72 characters:
-```
-<type>(<scope>): <description>
-```
-Types: `feat`, `fix`, `refactor`, `style`, `chore`, `docs`, `ci`, `test`.
-No commit body or footer.
+## Коммиты
+- 1 строка: `<type>(<scope>): <описание>` (макс 72 символа, строчные, без точки в конце, без body/footer).
+- Типы: `feat`, `fix`, `refactor`, `style`, `chore`, `docs`, `ci`, `test`.

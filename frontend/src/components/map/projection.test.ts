@@ -66,9 +66,13 @@ describe('Map Projection Utils', () => {
     it('identifies back hemisphere occluded by Earth globe disc', () => {
       // Point behind Earth center (0, -R_EARTH, 0)
       const proj = project3D(0, -R_EARTH, 0, 1, 800, 800, 0, 0, 1)
-      // Depth is negative, distToCenter is 0 < R_EARTH * 0.98 -> not visible
+      // Depth is negative, distToCenter is 0 < R_EARTH -> not visible
       expect(proj.visible).toBe(false)
       expect(proj.depth).toBeLessThan(0)
+
+      // Point slightly inside Earth limb on back side (0.99 * R_EARTH) is occluded
+      const projNearLimb = project3D(R_EARTH * 0.99, -R_EARTH, 0, 1, 800, 800, 0, 0, 1)
+      expect(projNearLimb.visible).toBe(false)
     })
 
     it('keeps high-altitude satellite visible even on back hemisphere if outside globe disc', () => {

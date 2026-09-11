@@ -142,7 +142,9 @@ def test_compare_scenarios_branches(baseline_scenario_data: dict[str, Any]) -> N
 
     # Additional diff tests: ground site diff, failure content diff, outage content diff, sat config diff
     s_ground = copy.deepcopy(s1)
-    s_ground["ground_sites"].append({"id": "G_TIK", "role": "gateway", "lat_deg": 71.6, "lon_deg": 128.8})
+    s_ground["ground_sites"].append(
+        {"id": "G_TIK", "role": "gateway", "lat_deg": 71.6, "lon_deg": 128.8}
+    )
     s_ground["failures"] = [{"satellite_id": "S102", "start_s": 10, "end_s": 20}]
     s1_fails = [{"satellite_id": "S101", "start_s": 10, "end_s": 20}]
     s1_with_fails = copy.deepcopy(s1)

@@ -341,14 +341,14 @@ export function render3DGlobe(options: Render3DOptions): void {
   // Draw ISL links in 3D
   if (showIsl) {
     ctx.lineWidth = 1
+    ctx.strokeStyle = 'rgba(125, 211, 252, 0.35)'
     for (const [u, v] of snapshot.edges) {
       if (groundIds.has(u) || groundIds.has(v)) continue
       const p1 = sat3DMap.get(u)
       const p2 = sat3DMap.get(v)
-      if (!p1 || !p2 || (!p1.visible && !p2.visible)) continue
+      if (!p1 || !p2 || !p1.visible || !p2.visible) continue
+      if (p1.depth <= 0 || p2.depth <= 0) continue
 
-      const bothFront = p1.depth > 0 && p2.depth > 0
-      ctx.strokeStyle = bothFront ? 'rgba(125, 211, 252, 0.35)' : 'rgba(125, 211, 252, 0.08)'
       ctx.beginPath()
       ctx.moveTo(p1.x, p1.y)
       ctx.lineTo(p2.x, p2.y)
@@ -367,7 +367,8 @@ export function render3DGlobe(options: Render3DOptions): void {
 
       const p1 = isGroundU ? ground3DMap.get(u) : sat3DMap.get(u)
       const p2 = isGroundV ? ground3DMap.get(v) : sat3DMap.get(v)
-      if (!p1 || !p2 || (!p1.visible && !p2.visible)) continue
+      if (!p1 || !p2 || !p1.visible || !p2.visible) continue
+      if (p1.depth <= 0 || p2.depth <= 0) continue
 
       const groundId = isGroundU ? u : v
       ctx.strokeStyle =
@@ -394,6 +395,7 @@ export function render3DGlobe(options: Render3DOptions): void {
       const p1 = ground3DMap.get(u) || sat3DMap.get(u)
       const p2 = ground3DMap.get(v) || sat3DMap.get(v)
       if (!p1 || !p2 || !p1.visible || !p2.visible) continue
+      if (p1.depth <= 0 || p2.depth <= 0) continue
 
       ctx.beginPath()
       ctx.moveTo(p1.x, p1.y)
@@ -406,7 +408,7 @@ export function render3DGlobe(options: Render3DOptions): void {
   // Draw Ground Stations in 3D
   for (const g of groundPositions) {
     const p = ground3DMap.get(g.id)
-    if (!p || p.depth < -50) continue
+    if (!p || p.depth <= 0) continue
     const isGateway = g.role === 'gateway'
     const isSelected = g.id === selectedClientId
 
@@ -419,7 +421,7 @@ export function render3DGlobe(options: Render3DOptions): void {
     ctx.stroke()
 
     const labelText = isGateway ? 'G_MUR (шлюз)' : g.id
-    const depthOpacity = Math.max(0.15, Math.min(1, (p.depth + 40) / 140))
+    const depthOpacity = Math.max(0.2, Math.min(1, p.depth / 140))
     badges3D.push({
       id: g.id,
       text: labelText,
@@ -444,7 +446,7 @@ export function render3DGlobe(options: Render3DOptions): void {
   for (const sat of snapshot.satellites) {
     if (!sat.active && !showUnlaunched) continue
     const p = sat3DMap.get(sat.id)
-    if (!p || !p.visible) continue
+    if (!p || !p.visible || p.depth <= 0) continue
 
     const pCol = planeColors[sat.plane_id] || defaultPlaneColor
     const isOnRoute = activeRoute.includes(sat.id)
@@ -473,8 +475,8 @@ export function render3DGlobe(options: Render3DOptions): void {
     const isHovered = hoveredNode?.type === 'sat' && hoveredNode.id === sat.id
     const showThisSatLabel = showLabels || isOnRoute || inspectedSatId === sat.id || isHovered
 
-    if (showThisSatLabel && p.visible) {
-      const depthOpacity = Math.max(0.15, Math.min(1, (p.depth + 40) / 140))
+    if (showThisSatLabel && p.visible && p.depth > 0) {
+      const depthOpacity = Math.max(0.2, Math.min(1, p.depth / 140))
       badges3D.push({
         id: sat.id,
         text: sat.id,
