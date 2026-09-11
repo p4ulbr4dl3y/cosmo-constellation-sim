@@ -51,22 +51,31 @@ jobs:
         run: npm ci
 
       - name: Build Frontend
+        id: build
         working-directory: ./frontend
         run: npm run build
 
       - name: Setup GitHub Pages
+        id: setup_pages
+        continue-on-error: true
         uses: actions/configure-pages@v4
 
       - name: Upload Pages Artifact
+        id: upload_pages
+        if: steps.setup_pages.outcome == 'success'
+        continue-on-error: true
         uses: actions/upload-pages-artifact@v3
         with:
           path: './frontend/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
+        if: steps.upload_pages.outcome == 'success'
+        continue-on-error: true
         uses: actions/deploy-pages@v4
 
       - name: Deploy to VPS
+        if: always() && steps.build.outcome == 'success'
         env:
           SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
