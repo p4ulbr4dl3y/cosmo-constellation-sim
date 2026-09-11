@@ -244,8 +244,8 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                       onClick={() => handleEnvChange('isl_range_km', val)}
                       className={`flex-1 py-1 px-1.5 rounded-md text-xs font-bold border transition-colors cursor-pointer ${
                         draft.environment.isl_range_km === val
-                          ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300'
-                          : 'bg-[#080b11] border-white/10 text-slate-400 hover:text-slate-200'
+                        ? 'bg-white/15 border-white/30 text-white'
+                        : 'bg-[#080b11] border-white/10 text-slate-400 hover:text-slate-200'
                       }`}
                     >
                       {val} км

@@ -273,7 +273,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                 onClick={() => onSelectClient(c.id)}
                 className={`h-4.5 px-1 rounded text-[10px] flex items-center justify-between border transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-200 font-bold'
+                    ? 'bg-white/15 border-white/30 text-white font-bold'
                     : 'bg-[#0c1017] border-white/10 text-slate-400 hover:text-slate-200'
                 }`}
               >
