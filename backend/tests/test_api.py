@@ -9,6 +9,10 @@ client = TestClient(app)
 
 def get_preset_scenario(name: str = "01_full_constellation.json") -> dict:
     candidates = [
+        Path.cwd() / "data" / name,
+        Path.cwd().parent / "data" / name,
+        Path(__file__).resolve().parents[2] / "data" / name,
+        Path(__file__).resolve().parents[1] / "data" / name,
         Path.cwd() / "Данные" / name,
         Path.cwd().parent / "Данные" / name,
         Path(__file__).resolve().parents[2] / "Данные" / name,

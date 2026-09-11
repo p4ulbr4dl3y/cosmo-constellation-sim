@@ -12,18 +12,23 @@ router = APIRouter(tags=["presets"])
 
 
 def find_data_dir() -> Path:
-    """Locate 'Данные' directory across development and test environments."""
-    candidates = [
-        Path.cwd() / "Данные",
-        Path.cwd().parent / "Данные",
-        Path(__file__).resolve().parents[4] / "Данные",
-        Path(__file__).resolve().parents[3] / "Данные",
-        Path(__file__).resolve().parents[2] / "Данные",
-    ]
+    """Locate 'data' (or fallback 'Данные') directory across environments."""
+    names = ["data", "Данные"]
+    candidates = []
+    for name in names:
+        candidates.extend(
+            [
+                Path.cwd() / name,
+                Path.cwd().parent / name,
+                Path(__file__).resolve().parents[4] / name,
+                Path(__file__).resolve().parents[3] / name,
+                Path(__file__).resolve().parents[2] / name,
+            ]
+        )
     for c in candidates:
         if c.exists() and c.is_dir():
             return c
-    return Path("Данные")
+    return Path("data")
 
 
 @router.get(

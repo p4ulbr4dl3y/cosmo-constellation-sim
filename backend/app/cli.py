@@ -142,16 +142,20 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.all:
-        data_dir = Path("Данные")
-        if not data_dir.exists():
-            data_dir = Path("../Данные")
-        if not data_dir.exists():
-            print("Ошибка: папка 'Данные/' не найдена.", file=sys.stderr)
+        candidates = [
+            Path("data"),
+            Path("../data"),
+            Path("Данные"),
+            Path("../Данные"),
+        ]
+        data_dir = next((c for c in candidates if c.exists() and c.is_dir()), None)
+        if not data_dir:
+            print("Ошибка: папка 'data/' не найдена.", file=sys.stderr)
             sys.exit(1)
 
         scenarios = sorted(data_dir.glob("*.json"))
         if not scenarios:
-            print("Нет JSON файлов в 'Данные/'.", file=sys.stderr)
+            print(f"Нет JSON файлов в '{data_dir}/'.", file=sys.stderr)
             sys.exit(1)
 
         for sc in scenarios:

@@ -10,7 +10,7 @@ COPY backend/pyproject.toml /app/
 RUN uv sync --no-dev --no-install-project
 
 COPY backend/ /app/
-COPY Данные/ /app/Данные/
+COPY data/ /app/data/
 
 RUN uv sync --no-dev
 

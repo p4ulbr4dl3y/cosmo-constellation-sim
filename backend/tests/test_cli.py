@@ -28,7 +28,9 @@ def test_cli_all_scenarios() -> None:
 
 
 def test_cli_single_scenario_export(tmp_path: Path) -> None:
-    data_dir = Path(__file__).resolve().parents[2] / "Данные"
+    data_dir = Path(__file__).resolve().parents[2] / "data"
+    if not data_dir.exists():
+        data_dir = Path(__file__).resolve().parents[2] / "Данные"
     sc_file = data_dir / "01_full_constellation.json"
     out_file = tmp_path / "result.json"
 

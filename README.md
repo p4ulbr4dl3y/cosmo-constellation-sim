@@ -40,11 +40,11 @@ docker compose up --build -d
 ### Вариант B. Консольный расчет сценариев (CLI)
 Быстрый расчет SLA в терминале без браузера (NumPy ядро):
 ```bash
-# Расчет всех эталонных сценариев из 'Данные/'
+# Расчет всех эталонных сценариев из 'data/'
 cd backend && uv run python -m app.cli --all
 
 # Расчет конкретного сценария с экспортом в cosmo-A-result-1.0
-cd backend && uv run python -m app.cli --scenario ../Данные/01_full_constellation.json --export ../result.json
+cd backend && uv run python -m app.cli --scenario ../data/01_full_constellation.json --export ../result.json
 ```
 
 ---

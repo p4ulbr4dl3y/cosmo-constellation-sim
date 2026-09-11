@@ -40,14 +40,14 @@ uv run ruff check
 Сервис включает полнофункциональную CLI-утилиту для автоматизированного расчета сценариев без браузера:
 
 ```bash
-# Расчет всех эталонных сценариев из 'Данные/'
+# Расчет всех эталонных сценариев из 'data/'
 cd backend && uv run python -m app.cli --all
 
 # Расчет конкретного сценария с выводом метрик SLA
-cd backend && uv run python -m app.cli --scenario ../Данные/01_full_constellation.json
+cd backend && uv run python -m app.cli --scenario ../data/01_full_constellation.json
 
 # Расчет сценария с сохранением результата в cosmo-A-result-1.0
-cd backend && uv run python -m app.cli --scenario ../Данные/01_full_constellation.json --export ../result.json
+cd backend && uv run python -m app.cli --scenario ../data/01_full_constellation.json --export ../result.json
 ```
 
 ---
@@ -57,7 +57,7 @@ cd backend && uv run python -m app.cli --scenario ../Данные/01_full_conste
 | Метод | Путь | Назначение |
 |---|---|---|
 | `GET` | `/api/health` | Проверка работоспособности сервиса |
-| `GET` | `/api/presets` | Список доступных эталонных сценариев из каталога `Данные/` |
+| `GET` | `/api/presets` | Список доступных эталонных сценариев из каталога `data/` |
 | `GET` | `/api/presets/{name}` | Загрузка JSON-сценария по имени |
 | `POST` | `/api/validate` | Валидация структуры `cosmo-A-1.0` с выводом ошибок на русском |
 | `POST` | `/api/simulate` | Полный расчет горизонта (720 шагов), метрики доступности, таймлайны и причины отказов |

@@ -7,6 +7,10 @@ from app.core.validator import validate_scenario
 
 def get_preset_path(name: str) -> Path:
     candidates = [
+        Path.cwd() / "data" / name,
+        Path.cwd().parent / "data" / name,
+        Path(__file__).resolve().parents[2] / "data" / name,
+        Path(__file__).resolve().parents[1] / "data" / name,
         Path.cwd() / "Данные" / name,
         Path.cwd().parent / "Данные" / name,
         Path(__file__).resolve().parents[2] / "Данные" / name,

@@ -10,6 +10,10 @@ def get_ref_geometry():
     import sys
 
     candidates = [
+        Path.cwd() / "reference",
+        Path.cwd().parent / "reference",
+        Path(__file__).resolve().parents[2] / "reference",
+        Path(__file__).resolve().parents[1] / "reference",
         Path.cwd() / "Расчетный модуль",
         Path.cwd().parent / "Расчетный модуль",
         Path(__file__).resolve().parents[2] / "Расчетный модуль",
@@ -27,6 +31,10 @@ def get_ref_geometry():
 
 def get_preset_path(name: str) -> Path:
     candidates = [
+        Path.cwd() / "data" / name,
+        Path.cwd().parent / "data" / name,
+        Path(__file__).resolve().parents[2] / "data" / name,
+        Path(__file__).resolve().parents[1] / "data" / name,
         Path.cwd() / "Данные" / name,
         Path.cwd().parent / "Данные" / name,
         Path(__file__).resolve().parents[2] / "Данные" / name,
