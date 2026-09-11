@@ -86,6 +86,42 @@ export function project3D(
   return { x: screenX, y: screenY, visible, distToCenter, depth: y2 }
 }
 
+export function isSegmentVisible3D(
+  p1: { x: number; y: number; visible: boolean; depth: number },
+  p2: { x: number; y: number; visible: boolean; depth: number },
+  globeRadius: number,
+  cx: number,
+  cy: number
+): boolean {
+  if (!p1.visible || !p2.visible) return false
+
+  // Both endpoints on front hemisphere -> completely visible in front of Earth
+  if (p1.depth > 0 && p2.depth > 0) return true
+
+  // Check 2D distance from Earth center (cx, cy) to segment (p1, p2)
+  const x1 = p1.x - cx
+  const y1 = p1.y - cy
+  const x2 = p2.x - cx
+  const y2 = p2.y - cy
+
+  const dx = x2 - x1
+  const dy = y2 - y1
+  const lenSq = dx * dx + dy * dy
+
+  if (lenSq === 0) {
+    return Math.hypot(x1, y1) >= globeRadius
+  }
+
+  // Parameter t of closest point on segment to (0, 0)
+  const t = Math.max(0, Math.min(1, -(x1 * dx + y1 * dy) / lenSq))
+  const closestX = x1 + t * dx
+  const closestY = y1 + t * dy
+  const minCleanDistSq = closestX * closestX + closestY * closestY
+
+  // Visible if the entire 2D segment is outside Earth's silhouette disc
+  return minCleanDistSq >= globeRadius * globeRadius * 0.99
+}
+
 export function drawLine2DWithAntimeridian(
   ctx: CanvasRenderingContext2D,
   lon1: number,

@@ -215,7 +215,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           )
           px = p.x
           py = p.y
-          vis = p.visible && p.depth > 0
+          vis = p.visible
         }
         if (vis && Math.hypot(mouseX - px, mouseY - py) < 12) {
           hit = { id: s.id, type: 'sat', x: px, y: py }

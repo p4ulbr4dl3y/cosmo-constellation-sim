@@ -3,6 +3,7 @@ import {
   clampPan2D,
   project2D,
   project3D,
+  isSegmentVisible3D,
   drawLine2DWithAntimeridian,
   planeColors,
   defaultPlaneColor,
@@ -85,6 +86,34 @@ describe('Map Projection Utils', () => {
       const pRot = project3D(R_EARTH, 0, 0, 1, 800, 800, Math.PI / 4, Math.PI / 2, 1)
       expect(pRot.x).toBeDefined()
       expect(pRot.y).toBeDefined()
+    })
+  })
+
+  describe('isSegmentVisible3D', () => {
+    it('returns true when both endpoints are on front hemisphere (depth > 0)', () => {
+      const p1 = { x: 400, y: 300, visible: true, depth: 100 }
+      const p2 = { x: 450, y: 320, visible: true, depth: 50 }
+      expect(isSegmentVisible3D(p1, p2, 200, 400, 300)).toBe(true)
+    })
+
+    it('returns false when either endpoint is not visible', () => {
+      const p1 = { x: 400, y: 300, visible: true, depth: 100 }
+      const p2 = { x: 400, y: 300, visible: false, depth: -100 }
+      expect(isSegmentVisible3D(p1, p2, 200, 400, 300)).toBe(false)
+    })
+
+    it('returns true when segment is completely in outer space outside globe radius', () => {
+      // Globe radius 200, cx: 400, cy: 300. Segment at x: 650 to 660 (distance ~250 > 200)
+      const p1 = { x: 650, y: 300, visible: true, depth: 50 }
+      const p2 = { x: 650, y: 350, visible: true, depth: -50 }
+      expect(isSegmentVisible3D(p1, p2, 200, 400, 300)).toBe(true)
+    })
+
+    it('returns false when segment crosses into Earth disc and an endpoint has depth <= 0', () => {
+      // Segment crosses center of globe (400, 300) with one endpoint behind Earth
+      const p1 = { x: 400, y: 150, visible: true, depth: 100 }
+      const p2 = { x: 400, y: 450, visible: true, depth: -50 }
+      expect(isSegmentVisible3D(p1, p2, 200, 400, 300)).toBe(false)
     })
   })
 

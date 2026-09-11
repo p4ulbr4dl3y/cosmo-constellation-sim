@@ -2,7 +2,7 @@ import { WORLD_LANDMASSES } from '../../data/worldCoastline'
 import { R_EARTH } from '../../lib/orbit'
 import type { Snapshot } from '../../types/scenario'
 import { drawBadgesWithLayout } from './badges'
-import { defaultPlaneColor, planeColors, project3D } from './projection'
+import { defaultPlaneColor, isSegmentVisible3D, planeColors, project3D } from './projection'
 import type { BadgeLayoutItem, HoveredNodeInfo } from './types'
 
 export interface Render3DOptions {
@@ -346,8 +346,8 @@ export function render3DGlobe(options: Render3DOptions): void {
       if (groundIds.has(u) || groundIds.has(v)) continue
       const p1 = sat3DMap.get(u)
       const p2 = sat3DMap.get(v)
-      if (!p1 || !p2 || !p1.visible || !p2.visible) continue
-      if (p1.depth <= 0 || p2.depth <= 0) continue
+      if (!p1 || !p2) continue
+      if (!isSegmentVisible3D(p1, p2, globeRadius, cx, cy)) continue
 
       ctx.beginPath()
       ctx.moveTo(p1.x, p1.y)
@@ -367,8 +367,11 @@ export function render3DGlobe(options: Render3DOptions): void {
 
       const p1 = isGroundU ? ground3DMap.get(u) : sat3DMap.get(u)
       const p2 = isGroundV ? ground3DMap.get(v) : sat3DMap.get(v)
-      if (!p1 || !p2 || !p1.visible || !p2.visible) continue
-      if (p1.depth <= 0 || p2.depth <= 0) continue
+      if (!p1 || !p2) continue
+
+      const groundPt = isGroundU ? p1 : p2
+      if (groundPt.depth <= 0) continue
+      if (!isSegmentVisible3D(p1, p2, globeRadius, cx, cy)) continue
 
       const groundId = isGroundU ? u : v
       ctx.strokeStyle =
@@ -394,8 +397,8 @@ export function render3DGlobe(options: Render3DOptions): void {
       const v = activeRoute[k + 1]
       const p1 = ground3DMap.get(u) || sat3DMap.get(u)
       const p2 = ground3DMap.get(v) || sat3DMap.get(v)
-      if (!p1 || !p2 || !p1.visible || !p2.visible) continue
-      if (p1.depth <= 0 || p2.depth <= 0) continue
+      if (!p1 || !p2) continue
+      if (!isSegmentVisible3D(p1, p2, globeRadius, cx, cy)) continue
 
       ctx.beginPath()
       ctx.moveTo(p1.x, p1.y)
@@ -446,7 +449,7 @@ export function render3DGlobe(options: Render3DOptions): void {
   for (const sat of snapshot.satellites) {
     if (!sat.active && !showUnlaunched) continue
     const p = sat3DMap.get(sat.id)
-    if (!p || !p.visible || p.depth <= 0) continue
+    if (!p || !p.visible) continue
 
     const pCol = planeColors[sat.plane_id] || defaultPlaneColor
     const isOnRoute = activeRoute.includes(sat.id)
@@ -475,8 +478,8 @@ export function render3DGlobe(options: Render3DOptions): void {
     const isHovered = hoveredNode?.type === 'sat' && hoveredNode.id === sat.id
     const showThisSatLabel = showLabels || isOnRoute || inspectedSatId === sat.id || isHovered
 
-    if (showThisSatLabel && p.visible && p.depth > 0) {
-      const depthOpacity = Math.max(0.2, Math.min(1, p.depth / 140))
+    if (showThisSatLabel && p.visible) {
+      const depthOpacity = p.depth > 0 ? Math.max(0.3, Math.min(1, p.depth / 140)) : 0.6
       badges3D.push({
         id: sat.id,
         text: sat.id,
