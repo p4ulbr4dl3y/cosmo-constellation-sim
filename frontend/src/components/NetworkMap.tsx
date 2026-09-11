@@ -286,7 +286,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.moveTo(0, y)
       ctx.lineTo(width, y)
       ctx.stroke()
-      ctx.fillText(`${lat}°N`, 6, y - 3)
+      const latLabel = lat > 0 ? `${lat}°N` : lat < 0 ? `${Math.abs(lat)}°S` : '0°'
+      ctx.fillText(latLabel, 6, y - 3)
     }
 
     // Equator line
@@ -1082,7 +1083,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
             <div className="flex justify-between">
               <span className="text-slate-500">LAT / LON:</span>
               <span>
-                {inspectedSat.lat_deg.toFixed(1)}°N, {inspectedSat.lon_deg.toFixed(1)}°E
+                {Math.abs(inspectedSat.lat_deg).toFixed(1)}°{inspectedSat.lat_deg >= 0 ? 'N' : 'S'},{' '}
+                {Math.abs(inspectedSat.lon_deg).toFixed(1)}°{inspectedSat.lon_deg >= 0 ? 'E' : 'W'}
               </span>
             </div>
             <div className="flex justify-between">
