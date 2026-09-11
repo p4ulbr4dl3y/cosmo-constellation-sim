@@ -111,10 +111,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
   // Focus view on the Russian Arctic / Northern Sea Route
   const focusArctic = () => {
-    if (viewMode === '3d') {
-      setGlobeRotX(1.3)
-      setGlobeRotY(-1.4)
-    }
+    setViewMode('3d')
+    setGlobeRotX(1.3)
+    setGlobeRotY(-1.4)
   }
 
   // Handle canvas mouse drag for 3D rotation
@@ -980,6 +979,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         {/* Arctic Focus */}
         <button
           onClick={focusArctic}
+          title="Сфокусировать 3D-глобус на Арктике"
           className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
         >
           Арктика
