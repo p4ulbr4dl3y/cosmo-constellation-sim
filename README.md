@@ -1,6 +1,8 @@
 # Cosmo Constellation Simulator 🛰️
 
 > Веб-сервис для проектирования устойчивой спутниковой группировки и оценки доступности связи в северных районах (КосмоХакатон 2026, Кейс 2).
+> 
+> 🌐 **Live Demo (VPS)**: [https://state3407.space/cosmo/](https://state3407.space/cosmo/) (зеркало: [https://state3407.space/cosmo-constellation-sim/](https://state3407.space/cosmo-constellation-sim/))
 
 ![Mission Control Dashboard](frontend_verified.png)
 
