@@ -16,8 +16,17 @@ interface ConfigEditorProps {
   currentTime: number
 }
 
-function secondsToHHMM(totalSec: number): string {
+function secondsToTimeInputValue(totalSec: number): string {
   const clamped = Math.max(0, Math.min(86400, totalSec))
+  if (clamped >= 86400) return '23:59'
+  const h = Math.floor(clamped / 3600)
+  const m = Math.floor((clamped % 3600) / 60)
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+function secondsToHHMM(totalSec: number): string {
+  if (totalSec >= 86400) return '24:00'
+  const clamped = Math.max(0, totalSec)
   const h = Math.floor(clamped / 3600)
   const m = Math.floor((clamped % 3600) / 60)
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
@@ -28,6 +37,7 @@ function hhmmToSeconds(hhmm: string): number {
   if (parts.length < 2) return 0
   const h = parseInt(parts[0], 10) || 0
   const m = parseInt(parts[1], 10) || 0
+  if (h === 23 && m === 59) return 86400
   return Math.min(86400, Math.max(0, h * 3600 + m * 60))
 }
 
@@ -362,14 +372,14 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 <span className="text-slate-400">С:</span>
                 <input
                   type="time"
-                  value={secondsToHHMM(newFailStart)}
+                  value={secondsToTimeInputValue(newFailStart)}
                   onChange={(e) => setNewFailStart(hhmmToSeconds(e.target.value))}
                   className="h-7 px-1.5 bg-[#0c1017] border border-white/10 rounded-md text-slate-200 text-xs font-mono focus:outline-none focus:border-white/30"
                 />
                 <span className="text-slate-400">До:</span>
                 <input
                   type="time"
-                  value={secondsToHHMM(newFailEnd)}
+                  value={secondsToTimeInputValue(newFailEnd)}
                   onChange={(e) => setNewFailEnd(hhmmToSeconds(e.target.value))}
                   className="h-7 px-1.5 bg-[#0c1017] border border-white/10 rounded-md text-slate-200 text-xs font-mono focus:outline-none focus:border-white/30"
                 />
@@ -430,14 +440,14 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 <span className="text-slate-400">С:</span>
                 <input
                   type="time"
-                  value={secondsToHHMM(newGwStart)}
+                  value={secondsToTimeInputValue(newGwStart)}
                   onChange={(e) => setNewGwStart(hhmmToSeconds(e.target.value))}
                   className="h-7 px-1.5 bg-[#0c1017] border border-white/10 rounded-md text-slate-200 text-xs font-mono focus:outline-none focus:border-white/30"
                 />
                 <span className="text-slate-400">До:</span>
                 <input
                   type="time"
-                  value={secondsToHHMM(newGwEnd)}
+                  value={secondsToTimeInputValue(newGwEnd)}
                   onChange={(e) => setNewGwEnd(hhmmToSeconds(e.target.value))}
                   className="h-7 px-1.5 bg-[#0c1017] border border-white/10 rounded-md text-slate-200 text-xs font-mono focus:outline-none focus:border-white/30"
                 />

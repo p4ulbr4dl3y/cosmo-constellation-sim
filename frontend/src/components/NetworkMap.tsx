@@ -117,13 +117,18 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   }
 
   // Handle canvas mouse drag for 3D rotation
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (viewMode !== '3d') return
     setIsDragging(true)
     dragStartRef.current = { x: e.clientX, y: e.clientY }
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {}
   }
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseMove = (
+    e: React.PointerEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>
+  ) => {
     const canvas = canvasRef.current
     if (!canvas) return
     const rect = canvas.getBoundingClientRect()
@@ -184,8 +189,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     setHoveredNode(hit)
   }
 
-  const handleMouseUp = () => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     setIsDragging(false)
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    } catch {}
   }
 
   const handleCanvasClick = () => {
@@ -1062,9 +1070,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       {/* Main Canvas View */}
       <canvas
         ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handleMouseMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onMouseLeave={() => setIsDragging(false)}
         onClick={handleCanvasClick}
         className={`w-full h-full block ${
           viewMode === '3d' ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-crosshair'

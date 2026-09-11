@@ -19,26 +19,11 @@ interface MetricsPanelProps {
 
 /** Human-readable diagnosis & actionable suggestions for network failure */
 function getDiagnosis(reason?: string, isGatewayOutage?: boolean) {
-  if (isGatewayOutage || (reason && reason.includes('Шлюз отключен'))) {
-    return {
-      title: 'Технологическое окно шлюза',
-      detail: 'Опорный шлюз G_MUR временно отключен согласно регламенту обслуживания.',
-      recommendation: 'Дождитесь завершения планового технологического окна шлюза.',
-    }
-  }
+  // 1. no_client_satellite: terminal has no visible satellites
   if (
     reason &&
-    (reason.includes('Нет спутников над шлюзом') || reason.includes('no_gateway_satellite'))
-  ) {
-    return {
-      title: 'Нет КА над шлюзом',
-      detail: 'В радиовидимости опорного шлюза Мурманск отсутствуют спутники с углом места ≥ 10°.',
-      recommendation: 'Ожидайте захода КА орбитальной плоскости в приполярный сектор Мурманска.',
-    }
-  }
-  if (
-    reason &&
-    (reason.includes('Нет спутников') || reason.includes('no_client_satellite'))
+    (reason.includes('no_client_satellite') ||
+      (reason.includes('Нет спутников над') && !reason.includes('над шлюзом')))
   ) {
     return {
       title: 'Терминал вне зоны радиовидимости',
@@ -46,6 +31,32 @@ function getDiagnosis(reason?: string, isGatewayOutage?: boolean) {
       recommendation: 'Ожидайте пролета очередного спутника или увеличьте число КА в группировке.',
     }
   }
+
+  // 2. gateway_offline: gateway maintenance outage window
+  if (
+    isGatewayOutage ||
+    (reason && (reason.includes('Шлюз отключен') || reason.includes('gateway_offline')))
+  ) {
+    return {
+      title: 'Технологическое окно шлюза',
+      detail: 'Опорный шлюз G_MUR временно отключен согласно регламенту обслуживания.',
+      recommendation: 'Дождитесь завершения планового технологического окна шлюза.',
+    }
+  }
+
+  // 3. no_gateway_satellite: gateway online but no satellites in its footprint
+  if (
+    reason &&
+    (reason.includes('над шлюзом') || reason.includes('no_gateway_satellite'))
+  ) {
+    return {
+      title: 'Нет КА над шлюзом',
+      detail: 'В радиовидимости опорного шлюза Мурманск отсутствуют спутники с углом места ≥ 10°.',
+      recommendation: 'Ожидайте захода КА орбитальной плоскости в приполярный сектор Мурманска.',
+    }
+  }
+
+  // 4. isl_disconnected: both sites see sats, but ISL mesh is disconnected
   if (
     reason &&
     (reason.includes('ISL') || reason.includes('рассоединен') || reason.includes('isl_disconnected'))

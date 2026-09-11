@@ -107,4 +107,24 @@ describe('Orbit Calculation Library', () => {
     expect(snap.routes['CL'][0]).toBe('CL')
     expect(snap.routes['CL'][snap.routes['CL'].length - 1]).toBe('GW')
   })
+
+  it('strictly adheres to 4-tier failure diagnosis precedence', () => {
+    // Tier 1: Client has no visible satellites -> no_client_satellite
+    const tier1Scenario: Scenario = {
+      ...sampleScenario,
+      environment: { ...sampleScenario.environment, min_elevation_deg: 89 },
+      gateway_outages: [{ gateway_id: 'GW', start_s: 0, end_s: 360 }],
+    }
+    const snap1 = calculateSnapshot(tier1Scenario, 0)
+    expect(snap1.outageReasons['CL']).toContain('Нет спутников над CL')
+
+    // Tier 2: Client sees sats, but all gateways offline -> gateway outage
+    const tier2Scenario: Scenario = {
+      ...sampleScenario,
+      environment: { ...sampleScenario.environment, min_elevation_deg: -90 },
+      gateway_outages: [{ gateway_id: 'GW', start_s: 0, end_s: 360 }],
+    }
+    const snap2 = calculateSnapshot(tier2Scenario, 0)
+    expect(snap2.outageReasons['CL']).toContain('Gateway outage')
+  })
 })
