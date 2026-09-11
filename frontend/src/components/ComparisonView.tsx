@@ -270,7 +270,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                       {/* Row 1: Availability */}
                       <tr className="hover:bg-white/[0.02]">
                         <td className="py-2 px-3 font-bold text-slate-200" rowSpan={3}>
-                          {c.id} ({c.lat_deg}°N)
+                          {c.id} ({c.lat_deg}° с.ш.)
                         </td>
                         <td className="py-1.5 px-3 text-slate-300">
                           Доступность SLA
@@ -292,7 +292,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                                 : 'bg-amber-950/40 text-amber-300 border border-amber-500/30'
                             }`}
                           >
-                            {meetsSlaB ? 'SLA ≥90% OK' : 'НИЖЕ ЦЕЛИ'}
+                            {meetsSlaB ? 'SLA В НОРМЕ' : 'НИЖЕ ЦЕЛИ'}
                           </span>
                         </td>
                       </tr>

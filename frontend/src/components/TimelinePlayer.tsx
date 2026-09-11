@@ -194,12 +194,12 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             {isPlaying ? (
               <>
                 <Pause className="w-3.5 h-3.5 fill-current" />
-                <span>PAUSE</span>
+                <span>ПАУЗА</span>
               </>
             ) : (
               <>
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>PLAY</span>
+                <span>СТАРТ</span>
               </>
             )}
           </button>
@@ -371,7 +371,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             <span>{tooltipData.clientId}</span>
             <span>{formatTime(tooltipData.slot.t_s)}</span>
             <span className="text-[9px] text-slate-400">
-              (T+{tooltipData.slot.t_s}s)
+              (T+{tooltipData.slot.t_s} с)
             </span>
           </div>
           <div className="flex items-center gap-1 text-[10px]">

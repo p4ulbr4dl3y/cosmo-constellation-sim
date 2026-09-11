@@ -245,7 +245,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                   <AlertTriangle className="w-3.5 h-3.5" />
                   МАРШРУТ РАЗОРВАН
                 </span>
-                <span className="text-[9px] bg-black/40 px-1 rounded text-slate-400">0 HOPS</span>
+                <span className="text-[9px] bg-black/40 px-1 rounded text-slate-400">0 хопов</span>
               </div>
               <div className="text-[11px] text-slate-300">
                 <span className="text-rose-400">Причина: </span>
@@ -304,7 +304,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 <span className="text-[10px] bg-white/10 px-1 rounded text-slate-300">
                   {primeSat.plane_id}
                 </span>
-                <span className="text-[10px] text-slate-400">BATCH #{primeSat.launch_batch}</span>
+                <span className="text-[10px] text-slate-400">Партия #{primeSat.launch_batch}</span>
               </div>
               {primeSat.failed && (
                 <span className="text-rose-400 font-bold text-[10px] bg-rose-950/50 px-1.5 py-0.2 rounded border border-rose-800/40">
@@ -315,11 +315,11 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
             <div className="flex justify-between text-[10px] text-slate-400">
               <span>
-                {Math.abs(primeSat.lat_deg).toFixed(1)}°{primeSat.lat_deg >= 0 ? 'N' : 'S'},{' '}
-                {Math.abs(primeSat.lon_deg).toFixed(1)}°{primeSat.lon_deg >= 0 ? 'E' : 'W'}
+                {Math.abs(primeSat.lat_deg).toFixed(1)}°{primeSat.lat_deg >= 0 ? ' с.ш.' : ' ю.ш.'},{' '}
+                {Math.abs(primeSat.lon_deg).toFixed(1)}°{primeSat.lon_deg >= 0 ? ' в.д.' : ' з.д.'}
               </span>
               <span>
-                [{Math.round(primeSat.x_km)}, {Math.round(primeSat.y_km)}, {Math.round(primeSat.z_km)}] KM
+                [{Math.round(primeSat.x_km)}, {Math.round(primeSat.y_km)}, {Math.round(primeSat.z_km)}] км
               </span>
             </div>
 

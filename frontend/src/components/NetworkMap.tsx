@@ -1049,7 +1049,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         </div>
         <div className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]" />
-          <span className="text-slate-400">FAIL</span>
+          <span className="text-slate-400">ОТКАЗ</span>
         </div>
       </div>
 
@@ -1107,27 +1107,27 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
                 }
               >
                 {inspectedSat.failed
-                  ? 'ОТКАЗ (FAIL)'
+                  ? 'ОТКАЗ'
                   : inspectedSat.active
-                  ? 'АКТИВЕН (ONLINE)'
-                  : 'STANDBY'}
+                  ? 'В РАБОТЕ'
+                  : 'РЕЗЕРВ'}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-400">ОЧЕРЕДЬ:</span>
-              <span>BATCH #{inspectedSat.launch_batch}</span>
+              <span>ПАРТИЯ #{inspectedSat.launch_batch}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">LAT / LON:</span>
+              <span className="text-slate-400">ШИР / ДОЛГ:</span>
               <span>
-                {Math.abs(inspectedSat.lat_deg).toFixed(1)}°{inspectedSat.lat_deg >= 0 ? 'N' : 'S'},{' '}
-                {Math.abs(inspectedSat.lon_deg).toFixed(1)}°{inspectedSat.lon_deg >= 0 ? 'E' : 'W'}
+                {Math.abs(inspectedSat.lat_deg).toFixed(1)}°{inspectedSat.lat_deg >= 0 ? ' с.ш.' : ' ю.ш.'},{' '}
+                {Math.abs(inspectedSat.lon_deg).toFixed(1)}°{inspectedSat.lon_deg >= 0 ? ' в.д.' : ' з.д.'}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-400">ECEF (X, Y, Z):</span>
               <span className="text-[9px] text-slate-400">
-                [{Math.round(inspectedSat.x_km)}, {Math.round(inspectedSat.y_km)}, {Math.round(inspectedSat.z_km)}] KM
+                [{Math.round(inspectedSat.x_km)}, {Math.round(inspectedSat.y_km)}, {Math.round(inspectedSat.z_km)}] км
               </span>
             </div>
           </div>
