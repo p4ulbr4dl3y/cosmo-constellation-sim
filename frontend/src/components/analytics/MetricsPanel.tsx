@@ -5,8 +5,8 @@ import {
   Crosshair,
   ZapOff,
 } from 'lucide-react'
-import type { Scenario, Snapshot, ClientTimeline } from '../types/scenario'
-import { StatCard } from './ui'
+import type { Scenario, Snapshot, ClientTimeline } from '../../types/scenario'
+import { StatCard } from '../ui'
 
 interface MetricsPanelProps {
   scenario: Scenario

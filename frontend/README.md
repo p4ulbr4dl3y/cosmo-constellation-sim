@@ -1,32 +1,59 @@
-# React + TypeScript + Vite
+# Cosmo Constellation Simulator — Frontend 🌐
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Современный веб-интерфейс Mission Control для моделирования LEO спутниковой группировки, маршрутизации и оценки доступности связи в Арктике (КосмоХакатон 2026, Кейс 2).
 
-Currently, two official plugins are available:
+## 🚀 Стек технологий
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Фреймворк**: React 19, TypeScript 5.7, Vite 6
+- **Стилизация**: Tailwind CSS v4, Lucide React (иконки)
+- **Рендеринг**: HTML5 Canvas 2D (эквидистантная проекция с береговыми линиями) и Canvas 3D (интерактивный ортографический глобус с вращением)
+- **Линтинг и тесты**: Oxlint, Vitest
 
-## React Compiler
+## 📦 Возможности интерфейса
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Интерактивная карта сети (Mission Control)**:
+   - 2D проекция карты мира с отслеживанием всех 48 КА, орбитальных плоскостей и зон видимости.
+   - 3D ортографический глобус с управлением вращением и наклоном.
+   - Динамическое отображение лазерных межспутниковых линий (ISL), линков «Земля-Космос» и сквозных маршрутов «Клиент → КА → Шлюз».
+   - Интерактивный HUD с тултипами по спутникам, шлюзам и клиентам.
 
-## Expanding the Oxlint configuration
+2. **Таймлайн-плеер и диаграмма доступности**:
+   - Управление 24-часовым горизонтом с шагом 120 с (720 кадров).
+   - Скорости воспроизведения: 1x, 5x, 20x, 60x.
+   - Интерактивная Gantt-диаграмма доступности по клиентам (C65, C70, C72) с индикацией отказов.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+3. **Редактор конфигурации и стресс-тесты**:
+   - Переключение эталонных пресетов (01–04) и загрузка собственных JSON (`cosmo-A-1.0`).
+   - Управление очередями запуска (1, 2, 3 очереди).
+   - Моделирование аварийных сценариев: отключение спутников на активном маршруте в 1 клик.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+4. **Аналитика, A/B сравнение и рекомендации**:
+   - Сравнение двух сценариев (A и B) с расчетом дельты SLA, разницы параметров и топологии.
+   - Интерактивная аналитическая справка с оценкой рисков и рекомендациями по развитию группировки.
+   - Экспорт результатов в стандартный формат `cosmo-A-result-1.0`.
+
+5. **Автономный Dual-Engine**:
+   - Полнофункциональное клиентское орбитальное ядро на TypeScript (`src/lib/orbit.ts`), дублирующее физику и Dijkstra-маршрутизацию бэкенда.
+   - Поддержка полной автономной работы без бэкенда на статических хостингах (GitHub Pages).
+
+## 🛠️ Скрипты разработки
+
+```bash
+# Установка зависимостей (npm или bun)
+npm ci
+
+# Запуск сервера разработки (Vite)
+npm run dev
+
+# Проверка линтером (Oxlint)
+npm run lint
+
+# Запуск модульных тестов орбитального ядра (Vitest)
+npm test
+
+# Сборка production-бандла в dist/
+npm run build
+
+# Локальный предпросмотр production-сборки
+npm run preview
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.

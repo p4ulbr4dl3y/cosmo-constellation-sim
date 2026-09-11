@@ -7,7 +7,7 @@ import {
   ChevronRight,
   Clock,
 } from 'lucide-react'
-import type { Scenario, ClientTimeline, TimelineSlot } from '../types/scenario'
+import type { Scenario, ClientTimeline, TimelineSlot } from '../../types/scenario'
 
 interface TimelinePlayerProps {
   scenario: Scenario

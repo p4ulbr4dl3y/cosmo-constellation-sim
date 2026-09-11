@@ -6,7 +6,7 @@ import {
   RotateCcw,
   ChevronDown,
 } from 'lucide-react'
-import type { Scenario, Failure, GatewayOutage } from '../types/scenario'
+import type { Scenario, Failure, GatewayOutage } from '../../types/scenario'
 
 interface ConfigEditorProps {
   scenario: Scenario

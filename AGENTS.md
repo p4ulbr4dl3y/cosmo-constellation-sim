@@ -59,23 +59,29 @@ Can use `bun` or `npm`.
 case_2_satellite_constellation/
 ├── backend/
 │   ├── app/
-│   │   ├── api/routes.py          # FastAPI endpoints
-│   │   ├── core/
-│   │   │   ├── geometry.py        # ECEF/inertial orbit calculations
-│   │   │   ├── routing.py         # Dijkstra/BFS graph solver & diagnostics
-│   │   │   ├── simulator.py       # 24h timeline & SLA calculator
-│   │   │   ├── validator.py       # Strict cosmo-A-1.0 validation
-│   │   │   └── export.py          # cosmo-A-result-1.0 exporter
+│   │   ├── api/
+│   │   │   ├── v1/
+│   │   │   │   ├── simulation.py  # /simulate, /snapshot, /validate, /export
+│   │   │   │   ├── analysis.py    # /compare, /recommendations, /report/export
+│   │   │   │   └── presets.py     # /presets
+│   │   │   └── routes.py          # Backward-compat router export
+│   │   ├── core/                  # Orbital math, routing, SLA simulation
 │   │   └── main.py                # FastAPI entrypoint & CORS
-│   └── tests/                     # 30 pytest unit and integration tests
+│   └── tests/                     # 35 pytest unit and integration tests
 ├── frontend/
 │   ├── src/
-│   │   ├── components/            # NetworkMap, TimelinePlayer, MetricsPanel, ConfigEditor, ComparisonView
+│   │   ├── components/
+│   │   │   ├── layout/            # Header
+│   │   │   ├── config/            # ConfigEditor
+│   │   │   ├── timeline/          # TimelinePlayer
+│   │   │   ├── analytics/         # MetricsPanel, ComparisonView, ReportView
+│   │   │   ├── map/               # Modular NetworkMap, Controls, HUD, Renderers
+│   │   │   └── ui/                # UI primitives
 │   │   ├── lib/orbit.ts           # Client-side orbital & routing engine
 │   │   ├── lib/orbit.test.ts      # Vitest test suite
 │   │   └── types/scenario.ts      # TypeScript interfaces
 │   └── vite.config.ts             # Relative base './' and /api proxy
-├── docs_md/                       # Specifications, data schema, and grading criteria
+├── docs_md/                       # Specifications, recommendations, pdf/, assets/
 ├── Данные/                        # 4 benchmark scenario datasets (01..04)
 ├── Расчетный модуль/             # Reference physics module (geometry.py)
 └── .github/workflows/deploy.yml   # Multi-job CI/CD pipeline

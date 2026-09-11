@@ -6,9 +6,9 @@ import {
   RotateCcw,
   ChevronDown,
 } from 'lucide-react'
-import type { Scenario, ClientTimeline } from '../types/scenario'
-import { PRESET_SCENARIOS } from '../data/presets'
-import { exportResultFile } from '../lib/orbit'
+import type { Scenario, ClientTimeline } from '../../types/scenario'
+import { PRESET_SCENARIOS } from '../../data/presets'
+import { exportResultFile } from '../../lib/orbit'
 
 interface HeaderProps {
   currentScenario: Scenario

@@ -4,7 +4,7 @@
 > 
 > 🌐 **Live Demo (VPS)**: [https://state3407.space/cosmo/](https://state3407.space/cosmo/) (зеркало: [https://state3407.space/cosmo-constellation-sim/](https://state3407.space/cosmo-constellation-sim/))
 
-![Mission Control Dashboard](frontend_verified.png)
+![Mission Control Dashboard](docs_md/assets/frontend_verified.png)
 
 ## 📌 Возможности
 - **Физико-геометрическое ядро**: точный расчет положений КА на круговой орбите $h=550$ км, наклонение $i=87^\circ$, вращение Земли, ISL-линки (видимость и дальность), углы возвышения наземных станций ($\ge 10^\circ$).

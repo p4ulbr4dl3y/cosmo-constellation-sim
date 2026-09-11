@@ -4,8 +4,8 @@ import {
   TrendingDown,
   Minus,
 } from 'lucide-react'
-import type { Scenario } from '../types/scenario'
-import { calculateFullTimeline } from '../lib/orbit'
+import type { Scenario } from '../../types/scenario'
+import { calculateFullTimeline } from '../../lib/orbit'
 
 interface ComparisonViewProps {
   currentScenario: Scenario

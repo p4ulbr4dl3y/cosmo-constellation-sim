@@ -118,3 +118,24 @@ def test_api_compare():
     assert "parameter_differences" in body
     assert "summary" in body
     assert "client_comparison" in body
+
+
+def test_api_recommendations():
+    res = client.get("/api/recommendations")
+    assert res.status_code == 200
+    body = res.json()
+    assert body["status"] == "success"
+    assert "recommendations" in body
+    assert len(body["recommendations"]) > 0
+
+
+def test_api_report_export():
+    res = client.get("/api/report/export")
+    assert res.status_code == 200
+    body = res.json()
+    assert body["format"] == "markdown"
+    assert "markdown" in body
+
+    res_md = client.get("/api/report/export?format=markdown")
+    assert res_md.status_code == 200
+    assert "Инженерный отчет" in res_md.text
