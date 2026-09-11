@@ -988,49 +988,55 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         <div className="h-3 w-px bg-white/10 mx-0.5" />
 
         {/* Layer Toggles */}
-        <button
-          onClick={() => setShowIsl((v) => !v)}
-          className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
-            showIsl
-              ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
-              : 'bg-white/5 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          ISL
-        </button>
+        <div className="flex items-center bg-black/50 p-0.5 rounded border border-white/5 gap-0.5">
+          <button
+            onClick={() => setShowIsl((v) => !v)}
+            title="Межспутниковые линии (ISL)"
+            className={`px-2 py-0.5 rounded-xs transition-all cursor-pointer ${
+              showIsl
+                ? 'bg-white/20 text-white font-medium'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            ISL
+          </button>
 
-        <button
-          onClick={() => setShowGroundLinks((v) => !v)}
-          className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
-            showGroundLinks
-              ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
-              : 'bg-white/5 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          GSL
-        </button>
+          <button
+            onClick={() => setShowGroundLinks((v) => !v)}
+            title="Линии Земля-Спутник (GSL)"
+            className={`px-2 py-0.5 rounded-xs transition-all cursor-pointer ${
+              showGroundLinks
+                ? 'bg-white/20 text-white font-medium'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            GSL
+          </button>
 
-        <button
-          onClick={() => setShowLabels((v) => !v)}
-          className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
-            showLabels
-              ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
-              : 'bg-white/5 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          ID
-        </button>
+          <button
+            onClick={() => setShowLabels((v) => !v)}
+            title="Номера спутников (ID)"
+            className={`px-2 py-0.5 rounded-xs transition-all cursor-pointer ${
+              showLabels
+                ? 'bg-white/20 text-white font-medium'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            ID
+          </button>
 
-        <button
-          onClick={() => setShowUnlaunched((v) => !v)}
-          className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
-            showUnlaunched
-              ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30'
-              : 'bg-white/5 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          Резерв
-        </button>
+          <button
+            onClick={() => setShowUnlaunched((v) => !v)}
+            title="Спутники последующих этапов"
+            className={`px-2 py-0.5 rounded-xs transition-all cursor-pointer ${
+              showUnlaunched
+                ? 'bg-white/20 text-white font-medium'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Резерв
+          </button>
+        </div>
       </div>
 
       {/* Orbit Plane Legend in Bottom-Right Corner */}
