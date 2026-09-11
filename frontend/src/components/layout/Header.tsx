@@ -197,7 +197,7 @@ export const Header: React.FC<HeaderProps> = ({
             variant={isPresetOpen ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setIsPresetOpen(!isPresetOpen)}
-            className="font-mono max-w-[130px] sm:max-w-[180px] md:max-w-[220px] justify-between"
+            className="font-sans max-w-[130px] sm:max-w-[180px] md:max-w-[220px] justify-between"
           >
             <span className="truncate text-[11px]">{currentPresetLabel}</span>
             <ChevronDown
@@ -222,7 +222,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onSelectPreset(p.data)
                       setIsPresetOpen(false)
                     }}
-                    className={`w-full text-left px-2.5 py-1.5 text-xs font-mono flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                    className={`w-full text-left px-2.5 py-1.5 text-xs font-sans flex items-center justify-between gap-2 transition-colors cursor-pointer ${
                       isSelected
                         ? 'bg-white/[0.08] text-white font-medium'
                         : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'

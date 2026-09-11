@@ -258,7 +258,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       {/* Gantt & Timeline Scrubber Area */}
       <div className="flex gap-1.5 bg-[#070b10] p-2 rounded border border-[#1a2636]">
         {/* Left Column: Client Pills */}
-        <div className="w-12 shrink-0 flex flex-col gap-1.5 pt-4">
+        <div className="w-12 shrink-0 flex flex-col gap-1.5 pt-5">
           <ClientSelector
             clients={clients}
             selectedClientId={selectedClientId}

@@ -177,15 +177,15 @@ export const MapControls: React.FC<MapControlsProps> = ({
       {/* Orbit Plane Legend in Header */}
       <div className="hidden sm:flex items-center gap-2 bg-[#070b10] px-2 py-1 rounded border border-[#1a2636] font-mono text-[10px]">
         <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00e5ff]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
           <span className="text-zinc-400">P1</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#c084fc]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#a78bfa]" />
           <span className="text-zinc-400">P2</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#fbbf24]" />
           <span className="text-zinc-400">P3</span>
         </div>
         <div className="flex items-center gap-1">

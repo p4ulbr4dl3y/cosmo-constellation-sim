@@ -205,10 +205,10 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           </div>
           {variantB ? (
             <div className="space-y-1 text-zinc-300 text-[11px]">
-              <div className="text-white font-bold text-xs">{variantB.meta.title}</div>
+              <div className="text-white font-semibold text-xs">{variantB.meta.title}</div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Очередь запуска:</span>
-                <span className={stageDiff ? 'text-purple-300 font-bold' : 'text-zinc-200'}>
+                <span className={stageDiff ? 'text-purple-300 font-semibold' : 'text-zinc-200'}>
                   Этап {variantB.design.launch_stage} (
                   {variantB.design.satellites.filter(
                     (s) => s.launch_batch <= variantB.design.launch_stage
@@ -218,13 +218,13 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               </div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Дальность ISL:</span>
-                <span className={islDiff ? 'text-purple-300 font-bold' : 'text-zinc-200'}>
+                <span className={islDiff ? 'text-purple-300 font-semibold' : 'text-zinc-200'}>
                   {variantB.environment.isl_range_km} км
                 </span>
               </div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Отказы КА:</span>
-                <span className={failDiff ? 'text-amber-400 font-bold' : 'text-zinc-200'}>
+                <span className={failDiff ? 'text-amber-400 font-semibold' : 'text-zinc-200'}>
                   {variantB.failures?.length ?? 0}
                 </span>
               </div>

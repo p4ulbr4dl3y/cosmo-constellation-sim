@@ -61,14 +61,14 @@ export const StatCard: React.FC<StatCardProps> = ({
   if (variant === 'compact') {
     return (
       <div
-        className={`bg-[#0d0d10] border border-zinc-800/60 rounded p-2 font-mono ${className}`}
+        className={`bg-[#070b10] border border-[#1a2636] rounded p-2 font-sans ${className}`}
         {...props}
       >
         <div className="text-[9px] text-zinc-400 block mb-0.5 font-medium">
           {label}
         </div>
         <div className="flex items-baseline justify-between gap-1">
-          <span className="text-xs font-bold text-zinc-100">{value}</span>
+          <span className="text-xs font-bold text-zinc-100 font-mono">{value}</span>
           {sublabel && <span className="text-[9px] text-zinc-500">{sublabel}</span>}
         </div>
       </div>

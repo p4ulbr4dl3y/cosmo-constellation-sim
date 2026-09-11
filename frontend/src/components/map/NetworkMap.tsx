@@ -353,7 +353,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   }, [inspectedSatId, snapshot.edges])
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-[#09090b] select-none overflow-hidden rounded-lg border border-zinc-800">
+    <div className="relative w-full h-full flex flex-col bg-[#06090e] select-none overflow-hidden">
       <MapControls
         viewMode={viewMode}
         onSetViewMode={handleSetViewMode}

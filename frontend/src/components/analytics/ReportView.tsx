@@ -1,6 +1,6 @@
 import React from 'react'
 import type { Scenario, ClientTimeline } from '../../types/scenario'
-import { Badge, Card, CardHeader, CardTitle, Button } from '../ui'
+import { Badge, Card, CardHeader, CardTitle } from '../ui'
 
 interface ReportViewProps {
   currentScenario?: Scenario
@@ -43,17 +43,22 @@ export const ReportView: React.FC<ReportViewProps> = ({
 
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           {liveStats ? (
-            <Badge
-              variant={liveStats.allMeetTarget ? 'emerald' : 'amber'}
-              className="px-2 py-0.5 text-xs font-mono"
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  liveStats.allMeetTarget ? 'bg-emerald-400' : 'bg-amber-400'
-                }`}
-              />
-              <span>{liveStats.allMeetTarget ? 'SLA в норме' : 'SLA нарушен'}</span>
-            </Badge>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-zinc-400 font-mono hidden md:inline">
+                Ср: {liveStats.meanAvail}% / Мин: {liveStats.minAvail}%
+              </span>
+              <Badge
+                variant={liveStats.allMeetTarget ? 'emerald' : 'amber'}
+                className="px-2 py-0.5 text-xs font-mono"
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    liveStats.allMeetTarget ? 'bg-emerald-400' : 'bg-amber-400'
+                  }`}
+                />
+                <span>{liveStats.allMeetTarget ? 'SLA в норме' : 'SLA нарушен'}</span>
+              </Badge>
+            </div>
           ) : (
             <Badge variant="emerald" className="px-2 py-0.5 text-xs font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
@@ -65,16 +70,10 @@ export const ReportView: React.FC<ReportViewProps> = ({
             href="https://github.com/p4ulbr4dl3y/cosmo-constellation-sim/blob/main/docs/RECOMMENDATIONS.md"
             target="_blank"
             rel="noreferrer"
-            tabIndex={-1}
+            className="inline-flex items-center justify-center font-medium select-none transition-all active:scale-[0.98] cursor-pointer text-xs px-2.5 py-1 rounded-md gap-1.5 h-7 bg-white/[0.03] hover:bg-white/[0.07] text-zinc-300 hover:text-white border border-[#1a2636]"
+            title="Открыть документацию в docs/RECOMMENDATIONS.md"
           >
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              title="Открыть документацию в docs/RECOMMENDATIONS.md"
-            >
-              <span>Документация</span>
-            </Button>
+            <span>Документация</span>
           </a>
         </div>
       </div>
@@ -239,7 +238,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               </div>
               <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
                 <span className="text-zinc-400">Слепые зоны:</span>
-                <span className="text-zinc-200 font-bold font-mono">Исключены</span>
+                <span className="text-zinc-200 font-semibold font-sans">Исключены</span>
               </div>
             </div>
 

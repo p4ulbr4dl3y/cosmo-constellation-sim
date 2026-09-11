@@ -192,9 +192,9 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
         </div>
 
         {/* Current Route or Outage Diagnosis */}
-        <div className="shrink-0">
+        <div className="shrink-0 min-h-[46px]">
           {hasRoute ? (
-            <div className="bg-[#070b10] p-2 rounded border border-[#1a2636] flex flex-wrap items-center gap-1.5">
+            <div className="bg-[#070b10] p-2 rounded border border-[#1a2636] flex flex-wrap items-center gap-1.5 min-h-[46px]">
               {activeRoute.map((nodeId, idx) => {
                 const isFirst = idx === 0
                 const isLast = idx === activeRoute.length - 1
@@ -230,7 +230,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               )}
             </div>
           ) : (
-            <div className="rounded border border-rose-500/25 bg-rose-500/[0.03] p-2 flex flex-col gap-1">
+            <div className="rounded border border-rose-500/25 bg-rose-500/[0.03] p-2 flex flex-col justify-center gap-1 min-h-[46px]">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
                 <span className="text-rose-400 font-medium text-xs">
@@ -294,7 +294,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 <span className="text-[10px] bg-white/[0.06] px-1 rounded text-zinc-300 font-mono">
                   {primeSat.plane_id}
                 </span>
-                <span className="text-[10px] text-zinc-400 font-sans">Партия #{primeSat.launch_batch}</span>
+                <span className="text-[10px] text-zinc-400 font-sans">Партия №{primeSat.launch_batch}</span>
               </div>
               {primeSat.failed && (
                 <Badge variant="red">Отказ</Badge>
@@ -327,7 +327,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             )}
           </div>
         ) : (
-          <div className="mt-auto bg-[#070b10] border border-[#1a2636]/60 rounded p-2 text-center text-[11px] text-zinc-500 font-sans">
+          <div className="mt-auto bg-[#070b10] border border-[#1a2636]/60 rounded p-2 text-center text-[11px] text-zinc-500 font-sans min-h-[82px] flex items-center justify-center">
             Ожидание радиозахвата космического аппарата
           </div>
         )}
