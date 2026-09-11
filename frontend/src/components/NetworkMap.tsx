@@ -47,9 +47,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   const [zoom, setZoom] = useState<number>(1.0)
   const [pan2d, setPan2d] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
 
-  // 3D globe rotation angles
-  const [globeRotX, setGlobeRotX] = useState<number>(1.2) // polar perspective
-  const [globeRotY, setGlobeRotY] = useState<number>(-1.5)
+  // 3D globe rotation angles (default: focused on Russian Arctic / Northern Sea Route)
+  const [globeRotX, setGlobeRotX] = useState<number>(-1.1)
+  const [globeRotY, setGlobeRotY] = useState<number>(-1.05)
   const [isDragging, setIsDragging] = useState<boolean>(false)
   const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
@@ -165,8 +165,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   // Focus view on the Russian Arctic / Northern Sea Route
   const focusArctic = () => {
     setViewMode('3d')
-    setGlobeRotX(1.35)
-    setGlobeRotY(-1.4)
+    setGlobeRotX(-1.15)
+    setGlobeRotY(-1.05)
     setZoom(1.35)
   }
 
@@ -175,8 +175,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     setZoom(1.0)
     setPan2d({ x: 0, y: 0 })
     if (viewMode === '3d') {
-      setGlobeRotX(1.2)
-      setGlobeRotY(-1.5)
+      setGlobeRotX(-1.1)
+      setGlobeRotY(-1.05)
     }
   }
 
@@ -247,7 +247,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
       if (viewMode === '3d') {
         setGlobeRotY((prev) => prev + dx * 0.008)
-        setGlobeRotX((prev) => Math.max(0.08, Math.min(Math.PI - 0.08, prev + dy * 0.008)))
+        setGlobeRotX((prev) => Math.max(-1.45, Math.min(1.45, prev + dy * 0.008)))
       } else {
         if (zoom > 1.0) {
           const w = canvas.clientWidth
@@ -417,11 +417,171 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.fillRect(sx, sy, 1, 1)
     }
 
+    // --- COLLISION-FREE BADGE LAYOUT HELPER ---
+    interface BadgeLayoutItem {
+      id: string
+      text: string
+      anchorX: number
+      anchorY: number
+      priority: number
+      font: string
+      textColor: string
+      borderColor: string
+      bgColor: string
+      borderWidth?: number
+      prefOffsetY?: number
+      opacity?: number
+    }
+
+    function drawBadgesWithLayout(targetCtx: CanvasRenderingContext2D, items: BadgeLayoutItem[]) {
+      if (items.length === 0) return
+
+      const measured = items.map((item) => {
+        targetCtx.font = item.font
+        const tw = targetCtx.measureText(item.text).width
+        const px = 4
+        const py = 1.5
+        const w = tw + px * 2
+        const h = 13 + py * 2
+        return {
+          item,
+          w,
+          h,
+          prefY: item.prefOffsetY ?? -15,
+        }
+      })
+
+      // Sort descending by priority (higher priority gets placed first)
+      measured.sort((a, b) => b.item.priority - a.item.priority)
+
+      interface PlacedBox {
+        l: number
+        r: number
+        t: number
+        b: number
+      }
+
+      const placed: Array<PlacedBox & { lx: number; ly: number; anchorX: number; anchorY: number; item: BadgeLayoutItem }> = []
+
+      const overlaps = (b1: PlacedBox, b2: PlacedBox, pad = 3) => {
+        return !(b1.r < b2.l - pad || b1.l > b2.r + pad || b1.b < b2.t - pad || b1.t > b2.b + pad)
+      }
+
+      for (const m of measured) {
+        const { item, w, h, prefY } = m
+        const x = item.anchorX
+        const y = item.anchorY
+
+        // Multi-level candidate positions: near, opposite side, stepped offsets, horizontal flanks
+        const candidates = [
+          { cx: x, cy: y + prefY },
+          { cx: x, cy: y - prefY },
+          { cx: x, cy: y + prefY * 1.8 },
+          { cx: x, cy: y - prefY * 1.8 },
+          { cx: x - w * 0.6 - 6, cy: y + prefY * 0.4 },
+          { cx: x + w * 0.6 + 6, cy: y + prefY * 0.4 },
+          { cx: x - w * 0.7 - 6, cy: y },
+          { cx: x + w * 0.7 + 6, cy: y },
+          { cx: x, cy: y + prefY * 2.5 },
+          { cx: x, cy: y - prefY * 2.5 },
+          { cx: x - w * 0.8 - 8, cy: y - prefY * 0.5 },
+          { cx: x + w * 0.8 + 8, cy: y - prefY * 0.5 },
+        ]
+
+        let best: (PlacedBox & { cx: number; cy: number }) | null = null
+
+        for (const c of candidates) {
+          const box: PlacedBox = {
+            l: c.cx - w / 2,
+            r: c.cx + w / 2,
+            t: c.cy - h / 2,
+            b: c.cy + h / 2,
+          }
+          if (!placed.some((p) => overlaps(box, p))) {
+            best = { ...box, cx: c.cx, cy: c.cy }
+            break
+          }
+        }
+
+        if (!best) {
+          best = {
+            cx: x,
+            cy: y + prefY,
+            l: x - w / 2,
+            r: x + w / 2,
+            t: y + prefY - h / 2,
+            b: y + prefY + h / 2,
+          }
+        }
+
+        placed.push({
+          l: best.l,
+          r: best.r,
+          t: best.t,
+          b: best.b,
+          lx: best.cx,
+          ly: best.cy,
+          anchorX: x,
+          anchorY: y,
+          item,
+        })
+      }
+
+      // Draw all badges with collision-free layout
+      for (const p of placed) {
+        const { item, lx, ly, anchorX, anchorY, l, r, t, b } = p
+        const w = r - l
+        const h = b - t
+        const opacity = item.opacity ?? 1
+        if (opacity <= 0.05) continue
+
+        targetCtx.save()
+        if (opacity < 1) {
+          targetCtx.globalAlpha = opacity
+        }
+
+        // Leader line if displaced significantly from anchor
+        const dist = Math.hypot(lx - anchorX, ly - anchorY)
+        if (dist > 22) {
+          targetCtx.strokeStyle = 'rgba(255, 255, 255, 0.28)'
+          targetCtx.lineWidth = 1
+          targetCtx.setLineDash([2, 2])
+          targetCtx.beginPath()
+          targetCtx.moveTo(anchorX, anchorY)
+          const edgeX = Math.max(l, Math.min(r, anchorX))
+          const edgeY = Math.max(t, Math.min(b, anchorY))
+          targetCtx.lineTo(edgeX, edgeY)
+          targetCtx.stroke()
+          targetCtx.setLineDash([])
+        }
+
+        // Badge pill
+        targetCtx.fillStyle = item.bgColor
+        targetCtx.strokeStyle = item.borderColor
+        targetCtx.lineWidth = item.borderWidth ?? 1
+        targetCtx.beginPath()
+        targetCtx.roundRect(l, t, w, h, 3.5)
+        targetCtx.fill()
+        targetCtx.stroke()
+
+        // Badge text
+        targetCtx.font = item.font
+        targetCtx.fillStyle = item.textColor
+        targetCtx.textAlign = 'center'
+        targetCtx.textBaseline = 'middle'
+        targetCtx.fillText(item.text, lx, ly)
+
+        targetCtx.restore()
+      }
+    }
+
     // --- 2D RENDER FUNCTION ---
     function render2DMap(ctx: CanvasRenderingContext2D, width: number, height: number) {
       ctx.save()
       ctx.rect(0, 0, width, height)
       ctx.clip()
+
+      const badges2D: BadgeLayoutItem[] = []
 
       // In 2D: Ocean fills entire canvas viewport at all times (no ugly black border box)
       ctx.fillStyle = '#0b1322'
@@ -635,12 +795,6 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         ctx.fill()
         ctx.stroke()
 
-        let offsetY = -16
-        if (g.id === 'C65' || g.id === 'C72') {
-          offsetY = 16
-        }
-        const labelText = isGateway ? 'G_MUR · ШЛЮЗ' : g.id
-
         if (isGateway) {
           // Gateway diamond
           ctx.fillStyle = '#38bdf8'
@@ -663,30 +817,24 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           ctx.stroke()
         }
 
-        // Station label with pill backdrop
-        ctx.font = isSelected ? 'bold 10px monospace' : '9px monospace'
-        const tw = ctx.measureText(labelText).width
-        const px = 5
-        const py = 2
-        const lx = gx
-        const ly = gy + offsetY
-
-        ctx.fillStyle = 'rgba(7, 10, 18, 0.88)'
-        ctx.strokeStyle = isSelected
-          ? '#00f0ff'
-          : isGateway
-          ? 'rgba(56, 189, 248, 0.45)'
-          : 'rgba(255, 255, 255, 0.12)'
-        ctx.lineWidth = isSelected ? 1.5 : 1
-        ctx.beginPath()
-        ctx.roundRect(lx - tw / 2 - px, ly - 7 - py, tw + px * 2, 14 + py * 2, 4)
-        ctx.fill()
-        ctx.stroke()
-
-        ctx.fillStyle = isSelected ? '#00f0ff' : isGateway ? '#7dd3fc' : '#e2e8f0'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(labelText, lx, ly)
+        const labelText = isGateway ? 'G_MUR · ШЛЮЗ' : g.id
+        badges2D.push({
+          id: g.id,
+          text: labelText,
+          anchorX: gx,
+          anchorY: gy,
+          priority: isSelected ? 100 : isGateway ? 80 : 50,
+          font: isSelected ? 'bold 10px monospace' : '9px monospace',
+          textColor: isSelected ? '#00f0ff' : isGateway ? '#7dd3fc' : '#e2e8f0',
+          borderColor: isSelected
+            ? '#00f0ff'
+            : isGateway
+            ? 'rgba(56, 189, 248, 0.45)'
+            : 'rgba(255, 255, 255, 0.12)',
+          bgColor: 'rgba(7, 10, 18, 0.88)',
+          borderWidth: isSelected ? 1.5 : 1,
+          prefOffsetY: g.id === 'C65' || g.id === 'C72' ? 16 : -16,
+        })
       }
 
       // Draw Satellites
@@ -748,41 +896,38 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         const showThisSatLabel = showLabels || isOnRoute || isInspected || isHovered
 
         if (showThisSatLabel) {
-          ctx.font = isOnRoute || isInspected || isHovered ? 'bold 9px monospace' : '8px monospace'
-          const tw = ctx.measureText(sat.id).width
-          const px = 3
-          const py = 1
-          const lx = sx
-          const ly = sy + 12
-
-          ctx.fillStyle = 'rgba(7, 10, 18, 0.9)'
-          ctx.strokeStyle = isOnRoute
-            ? '#00f0ff'
-            : isHovered
-            ? 'rgba(255, 255, 255, 0.4)'
-            : sat.failed
-            ? '#ef4444'
-            : 'rgba(255, 255, 255, 0.1)'
-          ctx.lineWidth = 1
-          ctx.beginPath()
-          ctx.roundRect(lx - tw / 2 - px, ly - 6 - py, tw + px * 2, 12 + py * 2, 3)
-          ctx.fill()
-          ctx.stroke()
-
-          ctx.fillStyle = isOnRoute
-            ? '#00f0ff'
-            : isHovered || isInspected
-            ? '#ffffff'
-            : sat.failed
-            ? '#f87171'
-            : !sat.active
-            ? '#94a3b8'
-            : '#e2e8f0'
-          ctx.textAlign = 'center'
-          ctx.textBaseline = 'middle'
-          ctx.fillText(sat.id, lx, ly)
+          badges2D.push({
+            id: sat.id,
+            text: sat.id,
+            anchorX: sx,
+            anchorY: sy,
+            priority: isOnRoute ? 90 : isInspected || isHovered ? 70 : 30,
+            font: isOnRoute || isInspected || isHovered ? 'bold 9px monospace' : '8px monospace',
+            textColor: isOnRoute
+              ? '#00f0ff'
+              : isHovered || isInspected
+              ? '#ffffff'
+              : sat.failed
+              ? '#f87171'
+              : !sat.active
+              ? '#94a3b8'
+              : '#e2e8f0',
+            borderColor: isOnRoute
+              ? '#00f0ff'
+              : isHovered
+              ? 'rgba(255, 255, 255, 0.4)'
+              : sat.failed
+              ? '#ef4444'
+              : 'rgba(255, 255, 255, 0.1)',
+            bgColor: 'rgba(7, 10, 18, 0.9)',
+            borderWidth: 1,
+            prefOffsetY: isOnRoute ? -14 : 12,
+          })
         }
       }
+
+      // Draw collision-free 2D badges
+      drawBadgesWithLayout(ctx, badges2D)
 
       ctx.restore()
     }
@@ -792,6 +937,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       const cx = width / 2
       const cy = height / 2
       const globeRadius = Math.min(width, height) * 0.42 * zoom
+      const badges3D: BadgeLayoutItem[] = []
 
       // Atmospheric halo
       const halo = ctx.createRadialGradient(cx, cy, globeRadius * 0.95, cx, cy, globeRadius * 1.3)
@@ -1144,34 +1290,26 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         ctx.lineWidth = 1
         ctx.stroke()
 
-        let offsetY = -15
-        if (g.id === 'C65' || g.id === 'C72') {
-          offsetY = 15
-        }
         const labelText = isGateway ? 'G_MUR · ШЛЮЗ' : g.id
-        ctx.font = isSelected ? 'bold 9px monospace' : '8px monospace'
-        const tw = ctx.measureText(labelText).width
-        const px = 4
-        const py = 1.5
-        const lx = p.x
-        const ly = p.y + offsetY
-
-        ctx.fillStyle = 'rgba(7, 10, 18, 0.88)'
-        ctx.strokeStyle = isSelected
-          ? '#00f0ff'
-          : isGateway
-          ? 'rgba(56, 189, 248, 0.45)'
-          : 'rgba(255, 255, 255, 0.12)'
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.roundRect(lx - tw / 2 - px, ly - 6 - py, tw + px * 2, 12 + py * 2, 3)
-        ctx.fill()
-        ctx.stroke()
-
-        ctx.fillStyle = isSelected ? '#00f0ff' : isGateway ? '#7dd3fc' : '#cbd5e1'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(labelText, lx, ly)
+        const depthOpacity = Math.max(0.15, Math.min(1, (p.depth + 40) / 140))
+        badges3D.push({
+          id: g.id,
+          text: labelText,
+          anchorX: p.x,
+          anchorY: p.y,
+          priority: isSelected ? 100 : isGateway ? 80 : 50,
+          font: isSelected ? 'bold 9px monospace' : '8px monospace',
+          textColor: isSelected ? '#00f0ff' : isGateway ? '#7dd3fc' : '#cbd5e1',
+          borderColor: isSelected
+            ? '#00f0ff'
+            : isGateway
+            ? 'rgba(56, 189, 248, 0.45)'
+            : 'rgba(255, 255, 255, 0.12)',
+          bgColor: 'rgba(7, 10, 18, 0.88)',
+          borderWidth: 1,
+          prefOffsetY: g.id === 'C65' || g.id === 'C72' ? 15 : -15,
+          opacity: depthOpacity,
+        })
       }
 
       // Draw Satellites in 3D
@@ -1208,31 +1346,30 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         const showThisSatLabel = showLabels || isOnRoute || inspectedSatId === sat.id || isHovered
 
         if (showThisSatLabel && p.visible) {
-          ctx.font = isOnRoute || isHovered ? 'bold 9px monospace' : '8px monospace'
-          const tw = ctx.measureText(sat.id).width
-          const px = 3
-          const py = 1
-          const lx = p.x
-          const ly = p.y + 11
-
-          ctx.fillStyle = 'rgba(7, 10, 18, 0.88)'
-          ctx.strokeStyle = isOnRoute
-            ? '#00f0ff'
-            : isHovered
-            ? 'rgba(255, 255, 255, 0.4)'
-            : 'rgba(255, 255, 255, 0.1)'
-          ctx.lineWidth = 1
-          ctx.beginPath()
-          ctx.roundRect(lx - tw / 2 - px, ly - 5 - py, tw + px * 2, 11 + py * 2, 3)
-          ctx.fill()
-          ctx.stroke()
-
-          ctx.fillStyle = isOnRoute ? '#00f0ff' : isHovered ? '#ffffff' : '#94a3b8'
-          ctx.textAlign = 'center'
-          ctx.textBaseline = 'middle'
-          ctx.fillText(sat.id, lx, ly)
+          const depthOpacity = Math.max(0.15, Math.min(1, (p.depth + 40) / 140))
+          badges3D.push({
+            id: sat.id,
+            text: sat.id,
+            anchorX: p.x,
+            anchorY: p.y,
+            priority: isOnRoute ? 90 : isHovered ? 70 : 30,
+            font: isOnRoute || isHovered ? 'bold 9px monospace' : '8px monospace',
+            textColor: isOnRoute ? '#00f0ff' : isHovered ? '#ffffff' : '#94a3b8',
+            borderColor: isOnRoute
+              ? '#00f0ff'
+              : isHovered
+              ? 'rgba(255, 255, 255, 0.4)'
+              : 'rgba(255, 255, 255, 0.1)',
+            bgColor: 'rgba(7, 10, 18, 0.88)',
+            borderWidth: 1,
+            prefOffsetY: isOnRoute ? -14 : 11,
+            opacity: depthOpacity,
+          })
         }
       }
+
+      // Draw collision-free 3D badges
+      drawBadgesWithLayout(ctx, badges3D)
     }
 
     if (viewMode === '2d') {
