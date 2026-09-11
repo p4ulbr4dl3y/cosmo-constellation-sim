@@ -3,9 +3,6 @@ import {
   AlertTriangle,
   Radio,
   ArrowRight,
-  ShieldCheck,
-  ShieldAlert,
-  Server,
 } from 'lucide-react'
 import type { Scenario, Snapshot, ClientTimeline } from '../types/scenario'
 
@@ -30,7 +27,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
   const selectedTimeline = timelines[selectedClientId]
   const selectedMetrics = selectedTimeline?.metrics
-  const activeRoute = snapshot.routes[selectedClientId] || []
+  const activeRoute = React.useMemo(() => snapshot.routes[selectedClientId] || [], [snapshot.routes, selectedClientId])
   const hasRoute = activeRoute.length > 0
   const outageReason = snapshot.outageReasons[selectedClientId]
 
@@ -39,10 +36,40 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
     (o) => o.gateway_id === (gateway?.id || '') && o.start_s <= snapshot.t_s && snapshot.t_s < o.end_s
   )
 
+  // Calculate approximate path latency in milliseconds (speed of light c ≈ 300,000 km/s)
+  const routeDistanceKm = React.useMemo(() => {
+    if (activeRoute.length < 2) return 0
+    let totalDist = 0
+    for (let i = 0; i < activeRoute.length - 1; i++) {
+      const u = activeRoute[i]
+      const v = activeRoute[i + 1]
+      const getCoords = (id: string): [number, number, number] | null => {
+        const sat = snapshot.satellites.find((s) => s.id === id)
+        if (sat) return [sat.x_km, sat.y_km, sat.z_km]
+        const ground = scenario.ground_sites.find((g) => g.id === id)
+        if (ground) {
+          const r = 6378.137
+          const latRad = (ground.lat_deg * Math.PI) / 180
+          const lonRad = (ground.lon_deg * Math.PI) / 180
+          return [r * Math.cos(latRad) * Math.cos(lonRad), r * Math.cos(latRad) * Math.sin(lonRad), r * Math.sin(latRad)]
+        }
+        return null
+      }
+      const c1 = getCoords(u)
+      const c2 = getCoords(v)
+      if (c1 && c2) {
+        totalDist += Math.hypot(c1[0] - c2[0], c1[1] - c2[1], c1[2] - c2[2])
+      }
+    }
+    return totalDist
+  }, [activeRoute, snapshot.satellites, scenario.ground_sites])
+
+  const routeLatencyMs = routeDistanceKm > 0 ? ((routeDistanceKm / 300000) * 1000 * 2).toFixed(1) : null // RTT ms
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2.5">
       {/* Client Quick Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {clients.map((c) => {
           const tl = timelines[c.id]
           const m = tl?.metrics
@@ -57,58 +84,48 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             <div
               key={c.id}
               onClick={() => onSelectClient(c.id)}
-              className={`p-3 rounded-xl border transition-all cursor-pointer relative overflow-hidden ${
+              className={`p-2.5 rounded-lg border font-mono transition-all cursor-pointer relative overflow-hidden ${
                 isSelected
-                  ? 'bg-[#10192a] border-cyan-500/80 shadow-lg shadow-cyan-500/15 ring-1 ring-cyan-400/40'
-                  : 'bg-[#0b101b] border-[#1e2a3f] hover:border-slate-600'
+                  ? 'bg-[#0b1322] border-cyan-500/80 shadow-[0_0_15px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/40'
+                  : 'bg-[#080d17] border-[#162238] hover:border-slate-600 hover:bg-[#0c1424]'
               }`}
             >
               {/* Top Row */}
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-1.5 mb-2">
+                <div className="flex items-center gap-1.5">
                   <span
-                    className={`w-2 h-2 rounded-full ${
-                      isOnlineNow ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
+                    className={`w-2 h-2 rounded-full shrink-0 ${
+                      isOnlineNow ? 'bg-emerald-400 shadow-[0_0_6px_#34d399]' : 'bg-red-400'
                     }`}
                   />
-                  <span className="font-mono font-bold text-sm text-slate-100">
+                  <span className="font-bold text-xs tracking-wider text-slate-100">
                     {c.id}
                   </span>
-                  <span className="text-[10px] text-slate-400 truncate max-w-[90px]">
+                  <span className="text-[10px] text-slate-400 truncate">
                     {c.lat_deg}°N
                   </span>
                 </div>
                 <div
-                  className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${
                     meetsTarget
-                      ? 'bg-emerald-950/70 border-emerald-700/60 text-emerald-300'
-                      : 'bg-amber-950/70 border-amber-700/60 text-amber-300'
+                      ? 'bg-emerald-950/60 border-emerald-600/50 text-emerald-300'
+                      : 'bg-amber-950/60 border-amber-600/50 text-amber-300'
                   }`}
                 >
-                  {meetsTarget ? (
-                    <>
-                      <ShieldCheck className="w-3 h-3" />
-                      <span>{availPct}%</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldAlert className="w-3 h-3" />
-                      <span>{availPct}%</span>
-                    </>
-                  )}
+                  <span>{availPct}%</span>
                 </div>
               </div>
 
               {/* Metrics Grid */}
-              <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
-                <div className="bg-[#131d2e] p-1.5 rounded border border-[#1d2c44]">
-                  <span className="text-slate-400 block text-[9px] uppercase">Видимость</span>
-                  <span className="font-bold text-slate-200">{visPct}%</span>
+              <div className="grid grid-cols-2 gap-1 text-[10px]">
+                <div className="bg-[#050810] p-1.5 rounded border border-[#141e30]">
+                  <span className="text-slate-500 block text-[8px] uppercase tracking-wider">ВИДИМОСТЬ</span>
+                  <span className="font-semibold text-slate-200">{visPct}%</span>
                 </div>
-                <div className="bg-[#131d2e] p-1.5 rounded border border-[#1d2c44]">
-                  <span className="text-slate-400 block text-[9px] uppercase">Макс. разрыв</span>
-                  <span className="font-bold text-slate-200">
-                    {m ? `${Math.round(m.max_gap_s / 60)} мин` : '-'}
+                <div className="bg-[#050810] p-1.5 rounded border border-[#141e30]">
+                  <span className="text-slate-500 block text-[8px] uppercase tracking-wider">MAX GAP</span>
+                  <span className="font-semibold text-slate-200">
+                    {m ? `${Math.round(m.max_gap_s / 60)}m` : '-'}
                   </span>
                 </div>
               </div>
@@ -118,61 +135,56 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
       </div>
 
       {/* Selected Client Detailed Breakdown & Active Route Inspector */}
-      <div className="bg-[#0b101b] border border-[#1f293d] rounded-xl p-3 shadow-xl">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1f2a3f] pb-2 mb-3">
+      <div className="bg-[#080d17] border border-[#162238] rounded-lg p-3 shadow-xl">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#162238] pb-2 mb-2.5">
           <div className="flex items-center gap-2">
-            <Radio className="w-4 h-4 text-cyan-400" />
-            <span className="text-xs font-semibold text-slate-200">
-              Текущее состояние маршрута для {selectedClientId} (
-              {scenario.ground_sites.find((g) => g.id === selectedClientId)?.name})
+            <Radio className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-xs font-mono font-semibold tracking-wide text-slate-200">
+              МАРШРУТ: {selectedClientId} // {scenario.ground_sites.find((g) => g.id === selectedClientId)?.name}
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="text-slate-400">Шлюз Murmansk:</span>
+            <span className="text-slate-500 text-[10px] uppercase">ШЛЮЗ MURMANSK:</span>
             <span
-              className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+              className={`px-1.5 py-0.2 rounded text-[10px] font-bold border ${
                 isGatewayOutage
-                  ? 'bg-red-950 text-red-300 border border-red-700'
-                  : 'bg-emerald-950 text-emerald-300 border border-emerald-700'
+                  ? 'bg-red-950/80 text-red-300 border-red-700/60'
+                  : 'bg-emerald-950/80 text-emerald-300 border-emerald-700/60'
               }`}
             >
-              {isGatewayOutage ? 'В РЕЖИМЕ ОТКАЗА' : 'В СЕТИ'}
+              {isGatewayOutage ? 'ОТКАЗ' : 'ONLINE'}
             </span>
           </div>
         </div>
 
         {/* Route Chain Flow Visualization */}
         {hasRoute ? (
-          <div className="bg-[#090e18] p-3 rounded-lg border border-emerald-800/40 flex flex-wrap items-center gap-2">
+          <div className="bg-[#050810] p-2.5 rounded border border-emerald-900/40 flex flex-wrap items-center gap-1.5">
             {activeRoute.map((nodeId, idx) => {
               const isFirst = idx === 0
               const isLast = idx === activeRoute.length - 1
-              const isSat = !isFirst && !isLast
 
               return (
                 <React.Fragment key={idx}>
                   {/* Node pill */}
                   <div
-                    className={`px-2.5 py-1 rounded-md font-mono text-xs flex items-center gap-1.5 border shadow-md ${
+                    className={`px-2 py-0.5 rounded font-mono text-xs flex items-center gap-1 border ${
                       isFirst
-                        ? 'bg-amber-950/80 border-amber-600/70 text-amber-200'
+                        ? 'bg-amber-950/60 border-amber-600/60 text-amber-300'
                         : isLast
-                        ? 'bg-blue-950/80 border-blue-600/70 text-blue-200'
-                        : 'bg-[#121c2e] border-cyan-500/60 text-cyan-200'
+                        ? 'bg-blue-950/60 border-blue-600/60 text-blue-300'
+                        : 'bg-[#0d1728] border-cyan-500/50 text-cyan-200'
                     }`}
                   >
-                    {isFirst && <span className="text-[10px]">📍</span>}
-                    {isLast && <Server className="w-3 h-3 text-blue-300" />}
-                    {isSat && <span className="text-[10px]">🛰️</span>}
                     <span className="font-bold">{nodeId}</span>
                   </div>
 
                   {/* Connecting Arrow */}
                   {!isLast && (
                     <div className="flex items-center text-emerald-400">
-                      <ArrowRight className="w-3.5 h-3.5 animate-pulse" />
-                      <span className="text-[9px] font-mono text-emerald-500/80 ml-0.5">
-                        {idx === 0 ? 'Earth-Sat' : idx === activeRoute.length - 2 ? 'Sat-Earth' : 'ISL'}
+                      <ArrowRight className="w-3 h-3 text-emerald-400/80" />
+                      <span className="text-[8px] font-mono text-emerald-500/80 mx-0.5">
+                        {idx === 0 ? 'GSL' : idx === activeRoute.length - 2 ? 'GSL' : 'ISL'}
                       </span>
                     </div>
                   )}
@@ -180,74 +192,76 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               )
             })}
 
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-[11px] font-mono text-slate-400">
-                Переходов (хопов):
-              </span>
-              <span className="bg-emerald-950 text-emerald-300 border border-emerald-700/60 font-mono font-bold text-xs px-2 py-0.5 rounded">
-                {activeRoute.length - 1} хопа
+            <div className="ml-auto flex items-center gap-3 font-mono text-[10px]">
+              {routeLatencyMs && (
+                <span className="text-cyan-400">
+                  RTT ~{routeLatencyMs} ms
+                </span>
+              )}
+              <span className="bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 px-1.5 py-0.5 rounded font-bold">
+                {activeRoute.length - 1} HOPS
               </span>
             </div>
           </div>
         ) : (
-          <div className="bg-red-950/30 border border-red-800/60 p-3 rounded-lg flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-red-300 text-xs">
-              <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+          <div className="bg-red-950/20 border border-red-900/50 p-2.5 rounded flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-red-300 text-xs font-mono">
+              <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
               <div>
-                <span className="font-semibold block">Маршрут временно недоступен!</span>
-                <span className="text-red-400/90 text-[11px] font-mono">
-                  Причина: {outageReason || 'Разрыв в сети спутниковой связи'}
+                <span className="font-semibold block text-[11px]">МАРШРУТ НЕДОСТУПЕН</span>
+                <span className="text-red-400/80 text-[10px]">
+                  ДИАГНОЗ: {outageReason || 'РАЗРЫВ СЕТИ'}
                 </span>
               </div>
             </div>
-            <div className="text-[11px] font-mono text-slate-400 bg-black/40 px-2 py-1 rounded border border-red-900/50">
-              0 хопов
+            <div className="text-[10px] font-mono text-slate-500 bg-black/40 px-2 py-0.5 rounded border border-red-900/40">
+              0 HOPS
             </div>
           </div>
         )}
 
         {/* Aggregate KPI Strip */}
         {selectedMetrics && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-[#1a2538] text-xs font-mono">
-            <div className="bg-[#090d16] p-2 rounded border border-[#162033]">
-              <span className="text-slate-400 text-[10px] uppercase block">Доступность за сутки</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-sm font-bold text-slate-100">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mt-2.5 pt-2.5 border-t border-[#162238] text-xs font-mono">
+            <div className="bg-[#050810] p-2 rounded border border-[#141e30]">
+              <span className="text-slate-500 text-[8px] uppercase tracking-wider block">ДОСТУПНОСТЬ (24H)</span>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-xs font-bold text-slate-100">
                   {(selectedMetrics.availability_ratio * 100).toFixed(1)}%
                 </span>
-                <span className="text-[10px] text-slate-500">/ 90% target</span>
+                <span className="text-[9px] text-slate-500">/ 90% SLA</span>
               </div>
             </div>
 
-            <div className="bg-[#090d16] p-2 rounded border border-[#162033]">
-              <span className="text-slate-400 text-[10px] uppercase block">Геом. видимость КА</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-sm font-bold text-slate-100">
+            <div className="bg-[#050810] p-2 rounded border border-[#141e30]">
+              <span className="text-slate-500 text-[8px] uppercase tracking-wider block">ВИДИМОСТЬ КА</span>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-xs font-bold text-slate-100">
                   {(selectedMetrics.visibility_ratio * 100).toFixed(1)}%
                 </span>
-                <span className="text-[10px] text-slate-500">(&gt;= 10°)</span>
+                <span className="text-[9px] text-slate-500">(&gt;=10°)</span>
               </div>
             </div>
 
-            <div className="bg-[#090d16] p-2 rounded border border-[#162033]">
-              <span className="text-slate-400 text-[10px] uppercase block">Макс. перерыв связи</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-sm font-bold text-slate-100">
+            <div className="bg-[#050810] p-2 rounded border border-[#141e30]">
+              <span className="text-slate-500 text-[8px] uppercase tracking-wider block">MAX GAP ДЛИТ.</span>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-xs font-bold text-slate-100">
                   {Math.round(selectedMetrics.max_gap_s / 60)} мин
                 </span>
-                <span className="text-[10px] text-slate-500">
-                  ({selectedMetrics.max_gap_s} с)
+                <span className="text-[9px] text-slate-500">
+                  ({selectedMetrics.max_gap_s}s)
                 </span>
               </div>
             </div>
 
-            <div className="bg-[#090d16] p-2 rounded border border-[#162033]">
-              <span className="text-slate-400 text-[10px] uppercase block">Среднее число хопов</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-sm font-bold text-slate-100">
+            <div className="bg-[#050810] p-2 rounded border border-[#141e30]">
+              <span className="text-slate-500 text-[8px] uppercase tracking-wider block">СРЕДНЕЕ ХОПОВ</span>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="text-xs font-bold text-slate-100">
                   {selectedMetrics.avg_hops.toFixed(1)}
                 </span>
-                <span className="text-[10px] text-slate-500">хопов/путь</span>
+                <span className="text-[9px] text-slate-500">hops/path</span>
               </div>
             </div>
           </div>

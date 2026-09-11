@@ -138,65 +138,65 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-[#0b101b] border border-[#1f293d] rounded-xl shadow-xl max-w-5xl mx-auto">
+    <div className="flex flex-col gap-3 p-3.5 bg-[#080d17] border border-[#162238] rounded-lg shadow-xl max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#1f2a3f] pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-800 flex items-center justify-center text-cyan-400">
-            <Sliders className="w-4 h-4" />
+      <div className="flex items-center justify-between border-b border-[#162238] pb-2.5">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded bg-[#0d1424] border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+            <Sliders className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
-              Редактор конфигурации орбитальной группировки
+            <h2 className="text-xs font-mono font-bold text-slate-100 uppercase tracking-wider">
+              КОНФИГУРАЦИЯ ГРУППИРОВКИ // ORBITAL DESIGN ENGINE
             </h2>
-            <p className="text-xs text-slate-400">
-              Настройка очередей запуска, ориентации плоскостей, ISL дальности и отказов
+            <p className="text-[10px] font-mono text-slate-500">
+              Настройка очередей развертывания, орбитальных плоскостей (RAAN / фаза), дальности ISL и окон отказов
             </p>
           </div>
         </div>
 
         <button
           onClick={onResetScenario}
-          className="px-3 py-1.5 rounded-lg bg-[#141d2e] hover:bg-[#1a2842] border border-[#233552] text-xs font-semibold text-slate-300 hover:text-cyan-300 flex items-center gap-1.5 transition-colors"
+          className="px-2.5 py-1 rounded bg-[#0d1424] hover:bg-[#141f36] border border-[#1c2a44] text-[11px] font-mono font-medium text-slate-300 hover:text-cyan-300 flex items-center gap-1.5 transition-colors"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Сбросить к исходным</span>
+          <RotateCcw className="w-3 h-3" />
+          <span>СБРОС</span>
         </button>
       </div>
 
       {/* 1-Click Fast Failure Button */}
-      <div className="bg-gradient-to-r from-red-950/40 via-amber-950/20 to-red-950/40 p-3 rounded-xl border border-red-800/50 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <AlertOctagon className="w-5 h-5 text-red-400 shrink-0 animate-pulse" />
+      <div className="bg-gradient-to-r from-red-950/30 via-[#0d1424] to-red-950/30 p-2.5 rounded border border-red-900/40 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <AlertOctagon className="w-4 h-4 text-red-400 shrink-0 animate-pulse" />
           <div>
-            <span className="text-xs font-bold text-red-200 block">
-              Быстрое стресс-тестирование маршрута
+            <span className="text-xs font-mono font-bold text-red-200 block">
+              СТРЕСС-ТЕСТИРОВАНИЕ СВЯЗИ (INJECTION TEST)
             </span>
-            <span className="text-[11px] text-slate-400">
-              Мгновенно отключить первый активный спутник на текущем сквозном пути
+            <span className="text-[10px] font-mono text-slate-400">
+              Мгновенный ввод 4-часового отказа первого активного аппарата на сквозном пути
             </span>
           </div>
         </div>
         <button
           onClick={handleKillActiveRouteSat}
           disabled={activeRouteSats.length === 0}
-          className={`px-3.5 py-2 rounded-lg font-semibold text-xs flex items-center gap-2 transition-all ${
+          className={`px-3 py-1.5 rounded font-mono font-bold text-xs flex items-center gap-2 transition-all ${
             activeRouteSats.length > 0
-              ? 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/30 cursor-pointer'
-              : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+              ? 'bg-red-600 hover:bg-red-500 text-white shadow-sm cursor-pointer'
+              : 'bg-slate-800/80 text-slate-500 cursor-not-allowed border border-slate-700/50'
           }`}
         >
-          <ZapOff className="w-4 h-4" />
-          <span>⚡ Отключить спутник на маршруте ({activeRouteSats[0] || 'Нет'})</span>
+          <ZapOff className="w-3.5 h-3.5" />
+          <span>ОТКЛЮЧИТЬ КА НА МАРШРУТЕ ({activeRouteSats[0] || 'NONE'})</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Launch Stage & Environment */}
-        <div className="bg-[#0e1524] p-3.5 rounded-xl border border-[#1e2c44] flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-xs font-bold text-cyan-300 uppercase tracking-wider">
-            <Rocket className="w-4 h-4 text-cyan-400" />
-            <span>Очередь запуска (Launch Stage)</span>
+        <div className="bg-[#050810] p-3 rounded border border-[#162238] flex flex-col gap-2.5">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider">
+            <Rocket className="w-3.5 h-3.5 text-cyan-400" />
+            <span>ОЧЕРЕДЬ РАЗВЕРТЫВАНИЯ (LAUNCH STAGE)</span>
           </div>
 
           {/* Stage buttons */}

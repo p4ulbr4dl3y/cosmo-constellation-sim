@@ -131,39 +131,42 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex items-center bg-[#101726] p-1 rounded-lg border border-[#1f2c42]">
-        <button
-          onClick={() => setActiveTab('monitor')}
-          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 ${
-            activeTab === 'monitor'
-              ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-          }`}
-        >
-          <span>🛰️ Мониторинг сети</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('config')}
-          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 ${
-            activeTab === 'config'
-              ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-          }`}
-        >
-          <span>⚙️ Конфигурация и отказы</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('compare')}
-          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 ${
-            activeTab === 'compare'
-              ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-          }`}
-        >
-          <span>⚖️ A/B Сравнение</span>
-        </button>
-      </div>
+        {/* Navigation Tabs */}
+        <div className="flex items-center bg-[#070b14] p-0.5 rounded-lg border border-[#172236]">
+          <button
+            onClick={() => setActiveTab('monitor')}
+            className={`px-3 py-1.5 text-xs font-mono font-medium rounded-md transition-all flex items-center gap-2 ${
+              activeTab === 'monitor'
+                ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.15)]'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${activeTab === 'monitor' ? 'bg-cyan-400 animate-pulse' : 'bg-slate-600'}`} />
+            <span>01 // МОНИТОРИНГ</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('config')}
+            className={`px-3 py-1.5 text-xs font-mono font-medium rounded-md transition-all flex items-center gap-2 ${
+              activeTab === 'config'
+                ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.15)]'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${activeTab === 'config' ? 'bg-cyan-400 animate-pulse' : 'bg-slate-600'}`} />
+            <span>02 // КОНФИГУРАЦИЯ</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('compare')}
+            className={`px-3 py-1.5 text-xs font-mono font-medium rounded-md transition-all flex items-center gap-2 ${
+              activeTab === 'compare'
+                ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.15)]'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${activeTab === 'compare' ? 'bg-cyan-400 animate-pulse' : 'bg-slate-600'}`} />
+            <span>03 // A/B СРАВНЕНИЕ</span>
+          </button>
+        </div>
 
       {/* Preset Selector & File Actions */}
       <div className="flex items-center gap-2">

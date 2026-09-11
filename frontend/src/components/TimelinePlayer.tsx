@@ -140,41 +140,45 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
   }
 
   return (
-    <div className="bg-[#0b101b] border border-[#1f293d] rounded-xl p-3 flex flex-col gap-2.5 shadow-xl select-none">
+    <div className="bg-[#080d17] border border-[#162238] rounded-lg p-2.5 flex flex-col gap-2 shadow-xl select-none">
       {/* Top Row: Playback Controls & Time readout */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Play / Step Buttons */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => onTimeChange(0)}
             title="Перемотать в начало (00:00:00)"
-            className="p-1.5 rounded-lg bg-[#121a2c] hover:bg-[#18233a] border border-[#253552] text-slate-400 hover:text-slate-100 transition-colors"
+            className="p-1.5 rounded bg-[#0d1424] hover:bg-[#141f36] border border-[#1c2a44] text-slate-400 hover:text-slate-100 transition-colors"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-3 h-3" />
           </button>
 
           <button
             onClick={() => onTimeChange(Math.max(0, currentTime - step_s))}
             title="Шаг назад (-120с)"
-            className="p-1.5 rounded-lg bg-[#121a2c] hover:bg-[#18233a] border border-[#253552] text-slate-400 hover:text-slate-100 transition-colors"
+            className="p-1.5 rounded bg-[#0d1424] hover:bg-[#141f36] border border-[#1c2a44] text-slate-400 hover:text-slate-100 transition-colors"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="w-3 h-3" />
           </button>
 
           <button
             onClick={() => setIsPlaying((v) => !v)}
             title={isPlaying ? 'Пауза (Пробел)' : 'Воспроизведение (Пробел)'}
-            className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold flex items-center gap-1.5 shadow-lg shadow-cyan-600/30 transition-all cursor-pointer"
+            className={`px-3 py-1 rounded font-mono text-xs font-semibold flex items-center gap-1.5 border transition-all cursor-pointer ${
+              isPlaying
+                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.2)]'
+                : 'bg-cyan-600 hover:bg-cyan-500 text-white border-cyan-400 shadow-sm'
+            }`}
           >
             {isPlaying ? (
               <>
-                <Pause className="w-4 h-4 fill-white" />
-                <span className="text-xs">Пауза</span>
+                <Pause className="w-3.5 h-3.5 fill-current" />
+                <span>PAUSE</span>
               </>
             ) : (
               <>
-                <Play className="w-4 h-4 fill-white" />
-                <span className="text-xs">Старт</span>
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>PLAY</span>
               </>
             )}
           </button>
@@ -182,21 +186,21 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           <button
             onClick={() => onTimeChange(Math.min(horizon_s - step_s, currentTime + step_s))}
             title="Шаг вперед (+120с)"
-            className="p-1.5 rounded-lg bg-[#121a2c] hover:bg-[#18233a] border border-[#253552] text-slate-400 hover:text-slate-100 transition-colors"
+            className="p-1.5 rounded bg-[#0d1424] hover:bg-[#141f36] border border-[#1c2a44] text-slate-400 hover:text-slate-100 transition-colors"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-3 h-3" />
           </button>
 
           {/* Speed Selector */}
-          <div className="flex items-center ml-2 bg-[#121a2c] rounded-lg border border-[#253552] p-0.5 text-xs font-mono font-medium">
+          <div className="flex items-center ml-2 bg-[#0d1424] rounded border border-[#1c2a44] p-0.5 text-xs font-mono">
             {[1, 5, 20, 60].map((spd) => (
               <button
                 key={spd}
                 onClick={() => setPlaybackSpeed(spd)}
-                className={`px-2 py-0.5 rounded transition-colors ${
+                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
                   playbackSpeed === spd
-                    ? 'bg-cyan-600 text-white shadow'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
+                    : 'text-slate-400 hover:text-slate-200 border border-transparent'
                 }`}
               >
                 {spd}x
@@ -206,24 +210,24 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
 
         {/* Current Time Display */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-[#101726] border border-[#202e47] px-3 py-1 rounded-lg">
-            <Clock className="w-4 h-4 text-cyan-400 animate-pulse" />
-            <span className="font-mono text-base font-bold text-slate-100 tracking-wider">
+        <div className="flex items-center gap-2.5 font-mono">
+          <div className="flex items-center gap-2 bg-[#050810] border border-[#1a263c] px-2.5 py-1 rounded">
+            <Clock className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+            <span className="text-sm font-bold text-slate-100 tracking-wider">
               {formatTime(currentTime)}
             </span>
-            <span className="text-xs text-slate-400 font-mono">
-              / 24:00:00 (t={currentTime}s)
+            <span className="text-[11px] text-slate-500">
+              / 24:00:00
             </span>
           </div>
-          <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
-            Шаг: {step_s}с
+          <span className="text-[10px] text-slate-500 hidden sm:inline">
+            T+{currentTime}s (dt={step_s}s)
           </span>
         </div>
       </div>
 
       {/* Main Scrubber Slider */}
-      <div className="relative w-full flex items-center py-1">
+      <div className="relative w-full flex flex-col py-0.5">
         <input
           type="range"
           min={0}
@@ -231,29 +235,39 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           step={step_s}
           value={currentTime}
           onChange={(e) => onTimeChange(Number(e.target.value))}
-          className="w-full h-1.5 bg-[#172238] rounded-lg appearance-none cursor-pointer accent-cyan-400 focus:outline-none"
+          className="w-full h-1 bg-[#151f33] rounded-sm appearance-none cursor-pointer accent-cyan-400 focus:outline-none"
         />
+        {/* Hour tick marks */}
+        <div className="flex justify-between text-[9px] font-mono text-slate-500 pt-1 select-none">
+          <span>00:00</span>
+          <span>04:00</span>
+          <span>08:00</span>
+          <span>12:00</span>
+          <span>16:00</span>
+          <span>20:00</span>
+          <span>24:00</span>
+        </div>
       </div>
 
       {/* Gantt Availability Diagram */}
-      <div className="flex flex-col gap-1.5 mt-0.5">
-        <div className="flex items-center justify-between text-[11px] text-slate-400">
-          <span className="font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+      <div className="flex flex-col gap-1 mt-0.5">
+        <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono uppercase">
+          <span className="font-semibold text-slate-300 tracking-wider flex items-center gap-1.5">
             <Radio className="w-3 h-3 text-cyan-400" />
-            Диаграмма доступности (Gantt 00:00 - 24:00)
+            ДОСТУПНОСТЬ ТРАССЫ (00:00 - 24:00 UTC)
           </span>
-          <div className="flex items-center gap-3 font-mono text-[10px]">
+          <div className="flex items-center gap-3 text-[9px]">
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-xs bg-emerald-500" /> Путь до шлюза
+              <span className="w-2 h-2 rounded-xs bg-emerald-500" /> СВЯЗЬ ДО ШЛЮЗА
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-xs bg-red-500" /> Разрыв связи
+              <span className="w-2 h-2 rounded-xs bg-red-500" /> ПЕРЕРЫВ
             </span>
           </div>
         </div>
 
         {/* Client Gantt Bars */}
-        <div className="relative flex flex-col gap-1.5 bg-[#090d16] p-2 rounded-lg border border-[#182338]">
+        <div className="relative flex flex-col gap-1 bg-[#050810] p-1.5 rounded border border-[#141e30]">
           {/* Vertical Playhead across all rows */}
           <div
             className="absolute top-0 bottom-0 w-0.5 bg-cyan-400 z-10 pointer-events-none shadow-[0_0_8px_#22d3ee]"

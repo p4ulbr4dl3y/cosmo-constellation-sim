@@ -262,41 +262,55 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     ctx.fillRect(0, 0, width, height)
 
     // Draw lat/lon grid lines
-    ctx.strokeStyle = '#162238'
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
     ctx.lineWidth = 1
 
-    // Longitude lines every 30 deg
+    // Longitude lines every 30 deg + labels
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.4)'
+    ctx.font = '9px monospace'
     for (let lon = -180; lon <= 180; lon += 30) {
       const [x] = project2D(lon, 0, width, height)
       ctx.beginPath()
       ctx.moveTo(x, 0)
       ctx.lineTo(x, height)
       ctx.stroke()
+      if (lon !== -180 && lon !== 180) {
+        ctx.fillText(`${lon}°`, x + 3, height - 6)
+      }
     }
 
-    // Latitude lines every 30 deg
+    // Latitude lines every 30 deg + labels
     for (let lat = -60; lat <= 80; lat += 30) {
       const [, y] = project2D(0, lat, width, height)
       ctx.beginPath()
       ctx.moveTo(0, y)
       ctx.lineTo(width, y)
       ctx.stroke()
+      ctx.fillText(`${lat}°N`, 6, y - 3)
     }
 
     // Equator line
     const [, eqY] = project2D(0, 0, width, height)
-    ctx.strokeStyle = '#1e3252'
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)'
     ctx.lineWidth = 1.5
     ctx.beginPath()
     ctx.moveTo(0, eqY)
     ctx.lineTo(width, eqY)
     ctx.stroke()
 
+    // Northern Sea Route / Arctic Operation Zone (65°N - 85°N, 30°E - 180°E)
+    const [nsrX1, nsrY2] = project2D(30, 65, width, height)
+    const [nsrX2, nsrY1] = project2D(180, 85, width, height)
+    ctx.fillStyle = 'rgba(6, 182, 212, 0.04)'
+    ctx.fillRect(nsrX1, nsrY1, nsrX2 - nsrX1, nsrY2 - nsrY1)
+    ctx.strokeStyle = 'rgba(6, 182, 212, 0.2)'
+    ctx.strokeRect(nsrX1, nsrY1, nsrX2 - nsrX1, nsrY2 - nsrY1)
+
     // Arctic Circle (66.5°N) - crucial region for case study
     const [, arcticY] = project2D(0, 66.56, width, height)
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)'
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)'
     ctx.lineWidth = 1
-    ctx.setLineDash([4, 4])
+    ctx.setLineDash([3, 3])
     ctx.beginPath()
     ctx.moveTo(0, arcticY)
     ctx.lineTo(width, arcticY)
@@ -304,13 +318,13 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     ctx.setLineDash([])
 
     // Arctic circle label
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.7)'
-    ctx.font = '9px monospace'
-    ctx.fillText('СЕВЕРНЫЙ ПОЛЯРНЫЙ КРУГ 66.5°N', 10, arcticY - 4)
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.85)'
+    ctx.font = 'bold 9px monospace'
+    ctx.fillText('СЕВЕРНЫЙ ПОЛЯРНЫЙ КРУГ // 66.5°N (АРКТИЧЕСКАЯ ЗОНА)', 10, arcticY - 4)
 
     // Draw Landmasses
-    ctx.fillStyle = '#141e30'
-    ctx.strokeStyle = '#223652'
+    ctx.fillStyle = '#111a2c'
+    ctx.strokeStyle = '#1d2d47'
     ctx.lineWidth = 1
 
     for (const land of WORLD_LANDMASSES) {
@@ -855,56 +869,56 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     : null
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-[#070a12] select-none overflow-hidden rounded-xl border border-[#1a253a]">
+    <div className="relative w-full h-full flex flex-col bg-[#05070d] select-none overflow-hidden rounded-lg border border-[#162238]">
       {/* Map Header Toolbar */}
-      <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+      <div className="absolute top-2 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
         {/* Left Toolbar */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-[#0d1424]/95 backdrop-blur-md px-2 py-1 rounded-lg border border-[#1e2d47] shadow-xl pointer-events-auto">
+        <div className="flex flex-wrap items-center gap-1 bg-[#090e1a]/90 backdrop-blur-md px-1.5 py-1 rounded border border-[#18263e] shadow-xl pointer-events-auto font-mono">
           {/* 2D / 3D Mode Switcher */}
-          <div className="flex items-center bg-[#131d31] p-0.5 rounded-md border border-[#243756]">
+          <div className="flex items-center bg-[#050810] p-0.5 rounded border border-[#141e30]">
             <button
               onClick={() => setViewMode('2d')}
-              className={`px-2 py-1 text-xs font-semibold rounded flex items-center gap-1 transition-all ${
+              className={`px-2 py-0.5 text-xs font-semibold rounded flex items-center gap-1 transition-all ${
                 viewMode === '2d'
-                  ? 'bg-cyan-600 text-white shadow'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
-              <MapIcon className="w-3.5 h-3.5" />
-              <span>2D Карта</span>
+              <MapIcon className="w-3 h-3" />
+              <span>2D</span>
             </button>
             <button
               onClick={() => setViewMode('3d')}
-              className={`px-2 py-1 text-xs font-semibold rounded flex items-center gap-1 transition-all ${
+              className={`px-2 py-0.5 text-xs font-semibold rounded flex items-center gap-1 transition-all ${
                 viewMode === '3d'
-                  ? 'bg-cyan-600 text-white shadow'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
-              <Globe2 className="w-3.5 h-3.5" />
-              <span>3D Глобус</span>
+              <Globe2 className="w-3 h-3" />
+              <span>3D</span>
             </button>
           </div>
 
-          <div className="h-4 w-px bg-slate-700 mx-0.5" />
+          <div className="h-3 w-px bg-slate-700/60 mx-0.5" />
 
           {/* Arctic Focus Button */}
           <button
             onClick={focusArctic}
             title="Сфокусировать вид на Арктическом регионе (Севморпуть)"
-            className="px-2 py-1 rounded bg-[#131d31] hover:bg-[#1a2844] text-slate-300 hover:text-cyan-300 border border-[#243756] text-xs flex items-center gap-1"
+            className="px-2 py-0.5 rounded bg-[#050810] hover:bg-[#10192a] text-slate-300 hover:text-cyan-300 border border-[#18263e] text-xs flex items-center gap-1"
           >
-            <Compass className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Арктика</span>
+            <Compass className="w-3 h-3 text-cyan-400" />
+            <span>АРКТИКА</span>
           </button>
 
           {/* Toggles */}
           <button
             onClick={() => setShowIsl((v) => !v)}
-            className={`px-2 py-1 rounded text-xs font-medium border transition-colors flex items-center gap-1 ${
+            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 ${
               showIsl
-                ? 'bg-cyan-950/70 border-cyan-700/70 text-cyan-300'
-                : 'bg-[#131d31] border-[#243756] text-slate-400'
+                ? 'bg-cyan-950/70 border-cyan-600/60 text-cyan-300'
+                : 'bg-[#050810] border-[#18263e] text-slate-500'
             }`}
           >
             <Layers className="w-3 h-3" />
@@ -913,22 +927,22 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
           <button
             onClick={() => setShowGroundLinks((v) => !v)}
-            className={`px-2 py-1 rounded text-xs font-medium border transition-colors flex items-center gap-1 ${
+            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 ${
               showGroundLinks
-                ? 'bg-cyan-950/70 border-cyan-700/70 text-cyan-300'
-                : 'bg-[#131d31] border-[#243756] text-slate-400'
+                ? 'bg-cyan-950/70 border-cyan-600/60 text-cyan-300'
+                : 'bg-[#050810] border-[#18263e] text-slate-500'
             }`}
           >
             <Wifi className="w-3 h-3" />
-            <span>Лучи</span>
+            <span>GSL</span>
           </button>
 
           <button
             onClick={() => setShowLabels((v) => !v)}
-            className={`px-2 py-1 rounded text-xs font-medium border transition-colors flex items-center gap-1 ${
+            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 ${
               showLabels
-                ? 'bg-cyan-950/70 border-cyan-700/70 text-cyan-300'
-                : 'bg-[#131d31] border-[#243756] text-slate-400'
+                ? 'bg-cyan-950/70 border-cyan-600/60 text-cyan-300'
+                : 'bg-[#050810] border-[#18263e] text-slate-500'
             }`}
           >
             <Eye className="w-3 h-3" />
@@ -937,22 +951,22 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
           <button
             onClick={() => setShowUnlaunched((v) => !v)}
-            className={`px-2 py-1 rounded text-xs font-medium border transition-colors flex items-center gap-1 ${
+            className={`px-2 py-0.5 rounded text-xs border transition-colors flex items-center gap-1 ${
               showUnlaunched
-                ? 'bg-cyan-950/70 border-cyan-700/70 text-cyan-300'
-                : 'bg-[#131d31] border-[#243756] text-slate-400'
+                ? 'bg-cyan-950/70 border-cyan-600/60 text-cyan-300'
+                : 'bg-[#050810] border-[#18263e] text-slate-500'
             }`}
             title="Показывать неразвернутые аппараты (резервные очереди)"
           >
-            <span>Неактивные</span>
+            <span>STANDBY</span>
           </button>
         </div>
 
         {/* Right Toolbar: Client Selector & Legend */}
-        <div className="flex flex-wrap items-center gap-2 pointer-events-auto">
+        <div className="flex flex-wrap items-center gap-1.5 pointer-events-auto font-mono">
           {/* Client quick switcher */}
-          <div className="bg-[#0d1424]/95 backdrop-blur-md px-2 py-1 rounded-lg border border-[#1e2d47] shadow-xl flex items-center gap-1.5">
-            <span className="text-[11px] text-slate-400 font-medium">Маршрут:</span>
+          <div className="bg-[#090e1a]/90 backdrop-blur-md px-1.5 py-1 rounded border border-[#18263e] shadow-xl flex items-center gap-1">
+            <span className="text-[10px] text-slate-500 uppercase px-1">CLIENT:</span>
             {scenario.ground_sites
               .filter((g) => g.role === 'client')
               .map((c) => {
@@ -962,14 +976,14 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
                   <button
                     key={c.id}
                     onClick={() => onSelectClient(c.id)}
-                    className={`px-2 py-1 text-xs font-mono font-bold rounded flex items-center gap-1 transition-all ${
+                    className={`px-2 py-0.5 text-xs font-bold rounded flex items-center gap-1 transition-all ${
                       isSelected
-                        ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/30'
-                        : 'bg-[#131d31] text-slate-300 hover:bg-[#1a2844]'
+                        ? 'bg-amber-500 text-black shadow-sm'
+                        : 'bg-[#050810] text-slate-400 hover:text-slate-200 border border-[#18263e]'
                     }`}
                   >
                     <span
-                      className={`w-2 h-2 rounded-full ${
+                      className={`w-1.5 h-1.5 rounded-full ${
                         hasRoute ? 'bg-emerald-400' : 'bg-red-400'
                       }`}
                     />
@@ -980,22 +994,22 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           </div>
 
           {/* Orbit Plane Legend */}
-          <div className="bg-[#0d1424]/95 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-[#1e2d47] shadow-xl flex items-center gap-2.5 text-[11px] font-mono">
+          <div className="bg-[#090e1a]/90 backdrop-blur-md px-2 py-1 rounded border border-[#18263e] shadow-xl flex items-center gap-2 text-[10px]">
             <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#00e5ff]" />
-              <span className="text-slate-300">P1</span>
+              <span className="w-2 h-2 rounded-full bg-[#00e5ff]" />
+              <span className="text-slate-400">P1</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#c084fc]" />
-              <span className="text-slate-300">P2</span>
+              <span className="w-2 h-2 rounded-full bg-[#c084fc]" />
+              <span className="text-slate-400">P2</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#34d399]" />
-              <span className="text-slate-300">P3</span>
+              <span className="w-2 h-2 rounded-full bg-[#34d399]" />
+              <span className="text-slate-400">P3</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444]" />
-              <span className="text-slate-300">Отказ</span>
+              <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
+              <span className="text-slate-400">FAIL</span>
             </div>
           </div>
         </div>
@@ -1015,11 +1029,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
       {/* Floating HUD Card for Inspected Satellite */}
       {inspectedSat && (
-        <div className="absolute bottom-4 left-4 z-20 bg-[#0d1424]/95 backdrop-blur-md p-3.5 rounded-xl border border-cyan-500/40 shadow-2xl max-w-xs text-xs">
-          <div className="flex items-center justify-between gap-3 border-b border-slate-700/60 pb-2 mb-2">
-            <div className="flex items-center gap-2">
+        <div className="absolute bottom-3 left-3 z-20 bg-[#070c18]/95 backdrop-blur-md p-3 rounded border border-cyan-500/40 shadow-2xl max-w-xs text-xs font-mono">
+          <div className="flex items-center justify-between gap-3 border-b border-[#162238] pb-1.5 mb-2">
+            <div className="flex items-center gap-1.5">
               <span
-                className={`w-2.5 h-2.5 rounded-full ${
+                className={`w-2 h-2 rounded-full ${
                   inspectedSat.failed
                     ? 'bg-red-500'
                     : inspectedSat.active
@@ -1027,78 +1041,77 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
                     : 'bg-slate-500'
                 }`}
               />
-              <span className="font-mono font-bold text-sm text-cyan-300">
-                Спутник {inspectedSat.id}
+              <span className="font-bold text-xs tracking-wider text-cyan-300">
+                SAT // {inspectedSat.id}
               </span>
-              <span className="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-[#050810] text-slate-400 border border-[#162238] px-1 py-0.2 rounded">
                 {inspectedSat.plane_id}
               </span>
             </div>
             <button
               onClick={() => setInspectedSatId(null)}
-              className="text-slate-400 hover:text-white text-base leading-none"
+              className="text-slate-500 hover:text-white text-sm leading-none px-1"
             >
               ✕
             </button>
           </div>
 
-          <div className="space-y-1.5 font-mono text-[11px] text-slate-300">
+          <div className="space-y-1 text-[10px] text-slate-300">
             <div className="flex justify-between">
-              <span className="text-slate-400">Статус:</span>
+              <span className="text-slate-500">СТАТУС:</span>
               <span
                 className={
                   inspectedSat.failed
                     ? 'text-red-400 font-bold'
                     : inspectedSat.active
-                    ? 'text-emerald-400'
-                    : 'text-slate-400'
+                    ? 'text-emerald-400 font-semibold'
+                    : 'text-slate-500'
                 }
               >
                 {inspectedSat.failed
-                  ? 'ОТКАЗ (Failure)'
+                  ? 'ОТКАЗ (FAIL)'
                   : inspectedSat.active
-                  ? 'АКТИВЕН'
-                  : 'НЕ ЗАПУЩЕН'}
+                  ? 'АКТИВЕН (ONLINE)'
+                  : 'STANDBY'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Очередь запуска:</span>
-              <span>Партия {inspectedSat.launch_batch}</span>
+              <span className="text-slate-500">ОЧЕРЕДЬ:</span>
+              <span>BATCH #{inspectedSat.launch_batch}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Широта / Долгота:</span>
+              <span className="text-slate-500">LAT / LON:</span>
               <span>
-                {inspectedSat.lat_deg.toFixed(1)}°, {inspectedSat.lon_deg.toFixed(1)}°
+                {inspectedSat.lat_deg.toFixed(1)}°N, {inspectedSat.lon_deg.toFixed(1)}°E
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Координаты ECEF (X, Y, Z):</span>
-              <span className="text-[10px]">
-                {Math.round(inspectedSat.x_km)}, {Math.round(inspectedSat.y_km)},{' '}
-                {Math.round(inspectedSat.z_km)} км
+              <span className="text-slate-500">ECEF (X, Y, Z):</span>
+              <span className="text-[9px] text-slate-400">
+                [{Math.round(inspectedSat.x_km)}, {Math.round(inspectedSat.y_km)}, {Math.round(inspectedSat.z_km)}] KM
               </span>
             </div>
           </div>
 
           {/* Action button */}
-          <div className="mt-3 pt-2 border-t border-slate-700/60">
+          <div className="mt-2.5 pt-2 border-t border-[#162238]">
             <button
               onClick={() => onToggleFailure(inspectedSat.id)}
-              className={`w-full py-1.5 px-2 rounded-lg font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+              className={`w-full py-1 px-2 rounded text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 inspectedSat.failed
-                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
-                  : 'bg-red-600/90 hover:bg-red-500 text-white shadow-md'
+                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  : 'bg-red-600/90 hover:bg-red-500 text-white'
               }`}
             >
               {inspectedSat.failed ? (
                 <>
-                  <Crosshair className="w-3.5 h-3.5" />
-                  <span>Восстановить спутник</span>
+                  <Crosshair className="w-3 h-3" />
+                  <span>ВОССТАНОВИТЬ СВЯЗЬ</span>
                 </>
               ) : (
                 <>
-                  <ZapOff className="w-3.5 h-3.5" />
-                  <span>Отключить спутник (Отказ)</span>
+                  <ZapOff className="w-3 h-3" />
+                  <span>ИНИЦИИРОВАТЬ ОТКАЗ</span>
                 </>
               )}
             </button>
