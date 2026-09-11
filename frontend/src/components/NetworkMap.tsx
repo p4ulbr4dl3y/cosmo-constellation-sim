@@ -93,16 +93,18 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     }
   }, [])
 
-  // 2D Projection helper: maps (lon, lat) to canvas coordinates with zoom and pan
+  // 2D Projection helper: maps (lon, lat) to canvas coordinates with zoom, pan, and polar padding
   const project2D = useCallback(
     (lon: number, lat: number, width: number, height: number): [number, number] => {
+      const padY = 16
+      const availH = height - padY * 2
       const cx = width / 2
       const cy = height / 2
       const baseNormX = (lon + 180) / 360
       const baseNormY = (90 - lat) / 180
       const clampedPan = clampPan2D(pan2d, zoom, width, height)
       const x = cx + (baseNormX * width - cx) * zoom + clampedPan.x
-      const y = cy + (baseNormY * height - cy) * zoom + clampedPan.y
+      const y = cy + (padY + baseNormY * availH - cy) * zoom + clampedPan.y
       return [x, y]
     },
     [zoom, pan2d, clampPan2D]
@@ -1130,165 +1132,168 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
   return (
     <div className="relative w-full h-full flex flex-col bg-[#07090e] select-none overflow-hidden rounded-xl border border-white/10">
-      {/* Minimal Map Header Toolbar */}
-      <div className="absolute top-2 left-2 z-10 flex flex-wrap items-center gap-1 bg-[#0c1017]/95 backdrop-blur px-1.5 py-1 rounded-md border border-white/10 font-mono text-[11px] shadow-lg">
-        {/* 2D / 3D Mode Switcher */}
-        <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10">
+      {/* Dedicated Map Header Toolbar */}
+      <div className="flex-shrink-0 flex items-center justify-between gap-2 bg-[#0c1017] px-2.5 py-1.5 border-b border-white/10 font-mono text-[11px] z-10">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {/* 2D / 3D Mode Switcher */}
+          <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10">
+            <button
+              onClick={() => handleSetViewMode('2d')}
+              className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
+                viewMode === '2d' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              2D
+            </button>
+            <button
+              onClick={() => handleSetViewMode('3d')}
+              className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
+                viewMode === '3d' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              3D
+            </button>
+          </div>
+
+          <div className="h-3 w-px bg-white/10 mx-0.5" />
+
+          {/* Arctic Focus */}
           <button
-            onClick={() => handleSetViewMode('2d')}
-            className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
-              viewMode === '2d' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-slate-200'
-            }`}
+            onClick={focusArctic}
+            title="Сфокусировать 3D-глобус на Арктике"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
           >
-            2D
+            <Compass className="w-3 h-3 text-cyan-400" />
+            <span>Арктика</span>
           </button>
-          <button
-            onClick={() => handleSetViewMode('3d')}
-            className={`px-2 py-0.5 font-bold rounded-md transition-all cursor-pointer ${
-              viewMode === '3d' ? 'bg-white/20 text-white' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            3D
-          </button>
+
+          <div className="h-3 w-px bg-white/10 mx-0.5" />
+
+          {/* Zoom Controls */}
+          <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10 gap-0.5">
+            <button
+              onClick={zoomOut}
+              disabled={isMinZoom}
+              title="Отдалить карту"
+              className={`p-1 rounded transition-colors ${
+                isMinZoom
+                  ? 'text-slate-600 cursor-not-allowed'
+                  : 'text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer'
+              }`}
+            >
+              <ZoomOut className="w-3 h-3" />
+            </button>
+            <span className="px-1 text-[10px] text-slate-300 min-w-[32px] text-center font-medium">
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              onClick={zoomIn}
+              disabled={isMaxZoom}
+              title="Приблизить карту"
+              className={`p-1 rounded transition-colors ${
+                isMaxZoom
+                  ? 'text-slate-600 cursor-not-allowed'
+                  : 'text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer'
+              }`}
+            >
+              <ZoomIn className="w-3 h-3" />
+            </button>
+            <button
+              onClick={resetView}
+              title="Сбросить масштаб и положение (100%)"
+              className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
+          </div>
+
+          <div className="h-3 w-px bg-white/10 mx-0.5" />
+
+          {/* Layer Toggles */}
+          <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10 gap-0.5">
+            <button
+              onClick={() => setShowIsl((v) => !v)}
+              title="Межспутниковые линии (ISL)"
+              className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+                showIsl ? 'bg-white/20 text-white font-medium' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              ISL
+            </button>
+
+            <button
+              onClick={() => setShowGroundLinks((v) => !v)}
+              title="Линии Земля-Спутник (GSL)"
+              className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+                showGroundLinks
+                  ? 'bg-white/20 text-white font-medium'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              GSL
+            </button>
+
+            <button
+              onClick={() => setShowLabels((v) => !v)}
+              title="Номера спутников (ID)"
+              className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+                showLabels
+                  ? 'bg-white/20 text-white font-medium'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              ID
+            </button>
+
+            <button
+              onClick={() => setShowUnlaunched((v) => !v)}
+              title="Спутники последующих этапов"
+              className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
+                showUnlaunched
+                  ? 'bg-white/20 text-white font-medium'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Резерв
+            </button>
+          </div>
         </div>
 
-        <div className="h-3 w-px bg-white/10 mx-0.5" />
-
-        {/* Arctic Focus */}
-        <button
-          onClick={focusArctic}
-          title="Сфокусировать 3D-глобус на Арктике"
-          className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
-        >
-          <Compass className="w-3 h-3 text-cyan-400" />
-          <span>Арктика</span>
-        </button>
-
-        <div className="h-3 w-px bg-white/10 mx-0.5" />
-
-        {/* Zoom Controls */}
-        <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10 gap-0.5">
-          <button
-            onClick={zoomOut}
-            disabled={isMinZoom}
-            title="Отдалить карту"
-            className={`p-1 rounded transition-colors ${
-              isMinZoom
-                ? 'text-slate-600 cursor-not-allowed'
-                : 'text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer'
-            }`}
-          >
-            <ZoomOut className="w-3 h-3" />
-          </button>
-          <span className="px-1 text-[10px] text-slate-300 min-w-[32px] text-center font-medium">
-            {Math.round(zoom * 100)}%
-          </span>
-          <button
-            onClick={zoomIn}
-            disabled={isMaxZoom}
-            title="Приблизить карту"
-            className={`p-1 rounded transition-colors ${
-              isMaxZoom
-                ? 'text-slate-600 cursor-not-allowed'
-                : 'text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer'
-            }`}
-          >
-            <ZoomIn className="w-3 h-3" />
-          </button>
-          <button
-            onClick={resetView}
-            title="Сбросить масштаб и положение (100%)"
-            className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
-          >
-            <RotateCcw className="w-3 h-3" />
-          </button>
-        </div>
-
-        <div className="h-3 w-px bg-white/10 mx-0.5" />
-
-        {/* Layer Toggles */}
-        <div className="flex items-center bg-black/50 p-0.5 rounded-lg border border-white/10 gap-0.5">
-          <button
-            onClick={() => setShowIsl((v) => !v)}
-            title="Межспутниковые линии (ISL)"
-            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-              showIsl ? 'bg-white/20 text-white font-medium' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            ISL
-          </button>
-
-          <button
-            onClick={() => setShowGroundLinks((v) => !v)}
-            title="Линии Земля-Спутник (GSL)"
-            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-              showGroundLinks
-                ? 'bg-white/20 text-white font-medium'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            GSL
-          </button>
-
-          <button
-            onClick={() => setShowLabels((v) => !v)}
-            title="Номера спутников (ID)"
-            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-              showLabels
-                ? 'bg-white/20 text-white font-medium'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            ID
-          </button>
-
-          <button
-            onClick={() => setShowUnlaunched((v) => !v)}
-            title="Спутники последующих этапов"
-            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
-              showUnlaunched
-                ? 'bg-white/20 text-white font-medium'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            Резерв
-          </button>
+        {/* Orbit Plane Legend in Header */}
+        <div className="hidden sm:flex items-center gap-2 bg-black/40 px-2 py-1 rounded-md border border-white/10 font-mono text-[10px]">
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00e5ff]" />
+            <span className="text-slate-400">P1</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c084fc]" />
+            <span className="text-slate-400">P2</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
+            <span className="text-slate-400">P3</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            <span className="text-slate-400">ОТКАЗ</span>
+          </div>
         </div>
       </div>
 
-      {/* Orbit Plane Legend in Bottom-Right Corner */}
-      <div className="absolute bottom-2 right-2 z-10 hidden sm:flex items-center gap-2 bg-[#0c1017]/95 backdrop-blur px-2 py-0.5 rounded-md border border-white/10 font-mono text-[10px]">
-        <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00e5ff]" />
-          <span className="text-slate-400">P1</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#c084fc]" />
-          <span className="text-slate-400">P2</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#34d399]" />
-          <span className="text-slate-400">P3</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-          <span className="text-slate-400">ОТКАЗ</span>
-        </div>
-      </div>
-
-      {/* Main Canvas View */}
-      <canvas
-        ref={canvasRef}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handleMouseMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-        onMouseLeave={() => setIsDragging(false)}
-        onClick={handleCanvasClick}
-        className={`w-full h-full block ${
-          isDragging ? 'cursor-grabbing' : 'cursor-grab'
-        }`}
-      />
+      {/* Main Canvas Viewport Area */}
+      <div className="relative flex-1 w-full min-h-0 overflow-hidden">
+        <canvas
+          ref={canvasRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handleMouseMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          onMouseLeave={() => setIsDragging(false)}
+          onClick={handleCanvasClick}
+          className={`w-full h-full block ${
+            isDragging ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
+        />
 
       {/* Floating HUD Card for Inspected Satellite */}
       {inspectedSat && (
@@ -1386,6 +1391,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }
