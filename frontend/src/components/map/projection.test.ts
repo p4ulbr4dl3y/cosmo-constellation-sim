@@ -115,6 +115,25 @@ describe('Map Projection Utils', () => {
       const p2 = { x: 400, y: 450, visible: true, depth: -50 }
       expect(isSegmentVisible3D(p1, p2, 200, 400, 300)).toBe(false)
     })
+
+    it('returns true when front node inside disc connects to visible limb sat in space', () => {
+      // p1 is ground station at center of globe (400, 300), depth +100
+      // p2 is satellite at x: 650 (> 200 rim), depth -50
+      // At horizon plane (depth = 0), t = 100 / 150 = 2/3, x = 400 + 250*(2/3) = 566.7 -> dist = 166.7
+      // But if p1 is near the rim inside disc (x: 580) and p2 is in space (x: 650), depth crosses at > 200
+      const p1 = { x: 580, y: 300, visible: true, depth: 50 }
+      const p2 = { x: 650, y: 300, visible: true, depth: -50 }
+      // Horizon crossing at t = 0.5 -> x = 615 (> 200 from center 400), back portion is entirely > 200
+      expect(isSegmentVisible3D(p1, p2, 200, 400, 300)).toBe(true)
+    })
+
+    it('strictly rejects back-hemisphere chord penetrating rim without tolerance factor', () => {
+      // Globe radius 200, cx: 400, cy: 300.
+      // Endpoints at x: 599 (distance 199 < 200 from center)
+      const p1 = { x: 599, y: 280, visible: true, depth: -100 }
+      const p2 = { x: 599, y: 320, visible: true, depth: -100 }
+      expect(isSegmentVisible3D(p1, p2, 200, 400, 300)).toBe(false)
+    })
   })
 
   describe('drawLine2DWithAntimeridian', () => {

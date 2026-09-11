@@ -16,6 +16,41 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   onToggleFailure,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [viewportSize, setViewportSize] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  })
+
+  // ResizeObserver to track container resizing and keep canvas pixel buffer 1:1 with CSS
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const updateSize = () => {
+      const rect = container.getBoundingClientRect()
+      const w = Math.round(rect.width)
+      const h = Math.round(rect.height)
+      if (w > 0 && h > 0) {
+        setViewportSize((prev) =>
+          prev.width === w && prev.height === h ? prev : { width: w, height: h }
+        )
+      }
+    }
+
+    updateSize()
+
+    const ro = new ResizeObserver(() => {
+      updateSize()
+    })
+    ro.observe(container)
+    window.addEventListener('resize', updateSize)
+
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', updateSize)
+    }
+  }, [])
 
   // Map view & layers state
   const [viewMode, setViewMode] = useState<MapViewMode>('2d')
@@ -169,8 +204,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     }
 
     // Hit test satellites or ground stations
-    const width = canvas.clientWidth
-    const height = canvas.clientHeight
+    const width = viewportSize.width || canvas.clientWidth || 800
+    const height = viewportSize.height || canvas.clientHeight || 600
     let hit: HoveredNodeInfo | null = null
 
     // Check ground stations
@@ -256,11 +291,15 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
     // Setup high DPI
     const dpr = window.devicePixelRatio || 1
-    const width = canvas.clientWidth
-    const height = canvas.clientHeight
-    if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
-      canvas.width = width * dpr
-      canvas.height = height * dpr
+    const width = viewportSize.width || canvas.clientWidth || 800
+    const height = viewportSize.height || canvas.clientHeight || 600
+    if (width === 0 || height === 0) return
+
+    const targetWidth = Math.round(width * dpr)
+    const targetHeight = Math.round(height * dpr)
+    if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+      canvas.width = targetWidth
+      canvas.height = targetHeight
     }
     ctx.resetTransform()
     ctx.scale(dpr, dpr)
@@ -339,6 +378,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     hoveredNode,
     zoom,
     pan2d,
+    viewportSize.width,
+    viewportSize.height,
   ])
 
   // Find detailed data for inspected satellite
@@ -373,7 +414,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       />
 
       {/* Main Canvas Viewport Area */}
-      <div className="relative flex-1 w-full min-h-0 overflow-hidden">
+      <div ref={containerRef} className="relative flex-1 w-full min-h-0 overflow-hidden">
         <canvas
           ref={canvasRef}
           onPointerDown={handlePointerDown}

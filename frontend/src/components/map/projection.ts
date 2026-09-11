@@ -38,11 +38,14 @@ export function project2D(
 ): [number, number] {
   const cx = width / 2
   const cy = height / 2
+  // Preserve true 2:1 equirectangular aspect ratio (360° lon x 180° lat)
+  const mapW = Math.min(width, height * 2)
+  const mapH = mapW / 2
   const baseNormX = (lon + 180) / 360
   const baseNormY = (90 - lat) / 180
   const clampedPan = clampPan2D(pan2d, zoom, width, height)
-  const x = cx + (baseNormX * width - cx) * zoom + clampedPan.x
-  const y = cy + (baseNormY * height - cy) * zoom + clampedPan.y
+  const x = cx + (baseNormX * mapW - mapW / 2) * zoom + clampedPan.x
+  const y = cy + (baseNormY * mapH - mapH / 2) * zoom + clampedPan.y
   return [x, y]
 }
 
@@ -96,7 +99,7 @@ export function isSegmentVisible3D(
   if (!p1.visible || !p2.visible) return false
 
   // Both endpoints on front hemisphere -> completely visible in front of Earth
-  if (p1.depth > 0 && p2.depth > 0) return true
+  if (p1.depth >= 0 && p2.depth >= 0) return true
 
   // Check 2D distance from Earth center (cx, cy) to segment (p1, p2)
   const x1 = p1.x - cx
@@ -107,19 +110,31 @@ export function isSegmentVisible3D(
   const dx = x2 - x1
   const dy = y2 - y1
   const lenSq = dx * dx + dy * dy
+  const R_SQ = globeRadius * globeRadius
 
-  if (lenSq === 0) {
-    return Math.hypot(x1, y1) >= globeRadius
+  // Case 1: Both endpoints on back hemisphere (depth <= 0)
+  if (p1.depth <= 0 && p2.depth <= 0) {
+    if (lenSq === 0) return x1 * x1 + y1 * y1 >= R_SQ
+    const t = Math.max(0, Math.min(1, -(x1 * dx + y1 * dy) / lenSq))
+    const cx_pt = x1 + t * dx
+    const cy_pt = y1 + t * dy
+    return cx_pt * cx_pt + cy_pt * cy_pt >= R_SQ
   }
 
-  // Parameter t of closest point on segment to (0, 0)
-  const t = Math.max(0, Math.min(1, -(x1 * dx + y1 * dy) / lenSq))
-  const closestX = x1 + t * dx
-  const closestY = y1 + t * dy
-  const minCleanDistSq = closestX * closestX + closestY * closestY
+  // Case 2: One endpoint on front, one on back.
+  // The front portion (depth >= 0) is above/in front of Earth.
+  // Only the back portion (depth <= 0) can be occluded by the Earth sphere.
+  const t0 = p1.depth / (p1.depth - p2.depth)
+  const tBackStart = p1.depth <= 0 ? 0 : t0
+  const tBackEnd = p1.depth <= 0 ? t0 : 1
 
-  // Visible if the entire 2D segment is outside Earth's silhouette disc
-  return minCleanDistSq >= globeRadius * globeRadius * 0.99
+  if (lenSq === 0) return x1 * x1 + y1 * y1 >= R_SQ
+  const tUnclamped = -(x1 * dx + y1 * dy) / lenSq
+  const tClosest = Math.max(tBackStart, Math.min(tBackEnd, tUnclamped))
+
+  const cx_pt = x1 + tClosest * dx
+  const cy_pt = y1 + tClosest * dy
+  return cx_pt * cx_pt + cy_pt * cy_pt >= R_SQ
 }
 
 export function drawLine2DWithAntimeridian(
