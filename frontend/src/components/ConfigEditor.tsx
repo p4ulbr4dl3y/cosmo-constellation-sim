@@ -181,10 +181,10 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
           <button
             onClick={handleKillActiveRouteSat}
             disabled={activeRouteSats.length === 0}
-            className={`h-7 px-2.5 rounded-md text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+            className={`h-7 px-2.5 rounded-md text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer border ${
               activeRouteSats.length > 0
-                ? 'bg-rose-950/50 hover:bg-rose-900/70 border border-rose-800/60 text-rose-300'
-                : 'bg-white/5 border border-white/5 text-slate-500 cursor-not-allowed'
+                ? 'bg-white/5 hover:bg-rose-950/40 border-white/10 hover:border-rose-800/50 text-slate-300 hover:text-rose-300'
+                : 'bg-white/5 border-white/5 text-slate-600 cursor-not-allowed'
             }`}
           >
             <ZapOff className="w-3.5 h-3.5" />
@@ -387,7 +387,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
 
               <button
                 onClick={handleAddFailure}
-                className="ml-auto h-7 px-2.5 rounded-md bg-rose-950/50 hover:bg-rose-900/70 border border-rose-800/60 text-rose-300 text-xs font-mono font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                className="ml-auto h-7 px-2.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-mono font-medium flex items-center gap-1 transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Добавить</span>
