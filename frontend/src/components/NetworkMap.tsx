@@ -832,29 +832,177 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.strokeStyle = '#2e4970'
       ctx.lineWidth = 1
 
+      const cosY = Math.cos(globeRotY)
+      const sinY = Math.sin(globeRotY)
+      const cosX = Math.cos(globeRotX)
+      const sinX = Math.sin(globeRotX)
+      const scale = globeRadius / R_EARTH
+
       for (const land of WORLD_LANDMASSES) {
-        ctx.beginPath()
-        let started = false
-        for (const [lon, lat] of land.points) {
+        const pts = land.points
+        const n = pts.length
+        let allFront = true
+        let allBack = true
+
+        const vList: Array<{ x: number; y: number; z: number; depth: number; sx: number; sy: number }> = []
+
+        for (let i = 0; i < n; i++) {
+          const lon = pts[i][0]
+          const lat = pts[i][1]
           const latRad = (lat * Math.PI) / 180
           const lonRad = (lon * Math.PI) / 180
           const gx = R_EARTH * Math.cos(latRad) * Math.cos(lonRad)
           const gy = R_EARTH * Math.cos(latRad) * Math.sin(lonRad)
           const gz = R_EARTH * Math.sin(latRad)
 
-          const p = project3D(gx, gy, gz, 1.0, width, height, globeRotX, globeRotY)
-          if (p.depth > -200) {
-            if (!started) {
-              ctx.moveTo(p.x, p.y)
-              started = true
-            } else {
-              ctx.lineTo(p.x, p.y)
+          const x1 = cosY * gx + sinY * gy
+          const y1 = -sinY * gx + cosY * gy
+          const x2 = x1
+          const y2 = cosX * y1 - sinX * gz
+          const z2 = sinX * y1 + cosX * gz
+
+          if (y2 < 0) allFront = false
+          if (y2 >= 0) allBack = false
+
+          vList.push({
+            x: x2,
+            y: y2,
+            z: z2,
+            depth: y2,
+            sx: cx + x2 * scale,
+            sy: cy - z2 * scale,
+          })
+        }
+
+        if (allBack) continue
+
+        if (allFront) {
+          ctx.beginPath()
+          for (let i = 0; i < n; i++) {
+            if (i === 0) ctx.moveTo(vList[i].sx, vList[i].sy)
+            else ctx.lineTo(vList[i].sx, vList[i].sy)
+          }
+          ctx.closePath()
+          ctx.fill()
+          ctx.stroke()
+          continue
+        }
+
+        // Polygon crosses the horizon: clip to front hemisphere with rim arc interpolation
+        const fillPath: Array<[number, number]> = []
+
+        for (let i = 0; i < n; i++) {
+          const curr = vList[i]
+          const nxt = vList[(i + 1) % n]
+          const currIn = curr.depth >= 0
+          const nxtIn = nxt.depth >= 0
+
+          if (currIn && nxtIn) {
+            fillPath.push([nxt.sx, nxt.sy])
+          } else if (currIn && !nxtIn) {
+            // Exiting horizon: find exit point on horizon circle
+            const t = curr.depth / (curr.depth - nxt.depth || 1)
+            let ix = curr.x + t * (nxt.x - curr.x)
+            let iz = curr.z + t * (nxt.z - curr.z)
+            const d = Math.hypot(ix, iz)
+            if (d > 0) {
+              ix = (ix / d) * R_EARTH
+              iz = (iz / d) * R_EARTH
             }
-          } else {
-            started = false
+            fillPath.push([cx + ix * scale, cy - iz * scale])
+          } else if (!currIn && nxtIn) {
+            // Entering horizon: find entering point on horizon circle
+            const t = curr.depth / (curr.depth - nxt.depth || 1)
+            let ix = curr.x + t * (nxt.x - curr.x)
+            let iz = curr.z + t * (nxt.z - curr.z)
+            const d = Math.hypot(ix, iz)
+            if (d > 0) {
+              ix = (ix / d) * R_EARTH
+              iz = (iz / d) * R_EARTH
+            }
+            // Add arc along horizon rim from previous exit to this entrance
+            if (fillPath.length > 0) {
+              const lastPt = fillPath[fillPath.length - 1]
+              const ang1 = Math.atan2(lastPt[1] - cy, lastPt[0] - cx)
+              const ang2 = Math.atan2(cy - iz * scale - cy, cx + ix * scale - cx)
+              let diff = ang2 - ang1
+              while (diff > Math.PI) diff -= 2 * Math.PI
+              while (diff < -Math.PI) diff += 2 * Math.PI
+              const steps = Math.max(4, Math.ceil(Math.abs(diff) / (Math.PI / 12)))
+              for (let s = 1; s <= steps; s++) {
+                const a = ang1 + (s / steps) * diff
+                fillPath.push([cx + Math.cos(a) * globeRadius, cy + Math.sin(a) * globeRadius])
+              }
+            } else {
+              fillPath.push([cx + ix * scale, cy - iz * scale])
+            }
+            fillPath.push([nxt.sx, nxt.sy])
           }
         }
-        ctx.fill()
+
+        // If polygon started in back and ended in back, connect last exit to first entrance along rim
+        if (fillPath.length >= 2) {
+          const pStart = fillPath[0]
+          const pEnd = fillPath[fillPath.length - 1]
+          const dStart = Math.hypot(pStart[0] - cx, pStart[1] - cy)
+          const dEnd = Math.hypot(pEnd[0] - cx, pEnd[1] - cy)
+          if (Math.abs(dStart - globeRadius) < 2 && Math.abs(dEnd - globeRadius) < 2) {
+            const ang1 = Math.atan2(pEnd[1] - cy, pEnd[0] - cx)
+            const ang2 = Math.atan2(pStart[1] - cy, pStart[0] - cx)
+            let diff = ang2 - ang1
+            while (diff > Math.PI) diff -= 2 * Math.PI
+            while (diff < -Math.PI) diff += 2 * Math.PI
+            const steps = Math.max(4, Math.ceil(Math.abs(diff) / (Math.PI / 12)))
+            for (let s = 1; s < steps; s++) {
+              const a = ang1 + (s / steps) * diff
+              fillPath.push([cx + Math.cos(a) * globeRadius, cy + Math.sin(a) * globeRadius])
+            }
+          }
+        }
+
+        // Fill continent cleanly inside horizon
+        if (fillPath.length >= 3) {
+          ctx.beginPath()
+          for (let i = 0; i < fillPath.length; i++) {
+            if (i === 0) ctx.moveTo(fillPath[i][0], fillPath[i][1])
+            else ctx.lineTo(fillPath[i][0], fillPath[i][1])
+          }
+          ctx.closePath()
+          ctx.fill()
+        }
+
+        // Stroke ONLY real front coastlines (not artificial horizon cuts)
+        ctx.beginPath()
+        for (let i = 0; i < n; i++) {
+          const curr = vList[i]
+          const nxt = vList[(i + 1) % n]
+          if (curr.depth >= 0 && nxt.depth >= 0) {
+            ctx.moveTo(curr.sx, curr.sy)
+            ctx.lineTo(nxt.sx, nxt.sy)
+          } else if (curr.depth >= 0 && nxt.depth < 0) {
+            const t = curr.depth / (curr.depth - nxt.depth || 1)
+            let ix = curr.x + t * (nxt.x - curr.x)
+            let iz = curr.z + t * (nxt.z - curr.z)
+            const d = Math.hypot(ix, iz)
+            if (d > 0) {
+              ix = (ix / d) * R_EARTH
+              iz = (iz / d) * R_EARTH
+            }
+            ctx.moveTo(curr.sx, curr.sy)
+            ctx.lineTo(cx + ix * scale, cy - iz * scale)
+          } else if (curr.depth < 0 && nxt.depth >= 0) {
+            const t = curr.depth / (curr.depth - nxt.depth || 1)
+            let ix = curr.x + t * (nxt.x - curr.x)
+            let iz = curr.z + t * (nxt.z - curr.z)
+            const d = Math.hypot(ix, iz)
+            if (d > 0) {
+              ix = (ix / d) * R_EARTH
+              iz = (iz / d) * R_EARTH
+            }
+            ctx.moveTo(cx + ix * scale, cy - iz * scale)
+            ctx.lineTo(nxt.sx, nxt.sy)
+          }
+        }
         ctx.stroke()
       }
 
