@@ -25,7 +25,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   if (variant === 'accent') {
     return (
       <div
-        className={`bg-[#00f0ff] text-black rounded-xl p-3 sm:p-4 flex flex-col justify-between border border-[#00f0ff] shadow-lg shadow-[#00f0ff]/10 transition-all ${className}`}
+        className={`bg-[#00f0ff] text-black rounded-xl p-3 sm:p-4 flex flex-col justify-between border border-[#00f0ff] transition-all ${className}`}
         {...props}
       >
         <div className="flex items-start justify-between gap-2">

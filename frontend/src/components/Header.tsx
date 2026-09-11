@@ -114,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('monitor')}
           className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
             activeTab === 'monitor'
-              ? 'bg-white/15 text-white font-semibold shadow-xs'
+              ? 'bg-white/15 text-white font-semibold'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -124,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('config')}
           className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
             activeTab === 'config'
-              ? 'bg-white/15 text-white font-semibold shadow-xs'
+              ? 'bg-white/15 text-white font-semibold'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -134,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={() => setActiveTab('compare')}
           className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
             activeTab === 'compare'
-              ? 'bg-white/15 text-white font-semibold shadow-xs'
+              ? 'bg-white/15 text-white font-semibold'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >

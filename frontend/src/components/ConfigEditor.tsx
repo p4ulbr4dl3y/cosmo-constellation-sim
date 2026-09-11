@@ -212,7 +212,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                     onClick={() => handleLaunchStageChange(stg)}
                     className={`py-1.5 px-2 rounded-lg border text-xs font-bold flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-white/15 border-white/30 text-white shadow-xs'
+                        ? 'bg-white/15 border-white/30 text-white'
                         : 'bg-[#080b11] border-white/10 text-slate-400 hover:text-slate-200'
                     }`}
                   >

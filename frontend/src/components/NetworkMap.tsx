@@ -389,13 +389,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       ctx.setLineDash([])
     }
 
-    // Draw ACTIVE ROUTE with glowing neon lime beam
+    // Draw ACTIVE ROUTE
     if (activeRoute.length >= 2) {
       ctx.save()
-      ctx.shadowColor = '#00f0ff'
-      ctx.shadowBlur = 12
       ctx.strokeStyle = '#00f0ff'
-      ctx.lineWidth = 3
+      ctx.lineWidth = 2.5
 
       for (let k = 0; k < activeRoute.length - 1; k++) {
         const u = activeRoute[k]
@@ -554,13 +552,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         if (isOnRoute) {
           // Highlight satellite on active path
           ctx.save()
-          ctx.shadowColor = '#10b981'
-          ctx.shadowBlur = 10
           ctx.fillStyle = '#34d399'
           ctx.strokeStyle = '#ecfdf5'
-          ctx.lineWidth = 2
+          ctx.lineWidth = 1.5
           ctx.beginPath()
-          ctx.arc(sx, sy, 6, 0, Math.PI * 2)
+          ctx.arc(sx, sy, 5.5, 0, Math.PI * 2)
           ctx.fill()
           ctx.stroke()
           ctx.restore()
@@ -790,10 +786,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     // Draw ACTIVE ROUTE in 3D
     if (activeRoute.length >= 2) {
       ctx.save()
-      ctx.shadowColor = '#00f0ff'
-      ctx.shadowBlur = 12
       ctx.strokeStyle = '#00f0ff'
-      ctx.lineWidth = 3
+      ctx.lineWidth = 2.5
 
       for (let k = 0; k < activeRoute.length - 1; k++) {
         const u = activeRoute[k]
@@ -956,7 +950,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   return (
     <div className="relative w-full h-full flex flex-col bg-[#07090e] select-none overflow-hidden rounded-xl border border-white/10">
       {/* Minimal Map Header Toolbar */}
-      <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#0c1017]/90 backdrop-blur-md px-1.5 py-1 rounded-lg border border-white/10 font-mono text-[11px]">
+      <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#0c1017] px-1.5 py-1 rounded-md border border-white/10 font-mono text-[11px]">
         {/* 2D / 3D Mode Switcher */}
         <div className="flex items-center bg-black/50 p-0.5 rounded border border-white/5">
           <button
@@ -1040,7 +1034,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       </div>
 
       {/* Orbit Plane Legend in Bottom-Right Corner */}
-      <div className="absolute bottom-2 right-2 z-10 hidden sm:flex items-center gap-2 bg-[#0c1017]/85 backdrop-blur-md px-2 py-0.5 rounded border border-white/10 font-mono text-[10px]">
+      <div className="absolute bottom-2 right-2 z-10 hidden sm:flex items-center gap-2 bg-[#0c1017] px-2 py-0.5 rounded-md border border-white/10 font-mono text-[10px]">
         <div className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-[#00e5ff]" />
           <span className="text-slate-400">P1</span>
@@ -1073,7 +1067,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
       {/* Floating HUD Card for Inspected Satellite */}
       {inspectedSat && (
-        <div className="absolute bottom-3 left-3 z-20 bg-[#0c1017]/95 backdrop-blur-md p-3 rounded-xl border border-white/15 shadow-2xl max-w-xs text-xs font-mono">
+        <div className="absolute bottom-3 left-3 z-20 bg-[#0c1017] p-3 rounded-lg border border-white/10 max-w-xs text-xs font-mono">
           <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-1.5 mb-2">
             <div className="flex items-center gap-1.5">
               <span

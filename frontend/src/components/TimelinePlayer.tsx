@@ -300,7 +300,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         >
           {/* Vertical Playhead Cursor spanning through ruler and all 3 Gantt bars */}
           <div
-            className="absolute top-0 bottom-0 w-px bg-cyan-400 pointer-events-none z-20 shadow-[0_0_8px_rgba(34,211,238,0.8)]"
+            className="absolute top-0 bottom-0 w-px bg-cyan-400 pointer-events-none z-20"
             style={{ left: `${playheadPercent}%` }}
           >
             {/* Precision top needle marker */}
@@ -351,7 +351,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                       className={`h-full ${
                         slot.hasPath
                           ? 'bg-emerald-600/40 hover:bg-emerald-500/60'
-                          : 'bg-rose-500 hover:bg-rose-400 shadow-xs'
+                          : 'bg-rose-500 hover:bg-rose-400'
                       }`}
                     />
                   ))}
@@ -364,7 +364,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       {/* Floating Tooltip */}
       {tooltipData && (
         <div
-          className="fixed z-50 pointer-events-none bg-[#0c1017]/95 text-slate-100 text-[11px] px-2.5 py-1.5 rounded-lg border border-white/15 shadow-2xl backdrop-blur-md transform -translate-x-1/2 -translate-y-full"
+          className="fixed z-50 pointer-events-none bg-[#0c1017] text-slate-100 text-[11px] px-2.5 py-1.5 rounded-md border border-white/15 transform -translate-x-1/2 -translate-y-full"
           style={{ left: tooltipData.x, top: tooltipData.y }}
         >
           <div className="flex items-center gap-2 font-bold text-cyan-300 border-b border-white/10 pb-1 mb-1">
