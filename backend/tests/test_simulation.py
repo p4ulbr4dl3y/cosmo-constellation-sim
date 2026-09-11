@@ -11,7 +11,8 @@ def get_preset_path(name: str) -> Path:
     candidates = [
         Path.cwd() / "Данные" / name,
         Path.cwd().parent / "Данные" / name,
-        Path(__file__).resolve().parents[3] / "Данные" / name,
+        Path(__file__).resolve().parents[2] / "Данные" / name,
+        Path(__file__).resolve().parents[1] / "Данные" / name,
     ]
     for c in candidates:
         if c.exists():

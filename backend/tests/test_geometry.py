@@ -8,20 +8,27 @@ from app.core.geometry import compute_positions, snapshot as app_snapshot
 
 def get_ref_geometry():
     import sys
-    ref_dir = Path(__file__).resolve().parents[3] / "Расчетный модуль"
-    if not ref_dir.exists():
-        ref_dir = Path.cwd().parent / "Расчетный модуль"
-    if str(ref_dir) not in sys.path:
-        sys.path.insert(0, str(ref_dir))
-    import geometry as ref
-    return ref
+    candidates = [
+        Path.cwd() / "Расчетный модуль",
+        Path.cwd().parent / "Расчетный модуль",
+        Path(__file__).resolve().parents[2] / "Расчетный модуль",
+        Path(__file__).resolve().parents[1] / "Расчетный модуль",
+    ]
+    for c in candidates:
+        if c.exists():
+            if str(c) not in sys.path:
+                sys.path.insert(0, str(c))
+            import geometry as ref
+            return ref
+    raise FileNotFoundError("Reference geometry module not found")
 
 
 def get_preset_path(name: str) -> Path:
     candidates = [
         Path.cwd() / "Данные" / name,
         Path.cwd().parent / "Данные" / name,
-        Path(__file__).resolve().parents[3] / "Данные" / name,
+        Path(__file__).resolve().parents[2] / "Данные" / name,
+        Path(__file__).resolve().parents[1] / "Данные" / name,
     ]
     for c in candidates:
         if c.exists():

@@ -87,9 +87,10 @@ export function calculateSnapshot(scenario: Scenario, t_s: number): Snapshot {
   // Calculate satellite positions
   const satSnapshots: SatelliteSnapshot[] = []
   const satIndexMap = new Map<string, number>()
+  const satellites = Array.isArray(design.satellites) ? design.satellites : []
 
-  for (let i = 0; i < design.satellites.length; i++) {
-    const sat = design.satellites[i]
+  for (let i = 0; i < satellites.length; i++) {
+    const sat = satellites[i]
     const p = planeMap.get(sat.plane_id) || { raan_deg: 0, phase_deg: 0 }
     const u = ((sat.slot_deg + p.phase_deg) * Math.PI) / 180 + n * t_s
     const om = (p.raan_deg * Math.PI) / 180

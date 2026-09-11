@@ -53,10 +53,12 @@ export const Header: React.FC<HeaderProps> = ({
           typeof json.environment !== 'object' ||
           !json.design ||
           typeof json.design !== 'object' ||
+          !Array.isArray(json.design.planes) ||
+          !Array.isArray(json.design.satellites) ||
           !Array.isArray(json.ground_sites) ||
           json.ground_sites.length === 0
         ) {
-          alert('Ошибка: поврежденный файл сценария. Отсутствуют обязательные разделы: environment, design или ground_sites.')
+          alert('Ошибка: поврежденный файл сценария. Отсутствуют обязательные разделы (environment, design.planes, design.satellites, ground_sites).')
           return
         }
         onLoadCustomJson(json)

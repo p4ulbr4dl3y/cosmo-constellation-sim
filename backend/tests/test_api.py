@@ -12,7 +12,8 @@ def get_preset_scenario(name: str = "01_full_constellation.json") -> dict:
     candidates = [
         Path.cwd() / "Данные" / name,
         Path.cwd().parent / "Данные" / name,
-        Path(__file__).resolve().parents[3] / "Данные" / name,
+        Path(__file__).resolve().parents[2] / "Данные" / name,
+        Path(__file__).resolve().parents[1] / "Данные" / name,
     ]
     for c in candidates:
         if c.exists():

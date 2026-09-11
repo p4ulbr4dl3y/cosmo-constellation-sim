@@ -46,11 +46,14 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
 
   // Playback timer loop
   const isPlayingRef = useRef(isPlaying)
-  isPlayingRef.current = isPlaying
   const currentTimeRef = useRef(currentTime)
-  currentTimeRef.current = currentTime
   const speedRef = useRef(playbackSpeed)
-  speedRef.current = playbackSpeed
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying
+    currentTimeRef.current = currentTime
+    speedRef.current = playbackSpeed
+  }, [isPlaying, currentTime, playbackSpeed])
 
   useEffect(() => {
     if (!isPlaying) return
