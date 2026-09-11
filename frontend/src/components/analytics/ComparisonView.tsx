@@ -279,15 +279,16 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                         <td className="py-1.5 px-3">
                           {renderDeltaPct(mA.availability_ratio, mB.availability_ratio)}
                         </td>
-                        <td className="py-1.5 px-3">
-                          <span
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                              meetsSlaB
-                                ? 'bg-emerald-950/40 text-emerald-300 border border-emerald-500/30'
-                                : 'bg-amber-950/40 text-amber-300 border border-amber-500/30'
-                            }`}
-                          >
-                            {meetsSlaB ? 'SLA В НОРМЕ' : 'НИЖЕ ЦЕЛИ'}
+                        <td className="py-1.5 px-3 align-middle" rowSpan={3}>
+                          <span className="inline-flex items-center gap-1.5 font-mono text-[11px]">
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                meetsSlaB ? 'bg-emerald-400' : 'bg-amber-400'
+                              }`}
+                            />
+                            <span className={meetsSlaB ? 'text-emerald-400 font-medium' : 'text-amber-400 font-medium'}>
+                              {meetsSlaB ? 'В норме' : 'Ниже цели'}
+                            </span>
                           </span>
                         </td>
                       </tr>
@@ -304,7 +305,6 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                         <td className="py-1.5 px-3">
                           {renderDeltaTime(mA.max_gap_s, mB.max_gap_s)}
                         </td>
-                        <td className="py-1.5 px-3 text-zinc-600 text-[11px]">—</td>
                       </tr>
 
                       {/* Row 3: Hops */}
@@ -317,7 +317,6 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                         <td className="py-1.5 px-3 text-zinc-400">
                           {(mB.avg_hops - mA.avg_hops) > 0 ? `+${(mB.avg_hops - mA.avg_hops).toFixed(1)}` : (mB.avg_hops - mA.avg_hops).toFixed(1)}
                         </td>
-                        <td className="py-1.5 px-3 text-zinc-600 text-[11px]">—</td>
                       </tr>
                     </React.Fragment>
                   )
