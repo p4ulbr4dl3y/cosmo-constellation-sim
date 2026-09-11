@@ -97,8 +97,8 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   <span className="text-zinc-300 font-mono">16 КА</span>
                 </div>
                 <div className="text-base font-bold font-mono text-rose-400 mt-1">18.56%</div>
-                <div className="w-full bg-zinc-800 h-1 rounded-full overflow-hidden mt-1.5">
-                  <div className="bg-rose-500 h-full" style={{ width: '18.56%' }} />
+                <div className="w-full bg-zinc-800/80 h-1.5 rounded-full overflow-hidden mt-1.5 border border-white/5">
+                  <div className="bg-rose-500 h-full shadow-[0_0_8px_rgba(244,63,94,0.6)]" style={{ width: '18.56%' }} />
                 </div>
               </div>
               <div className="text-[10px] text-zinc-400 mt-2">
@@ -114,8 +114,8 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   <span className="text-zinc-300 font-mono">32 КА</span>
                 </div>
                 <div className="text-base font-bold font-mono text-amber-400 mt-1">64.80%</div>
-                <div className="w-full bg-zinc-800 h-1 rounded-full overflow-hidden mt-1.5">
-                  <div className="bg-amber-400 h-full" style={{ width: '64.80%' }} />
+                <div className="w-full bg-zinc-800/80 h-1.5 rounded-full overflow-hidden mt-1.5 border border-white/5">
+                  <div className="bg-amber-400 h-full shadow-[0_0_8px_rgba(251,191,36,0.5)]" style={{ width: '64.80%' }} />
                 </div>
               </div>
               <div className="text-[10px] text-zinc-400 mt-2">
@@ -131,8 +131,8 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   <span className="text-zinc-300 font-mono">48 КА</span>
                 </div>
                 <div className="text-base font-bold font-mono text-emerald-400 mt-1">98.10%</div>
-                <div className="w-full bg-zinc-800 h-1 rounded-full overflow-hidden mt-1.5">
-                  <div className="bg-emerald-400 h-full" style={{ width: '98.10%' }} />
+                <div className="w-full bg-zinc-800/80 h-1.5 rounded-full overflow-hidden mt-1.5 border border-white/5">
+                  <div className="bg-emerald-400 h-full shadow-[0_0_8px_rgba(52,211,153,0.5)]" style={{ width: '98.10%' }} />
                 </div>
               </div>
               <div className="text-[10px] text-emerald-400 mt-2 font-medium">
@@ -198,9 +198,9 @@ export const ReportView: React.FC<ReportViewProps> = ({
             {/* Rec 1 */}
             <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Резервный шлюз</span>
-                  <span className="text-[10px] text-zinc-500 font-mono">01</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 text-zinc-400 font-mono">#01</span>
                 </div>
                 <p className="text-zinc-400 text-[11px] leading-relaxed">
                   Размещение 2-го шлюза в восточном секторе (Тикси 71.6°N или Анадырь 64.7°N). Устраняет единую точку отказа (SPOF).
@@ -215,9 +215,9 @@ export const ReportView: React.FC<ReportViewProps> = ({
             {/* Rec 2 */}
             <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Порог ISL ≥ 2800 км</span>
-                  <span className="text-[10px] text-zinc-500 font-mono">02</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 text-zinc-400 font-mono">#02</span>
                 </div>
                 <p className="text-zinc-400 text-[11px] leading-relaxed">
                   Энергетический потенциал межспутникового линка радио/лазер не менее 2800 км для устойчивости сетки на высоких широтах.
@@ -232,9 +232,9 @@ export const ReportView: React.FC<ReportViewProps> = ({
             {/* Rec 3 */}
             <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Фазировка Walker Delta</span>
-                  <span className="text-[10px] text-zinc-500 font-mono">03</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 text-zinc-400 font-mono">#03</span>
                 </div>
                 <p className="text-zinc-400 text-[11px] leading-relaxed">
                   Сдвиг истинной аномалии между соседними плоскостями на ΔM = 7.5°. Исключает регулярные слепые пятна между витками.
@@ -249,9 +249,9 @@ export const ReportView: React.FC<ReportViewProps> = ({
             {/* Rec 4 */}
             <div className="p-2.5 rounded-md bg-[#0d0d10] border border-zinc-800 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Кольцевой Rerouting</span>
-                  <span className="text-[10px] text-zinc-500 font-mono">04</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/10 text-zinc-400 font-mono">#04</span>
                 </div>
                 <p className="text-zinc-400 text-[11px] leading-relaxed">
                   Автоматическое замыкание трафика по кольцу плоскости при разрыве межплоскостного линка с субсекундной сходимостью.
