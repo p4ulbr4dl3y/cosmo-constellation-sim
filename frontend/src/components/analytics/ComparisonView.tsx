@@ -1,9 +1,4 @@
 import React from 'react'
-import {
-  TrendingUp,
-  TrendingDown,
-  Minus,
-} from 'lucide-react'
 import type { Scenario } from '../../types/scenario'
 import { calculateFullTimeline } from '../../lib/orbit'
 import { Button } from '../ui'
@@ -50,23 +45,18 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     const diff = (valB - valA) * 100
     if (Math.abs(diff) < 0.05) {
       return (
-        <span className="text-zinc-400 flex items-center gap-0.5 font-mono">
-          <Minus className="w-3 h-3" /> 0.0%
+        <span className="text-zinc-400 font-mono">
+          0.0%
         </span>
       )
     }
     const isPositive = diff > 0
     return (
       <span
-        className={`flex items-center gap-0.5 font-bold font-mono ${
+        className={`font-bold font-mono ${
           isPositive ? 'text-emerald-400' : 'text-amber-400'
         }`}
       >
-        {isPositive ? (
-          <TrendingUp className="w-3 h-3" />
-        ) : (
-          <TrendingDown className="w-3 h-3" />
-        )}
         {isPositive ? `+${diff.toFixed(1)}%` : `${diff.toFixed(1)}%`}
       </span>
     )
@@ -77,8 +67,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     const diffMin = Math.round(diffSec / 60)
     if (Math.abs(diffMin) === 0) {
       return (
-        <span className="text-zinc-400 flex items-center gap-0.5 font-mono">
-          <Minus className="w-3 h-3" /> 0 мин
+        <span className="text-zinc-400 font-mono">
+          0 мин
         </span>
       )
     }
@@ -87,15 +77,10 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     const absFormatted = formatDurationHuman(Math.abs(diffSec))
     return (
       <span
-        className={`flex items-center gap-0.5 font-bold font-mono ${
+        className={`font-bold font-mono ${
           isBetter ? 'text-emerald-400' : 'text-amber-400'
         }`}
       >
-        {isBetter ? (
-          <TrendingDown className="w-3 h-3" />
-        ) : (
-          <TrendingUp className="w-3 h-3" />
-        )}
         {isBetter ? `-${absFormatted}` : `+${absFormatted}`}
       </span>
     )

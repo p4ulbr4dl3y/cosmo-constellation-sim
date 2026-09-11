@@ -1,9 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import {
   Trash2,
-  Plus,
-  ZapOff,
-  RotateCcw,
   ChevronDown,
 } from 'lucide-react'
 import type { Scenario, Failure, GatewayOutage, GroundSite } from '../../types/scenario'
@@ -181,7 +178,6 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 : ''
             }`}
           >
-            <ZapOff className="w-3.5 h-3.5" />
             <span>Отказ {activeRouteSats[0] || 'нет КА'} (4ч)</span>
           </Button>
 
@@ -193,7 +189,6 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
             onClick={onResetScenario}
             className="font-mono"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
             <span>Сброс</span>
           </Button>
         </div>
@@ -390,9 +385,8 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleAddFailure}
-                className="ml-auto font-mono gap-1"
+                className="ml-auto font-mono"
               >
-                <Plus className="w-3.5 h-3.5" />
                 <span>Добавить</span>
               </Button>
             </div>
@@ -481,9 +475,8 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleAddGatewayOutage}
-                className="ml-auto font-mono gap-1"
+                className="ml-auto font-mono"
               >
-                <Plus className="w-3.5 h-3.5" />
                 <span>Добавить</span>
               </Button>
             </div>

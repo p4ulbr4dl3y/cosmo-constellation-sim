@@ -1,5 +1,5 @@
 import React from 'react'
-import { Compass, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
+import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
 import type { MapViewMode } from './types'
 import { SegmentedControl, Button } from '../ui'
 
@@ -64,9 +64,8 @@ export const MapControls: React.FC<MapControlsProps> = ({
           size="sm"
           onClick={onFocusArctic}
           title="Сфокусировать 3D-глобус на Арктике"
-          className="h-6 px-2 text-xs gap-1"
+          className="h-6 px-2 text-xs"
         >
-          <Compass className="w-3 h-3 text-sky-400" />
           <span>Арктика</span>
         </Button>
 

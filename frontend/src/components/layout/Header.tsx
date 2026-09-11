@@ -1,8 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import {
   Upload,
-  Download,
-  FileCode,
   RotateCcw,
   ChevronDown,
   Check,
@@ -284,10 +282,9 @@ export const Header: React.FC<HeaderProps> = ({
           size="sm"
           onClick={handleExportScenario}
           title="Экспортировать входной сценарий (cosmo-A-1.0)"
-          className="w-8 sm:w-auto px-0 sm:px-2.5"
+          className="px-2 sm:px-2.5"
         >
-          <FileCode className="w-3.5 h-3.5 text-zinc-400" />
-          <span className="hidden sm:inline">Сценарий</span>
+          <span>Сценарий</span>
         </Button>
 
         {/* Export Result */}
@@ -297,10 +294,9 @@ export const Header: React.FC<HeaderProps> = ({
           size="sm"
           onClick={handleExportResult}
           title="Экспорт cosmo-A-result-1.0"
-          className="w-8 sm:w-auto px-0 sm:px-2.5"
+          className="px-2 sm:px-2.5"
         >
-          <Download className="w-3.5 h-3.5 text-sky-300" />
-          <span className="hidden sm:inline">Результат</span>
+          <span>Результат</span>
         </Button>
       </div>
     </header>

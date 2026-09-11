@@ -1,9 +1,6 @@
 import React, { useMemo } from 'react'
 import {
-  AlertTriangle,
   ArrowRight,
-  Crosshair,
-  ZapOff,
 } from 'lucide-react'
 import type { Scenario, Snapshot, ClientTimeline } from '../../types/scenario'
 import { StatCard, Badge, Button, ClientSelector } from '../ui'
@@ -235,10 +232,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
           ) : (
             <div className="bg-rose-950/20 border border-rose-900/40 p-2 rounded-md space-y-1">
               <div className="flex items-center justify-between text-rose-400 font-medium text-xs">
-                <span className="flex items-center gap-1">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  Маршрут разорван
-                </span>
+                <span>Маршрут разорван</span>
                 <span className="text-[9px] bg-black/40 px-1 rounded text-zinc-400 font-mono">0 хопов</span>
               </div>
               <div className="text-[11px] text-zinc-300">
@@ -327,17 +321,9 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                     : 'hover:bg-rose-500/15 hover:border-rose-500/30 hover:text-rose-300'
                 }`}
               >
-                {primeSat.failed ? (
-                  <>
-                    <Crosshair className="w-3.5 h-3.5" />
-                    <span>Восстановить связь</span>
-                  </>
-                ) : (
-                  <>
-                    <ZapOff className="w-3.5 h-3.5" />
-                    <span>Имитировать отказ КА</span>
-                  </>
-                )}
+                <span>
+                  {primeSat.failed ? 'Восстановить связь' : 'Имитировать отказ КА'}
+                </span>
               </Button>
             )}
           </div>

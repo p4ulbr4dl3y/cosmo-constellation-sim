@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import {
-  Play,
-  Pause,
   RotateCcw,
   ChevronLeft,
   ChevronRight,
-  Clock,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline, TimelineSlot } from '../../types/scenario'
 import { Button, SegmentedControl, ClientSelector } from '../ui'
@@ -211,19 +208,9 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             size="sm"
             onClick={() => setIsPlaying((v) => !v)}
             title={isPlaying ? 'Пауза (Пробел)' : 'Воспроизведение (Пробел)'}
-            className="h-7 px-2 sm:px-3 text-xs font-sans font-medium gap-1 sm:gap-1.5 shrink-0"
+            className="h-7 px-2.5 sm:px-3 text-xs font-sans font-medium shrink-0"
           >
-            {isPlaying ? (
-              <>
-                <Pause className="w-3.5 h-3.5 fill-current" />
-                <span className="hidden xs:inline">Пауза</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span className="hidden xs:inline">Старт</span>
-              </>
-            )}
+            <span>{isPlaying ? 'Пауза' : 'Старт'}</span>
           </Button>
 
           <Button
@@ -248,8 +235,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
 
         {/* Current Time Display */}
-        <div className="h-7 flex items-center gap-1 sm:gap-1.5 bg-[#121215] border border-zinc-800 px-1.5 sm:px-2.5 rounded-md text-xs font-mono shrink-0">
-          <Clock className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-zinc-400 shrink-0" />
+        <div className="h-7 flex items-center gap-1 sm:gap-1.5 bg-[#121215] border border-zinc-800 px-2 sm:px-2.5 rounded-md text-xs font-mono shrink-0">
           <span className="font-semibold text-white tracking-wider text-[11px] sm:text-xs whitespace-nowrap">
             {formatTime(currentTime)}
           </span>
