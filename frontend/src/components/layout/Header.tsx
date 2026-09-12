@@ -4,6 +4,8 @@ import {
   RotateCcw,
   ChevronDown,
   Check,
+  FileDown,
+  Download,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline } from '../../types/scenario'
 import { PRESET_SCENARIOS } from '../../data/presets'
@@ -135,8 +137,8 @@ export const Header: React.FC<HeaderProps> = ({
       value: 'compare',
       label: (
         <>
-          <span className="hidden sm:inline">A/B Сравнение</span>
-          <span className="sm:hidden">A/B</span>
+          <span className="hidden lg:inline">A/B Сравнение</span>
+          <span className="lg:hidden">A/B</span>
         </>
       ),
     },
@@ -144,8 +146,8 @@ export const Header: React.FC<HeaderProps> = ({
       value: 'report',
       label: (
         <>
-          <span className="hidden sm:inline">Аналитика & Рекомендации</span>
-          <span className="sm:hidden">Аналитика</span>
+          <span className="hidden lg:inline">Аналитика & Рекомендации</span>
+          <span className="lg:hidden">Аналитика</span>
         </>
       ),
     },
@@ -167,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
         />
 
         {isModified && (
-          <Badge variant="amber" className="hidden sm:inline-flex gap-1.5">
+          <Badge variant="amber" className="hidden md:inline-flex gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             <span>изменен</span>
           </Badge>
@@ -196,7 +198,7 @@ export const Header: React.FC<HeaderProps> = ({
             variant="outline"
             size="sm"
             onClick={() => setIsPresetOpen((v) => !v)}
-            className="font-sans min-w-[130px] sm:min-w-[170px] md:min-w-[210px] max-w-[220px] justify-between"
+            className="font-sans min-w-[110px] sm:min-w-[140px] lg:min-w-[180px] max-w-[140px] sm:max-w-[180px] lg:max-w-[220px] justify-between"
           >
             <span className="truncate text-[11px] tabular-nums">{currentPresetLabel}</span>
             <ChevronDown
@@ -274,9 +276,10 @@ export const Header: React.FC<HeaderProps> = ({
           size="sm"
           onClick={handleExportScenario}
           title="Экспортировать входной сценарий (cosmo-A-1.0)"
-          className="px-2 sm:px-2.5"
+          className="px-1.5 sm:px-2.5"
         >
-          <span>Сценарий</span>
+          <FileDown className="w-3.5 h-3.5 lg:hidden" />
+          <span className="hidden lg:inline">Сценарий</span>
         </Button>
 
         {/* Export Result */}
@@ -286,9 +289,10 @@ export const Header: React.FC<HeaderProps> = ({
           size="sm"
           onClick={handleExportResult}
           title="Экспорт cosmo-A-result-1.0"
-          className="px-2 sm:px-2.5"
+          className="px-1.5 sm:px-2.5"
         >
-          <span>Результат</span>
+          <Download className="w-3.5 h-3.5 lg:hidden" />
+          <span className="hidden lg:inline">Результат</span>
         </Button>
       </div>
     </header>
