@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import type { Scenario, ClientTimeline } from '../../types/scenario'
 import { PRESET_SCENARIOS } from '../../data/presets'
-import { exportResultFile } from '../../lib/orbit'
+import { exportResultFile, validateScenario } from '../../lib/orbit'
 import { Button, Badge, SegmentedControl, Logo } from '../ui'
 import type { SegmentedOption } from '../ui/SegmentedControl'
 
@@ -85,18 +85,10 @@ export const Header: React.FC<HeaderProps> = ({
         const text = event.target?.result as string
         const parsed = JSON.parse(text)
 
-        // Strict JSON validation against schema
-        if (!parsed.meta || parsed.meta.format !== 'cosmo-A-1.0') {
-          throw new Error('Некорректный формат: ожидается cosmo-A-1.0')
-        }
-        if (!parsed.planes || !Array.isArray(parsed.planes) || parsed.planes.length === 0) {
-          throw new Error('Отсутствуют орбитальные плоскости (planes)')
-        }
-        if (!parsed.ground_sites || !Array.isArray(parsed.ground_sites)) {
-          throw new Error('Отсутствуют наземные станции (ground_sites)')
-        }
-        if (!parsed.environment || !parsed.environment.horizon_s) {
-          throw new Error('Отсутствуют параметры симуляции (environment)')
+        // Strict JSON validation against cosmo-A-1.0 specification
+        const validationErrors = validateScenario(parsed)
+        if (validationErrors.length > 0) {
+          throw new Error(validationErrors[0])
         }
 
         setFileError(null)

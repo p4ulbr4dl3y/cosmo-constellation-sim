@@ -104,4 +104,37 @@ describe('Header', () => {
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByText('Выберите сценарий')).toBeNull()
   })
+
+  it('loads valid custom json scenario on file upload', async () => {
+    const onLoadCustomJson = vi.fn()
+    const { container } = render(<Header {...defaultProps} onLoadCustomJson={onLoadCustomJson} />)
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement
+    expect(fileInput).toBeDefined()
+
+    const validJsonString = JSON.stringify(mockScenario)
+    const file = new File([validJsonString], 'custom.json', { type: 'application/json' })
+
+    fireEvent.change(fileInput, { target: { files: [file] } })
+
+    await vi.waitFor(() => {
+      expect(onLoadCustomJson).toHaveBeenCalledWith(mockScenario)
+    })
+  })
+
+  it('displays error on invalid custom json file upload', async () => {
+    const onLoadCustomJson = vi.fn()
+    const { container } = render(<Header {...defaultProps} onLoadCustomJson={onLoadCustomJson} />)
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement
+    const invalidJsonString = JSON.stringify({ invalid: true })
+    const file = new File([invalidJsonString], 'bad.json', { type: 'application/json' })
+
+    fireEvent.change(fileInput, { target: { files: [file] } })
+
+    await vi.waitFor(() => {
+      expect(screen.getByText(/Неподдерживаемая версия схемы/)).toBeDefined()
+    })
+    expect(onLoadCustomJson).not.toHaveBeenCalled()
+  })
 })

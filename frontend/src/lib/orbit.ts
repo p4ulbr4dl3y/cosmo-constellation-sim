@@ -29,6 +29,292 @@ export const FAILURE_DESCRIPTIONS_RU: Record<string, string> = {
   [FAILURE_REASON_ISL_DISCONNECTED]: 'Разрыв межспутниковой сети (нет связного пути через ISL)',
 }
 
+/** Проверка, является ли значение конечным числом (не булевым и не NaN/Infinity). */
+function isFiniteNumber(x: unknown): x is number {
+  return typeof x === 'number' && Number.isFinite(x)
+}
+
+/**
+ * Валидация сценария на соответствие спецификации cosmo-A-1.0.
+ * Полный паритет с backend/app/core/validator.py.
+ */
+export function validateScenario(s: unknown): string[] {
+  const errors: string[] = []
+  if (!s || typeof s !== 'object' || Array.isArray(s)) {
+    return ['Сценарий должен быть объектом JSON.']
+  }
+
+  const sc = s as Record<string, any>
+
+  // 1. Проверка версии схемы
+  if (sc.schema_version !== 'cosmo-A-1.0') {
+    errors.push(`Неподдерживаемая версия схемы: '${sc.schema_version}'. Ожидается 'cosmo-A-1.0'.`)
+  }
+
+  // 2. Параметры среды и временной сетки
+  const env = sc.environment
+  if (!env || typeof env !== 'object' || Array.isArray(env)) {
+    errors.push("Отсутствует обязательный раздел 'environment' (параметры среды и расчета).")
+  } else {
+    const envKeys = [
+      'altitude_km',
+      'inclination_deg',
+      'earth_angle0_deg',
+      'horizon_s',
+      'step_s',
+      'min_elevation_deg',
+      'isl_range_km',
+      'target_availability',
+    ]
+    for (const key of envKeys) {
+      if (!(key in env)) {
+        errors.push(`В разделе 'environment' отсутствует обязательное поле '${key}'.`)
+      } else if (!isFiniteNumber(env[key])) {
+        errors.push(`Поле '${key}' в 'environment' должно быть конечным числом.`)
+      }
+    }
+
+    if ('altitude_km' in env && isFiniteNumber(env.altitude_km)) {
+      if (env.altitude_km < 200.0 || env.altitude_km > 1200.0) {
+        errors.push(`Недопустимая высота орбиты altitude_km=${env.altitude_km} км. Допустимый диапазон: [200, 1200].`)
+      }
+    }
+
+    if ('inclination_deg' in env && isFiniteNumber(env.inclination_deg)) {
+      if (env.inclination_deg <= 0.0 || env.inclination_deg > 180.0) {
+        errors.push(`Недопустимое наклонение орбиты inclination_deg=${env.inclination_deg}°. Допустимый диапазон: (0, 180].`)
+      }
+    }
+
+    const step_s = env.step_s
+    const horizon_s = env.horizon_s
+    let validTimeTypes = true
+
+    if (step_s !== undefined && (!Number.isInteger(step_s) || typeof step_s === 'boolean')) {
+      errors.push('Шаг расчета step_s должен быть целым положительным числом секунд.')
+      validTimeTypes = false
+    }
+
+    if (horizon_s !== undefined && (!Number.isInteger(horizon_s) || typeof horizon_s === 'boolean')) {
+      errors.push('Горизонт расчета horizon_s должен быть целым положительным числом секунд.')
+      validTimeTypes = false
+    }
+
+    if (validTimeTypes && step_s !== undefined && horizon_s !== undefined) {
+      if (!(step_s > 0 && step_s <= horizon_s && horizon_s <= 172800)) {
+        errors.push(
+          `Недопустимая временная сетка: step_s=${step_s}, horizon_s=${horizon_s}. Должно выполняться 0 < step_s <= horizon_s <= 172800 (до 48 часов).`
+        )
+      } else if (horizon_s % step_s !== 0) {
+        errors.push(`Горизонт расчета horizon_s (${horizon_s} с) должен быть нацело кратен шагу step_s (${step_s} с).`)
+      }
+    }
+
+    if ('min_elevation_deg' in env && isFiniteNumber(env.min_elevation_deg)) {
+      if (env.min_elevation_deg < 0.0 || env.min_elevation_deg >= 90.0) {
+        errors.push(`Недопустимый минимальный угол возвышения min_elevation_deg=${env.min_elevation_deg}°. Допустимо: [0, 90).`)
+      }
+    }
+
+    if ('isl_range_km' in env && isFiniteNumber(env.isl_range_km)) {
+      if (env.isl_range_km <= 0.0 || env.isl_range_km > 10000.0) {
+        errors.push(`Недопустимая дальность ISL isl_range_km=${env.isl_range_km} км. Допустимо: (0, 10000].`)
+      }
+    }
+
+    if ('target_availability' in env && isFiniteNumber(env.target_availability)) {
+      if (env.target_availability < 0.0 || env.target_availability > 1.0) {
+        errors.push(`Целевая доступность target_availability=${env.target_availability} должна быть в диапазоне [0.0, 1.0].`)
+      }
+    }
+  }
+
+  // 3. Конфигурация орбитальной группировки
+  const design = sc.design
+  const planeIds = new Set<string>()
+  const satIds = new Set<string>()
+
+  if (!design || typeof design !== 'object' || Array.isArray(design)) {
+    errors.push("Отсутствует обязательный раздел 'design' (конфигурация группировки).")
+  } else {
+    const stage = design.launch_stage
+    if (!Number.isInteger(stage) || typeof stage === 'boolean' || ![1, 2, 3].includes(stage)) {
+      errors.push(`Параметр launch_stage должен быть целым числом 1, 2 или 3. Получено: ${stage}`)
+    }
+
+    const planes = design.planes
+    if (!Array.isArray(planes) || planes.length === 0) {
+      errors.push("Список орбитальных плоскостей 'planes' пуст или отсутствует.")
+    } else {
+      planes.forEach((p, idx) => {
+        if (!p || typeof p !== 'object') {
+          errors.push(`Элемент #${idx} в 'planes' должен быть объектом.`)
+          return
+        }
+        const pid = p.id
+        if (!pid || typeof pid !== 'string') {
+          errors.push(`Плоскость #${idx} имеет некорректный id: ${pid}`)
+        } else if (planeIds.has(pid)) {
+          errors.push(`Дублирующийся идентификатор плоскости: '${pid}'.`)
+        } else {
+          planeIds.add(pid)
+        }
+
+        for (const angleKey of ['raan_deg', 'phase_deg'] as const) {
+          const val = p[angleKey]
+          if (!isFiniteNumber(val) || val < 0.0 || val >= 360.0) {
+            errors.push(`Недопустимый угол ${angleKey}=${val} для плоскости '${pid}'. Допустимо: [0, 360).`)
+          }
+        }
+      })
+    }
+
+    const sats = design.satellites
+    if (!Array.isArray(sats) || sats.length === 0) {
+      errors.push("Список спутников 'satellites' пуст или отсутствует.")
+    } else {
+      sats.forEach((sat, idx) => {
+        if (!sat || typeof sat !== 'object') {
+          errors.push(`Элемент #${idx} в 'satellites' должен быть объектом.`)
+          return
+        }
+        const sid = sat.id
+        if (!sid || typeof sid !== 'string') {
+          errors.push(`Спутник #{idx} имеет некорректный id: ${sid}`)
+        } else if (satIds.has(sid)) {
+          errors.push(`Дублирующийся идентификатор спутника: '${sid}'.`)
+        } else {
+          satIds.add(sid)
+        }
+
+        const pid = sat.plane_id
+        if (!planeIds.has(pid)) {
+          errors.push(`Спутник '${sid}' ссылается на несуществующую плоскость plane_id='${pid}'.`)
+        }
+
+        const batch = sat.launch_batch
+        if (!Number.isInteger(batch) || typeof batch === 'boolean' || ![1, 2, 3].includes(batch)) {
+          errors.push(`Спутник '${sid}' имеет недопустимый launch_batch=${batch}. Допустимо: 1, 2 или 3.`)
+        }
+
+        const slot = sat.slot_deg
+        if (!isFiniteNumber(slot)) {
+          errors.push(`Спутник '${sid}' имеет некорректный slot_deg=${slot}. Ожидается число.`)
+        }
+      })
+    }
+  }
+
+  // 4. Наземные пункты
+  const ground = sc.ground_sites
+  const groundIds = new Set<string>()
+  let hasClient = false
+  let hasGateway = false
+  const gatewayIds = new Set<string>()
+
+  if (!Array.isArray(ground) || ground.length === 0) {
+    errors.push("Список наземных пунктов 'ground_sites' пуст или отсутствует.")
+  } else {
+    ground.forEach((g, idx) => {
+      if (!g || typeof g !== 'object') {
+        errors.push(`Элемент #${idx} в 'ground_sites' должен быть объектом.`)
+        return
+      }
+      const gid = g.id
+      if (!gid || typeof gid !== 'string') {
+        errors.push(`Наземный пункт #${idx} имеет некорректный id: ${gid}`)
+      } else if (groundIds.has(gid)) {
+        errors.push(`Дублирующийся идентификатор наземного пункта: '${gid}'.`)
+      } else if (satIds.has(gid)) {
+        errors.push(`Идентификатор наземного пункта '${gid}' совпадает с идентификатором спутника!`)
+      } else {
+        groundIds.add(gid)
+      }
+
+      const role = g.role
+      if (role === 'client') {
+        hasClient = true
+      } else if (role === 'gateway') {
+        hasGateway = true
+        if (gid) gatewayIds.add(gid)
+      } else {
+        errors.push(`Пункт '${gid}' имеет недопустимую роль role='${role}'. Допустимо: 'client' или 'gateway'.`)
+      }
+
+      const lat = g.lat_deg
+      const lon = g.lon_deg
+      if (!isFiniteNumber(lat) || lat < -90.0 || lat > 90.0) {
+        errors.push(`Пункт '${gid}' имеет недопустимую широту lat_deg=${lat}. Допустимо: [-90, 90].`)
+      }
+      if (!isFiniteNumber(lon) || lon < -180.0 || lon > 180.0) {
+        errors.push(`Пункт '${gid}' имеет недопустимую долготу lon_deg=${lon}. Допустимо: [-180, 180].`)
+      }
+    })
+
+    if (!hasClient) {
+      errors.push("В сценарии должен присутствовать хотя бы один клиентский пункт (role='client').")
+    }
+    if (!hasGateway) {
+      errors.push("В сценарии должен присутствовать хотя бы один шлюз (role='gateway').")
+    }
+  }
+
+  // 5. Отказы спутников и периоды недоступности шлюзов
+  const maxH = Number.isInteger(env?.horizon_s) && typeof env.horizon_s !== 'boolean' ? env.horizon_s : 172800
+
+  const failures = sc.failures ?? []
+  if (!Array.isArray(failures)) {
+    errors.push("Поле 'failures' должно быть списком.")
+  } else {
+    failures.forEach((f, idx) => {
+      if (!f || typeof f !== 'object') {
+        errors.push(`Элемент #${idx} в 'failures' должен быть объектом.`)
+        return
+      }
+      const sid = f.satellite_id
+      if (!satIds.has(sid)) {
+        errors.push(`Отказ #${idx} ссылается на неизвестный satellite_id='${sid}'.`)
+      }
+      const start_s = f.start_s
+      const end_s = f.end_s
+      if (!isFiniteNumber(start_s) || !isFiniteNumber(end_s)) {
+        errors.push(`Интервал отказа #${idx} должен содержать числовые start_s и end_s.`)
+      } else if (!(start_s >= 0 && start_s < end_s && end_s <= maxH)) {
+        errors.push(
+          `Отказ #${idx} для спутника '${sid}' имеет некорректный интервал [${start_s}, ${end_s}). Должно выполняться: 0 <= start_s < end_s <= horizon_s (${maxH}).`
+        )
+      }
+    })
+  }
+
+  const gwOutages = sc.gateway_outages ?? []
+  if (!Array.isArray(gwOutages)) {
+    errors.push("Поле 'gateway_outages' должно быть списком.")
+  } else {
+    gwOutages.forEach((f, idx) => {
+      if (!f || typeof f !== 'object') {
+        errors.push(`Элемент #${idx} в 'gateway_outages' должен быть объектом.`)
+        return
+      }
+      const gid = f.gateway_id
+      if (!gatewayIds.has(gid)) {
+        errors.push(`Период недоступности шлюза #${idx} ссылается на неизвестный gateway_id='${gid}'.`)
+      }
+      const start_s = f.start_s
+      const end_s = f.end_s
+      if (!isFiniteNumber(start_s) || !isFiniteNumber(end_s)) {
+        errors.push(`Интервал недоступности шлюза #${idx} должен содержать числовые start_s и end_s.`)
+      } else if (!(start_s >= 0 && start_s < end_s && end_s <= maxH)) {
+        errors.push(
+          `Период недоступности #${idx} для шлюза '${gid}' имеет некорректный интервал [${start_s}, ${end_s}). Должно выполняться: 0 <= start_s < end_s <= horizon_s (${maxH}).`
+        )
+      }
+    })
+  }
+
+  return errors
+}
+
 /**
  * Классифицирует причину отсутствия сетевого маршрута.
  *

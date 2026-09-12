@@ -8,6 +8,7 @@ import {
   FAILURE_REASON_GATEWAY_OFFLINE,
   FAILURE_REASON_NO_GW_SAT,
   FAILURE_REASON_ISL_DISCONNECTED,
+  validateScenario,
 } from './orbit'
 import type { Scenario, Snapshot, SatelliteSnapshot } from '../types/scenario'
 import rawFixture from './__fixtures__/parity_fixture.json'
@@ -305,6 +306,19 @@ describe('Python Backend vs TypeScript Engine Parity', () => {
           expect(hops, `Hop count for ${clientId} at t=${step.t_s}`).toBe(pyRoute.hops)
         }
       }
+    })
+  })
+
+  describe('9. Scenario Validator Parity', () => {
+    it('approves compliant benchmark scenario without errors', () => {
+      const errors = validateScenario(scenario)
+      expect(errors).toEqual([])
+    })
+
+    it('rejects invalid schema version or corrupted fields', () => {
+      expect(validateScenario(null).length).toBeGreaterThan(0)
+      expect(validateScenario({}).length).toBeGreaterThan(0)
+      expect(validateScenario({ ...scenario, schema_version: 'cosmo-legacy' }).length).toBeGreaterThan(0)
     })
   })
 })
