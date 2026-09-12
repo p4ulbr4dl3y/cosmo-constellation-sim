@@ -161,6 +161,13 @@ describe('NetworkMap Component', () => {
     expect(screen.getByText('115%')).toBeDefined()
     fireEvent.click(resetBtn)
     expect(screen.getByText('100%')).toBeDefined()
+
+    // Zoom out in 2D below 100% down to 80% limit
+    fireEvent.click(zoomOutBtn)
+    expect(screen.getByText('85%')).toBeDefined()
+    fireEvent.click(zoomOutBtn)
+    expect(screen.getByText('80%')).toBeDefined()
+    expect((zoomOutBtn as HTMLButtonElement).disabled).toBe(true)
   })
 
   it('clamps zoom to 300% when switching from 400% 2D to 3D mode', () => {

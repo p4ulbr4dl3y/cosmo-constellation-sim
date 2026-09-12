@@ -38,7 +38,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
   showUnlaunched,
   onToggleUnlaunched,
 }) => {
-  const isMinZoom = viewMode === '2d' ? zoom <= 1.0 : zoom <= 0.8
+  const isMinZoom = zoom <= 0.8
   const isMaxZoom = viewMode === '2d' ? zoom >= 4.0 : zoom >= 3.0
 
   return (

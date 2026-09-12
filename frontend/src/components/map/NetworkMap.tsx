@@ -9,7 +9,7 @@ import { render3DGlobe } from './render3D'
 import type { HoveredNodeInfo, MapViewMode, NetworkMapProps } from './types'
 
 const ZOOM_LIMITS = {
-  '2d': { min: 1.0, max: 4.0 },
+  '2d': { min: 0.8, max: 4.0 },
   '3d': { min: 0.8, max: 3.0 },
 } as const
 
