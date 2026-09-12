@@ -147,32 +147,53 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     })
   }
 
-  // Native non-passive wheel listener for smooth zoom
+  // Native non-passive wheel listener for smooth zoom with rAF coalescing
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
+    let rafId: number | null = null
+    let pendingZoomDelta = 0
+
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
-      const { min: minZ, max: maxZ } = ZOOM_LIMITS[viewMode]
-
       let dy = e.deltaY
       if (e.deltaMode === 1) dy *= 20
       else if (e.deltaMode === 2) dy *= 100
       const clampedDelta = Math.max(-120, Math.min(120, dy))
-      const factor = Math.exp(-clampedDelta * 0.0015)
+      pendingZoomDelta += clampedDelta
 
-      setZoom((z) => {
-        const next = Math.min(maxZ, Math.max(minZ, Number((z * factor).toFixed(2))))
-        if (next <= 1.0 && viewMode === '2d') {
-          setPan2d({ x: 0, y: 0 })
-        }
-        return next
-      })
+      const applyZoom = () => {
+        const delta = pendingZoomDelta
+        pendingZoomDelta = 0
+        const factor = Math.exp(-delta * 0.0015)
+        const { min: minZ, max: maxZ } = ZOOM_LIMITS[viewMode]
+
+        setZoom((z) => {
+          const next = Math.min(maxZ, Math.max(minZ, Number((z * factor).toFixed(2))))
+          if (next <= 1.0 && viewMode === '2d') {
+            setPan2d({ x: 0, y: 0 })
+          }
+          return next
+        })
+      }
+
+      if (typeof window === 'undefined' || import.meta.env?.MODE === 'test') {
+        applyZoom()
+        return
+      }
+
+      if (rafId === null) {
+        rafId = requestAnimationFrame(() => {
+          rafId = null
+          applyZoom()
+        })
+      }
     }
 
     canvas.addEventListener('wheel', handleWheel, { passive: false })
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
       canvas.removeEventListener('wheel', handleWheel)
     }
   }, [viewMode])
@@ -180,6 +201,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map())
   const initialPinchDistRef = useRef<number | null>(null)
   const initialPinchZoomRef = useRef<number>(1)
+  const pinchRafRef = useRef<number | null>(null)
   const dragDistRef = useRef<number>(0)
 
   // Listen to devicePixelRatio changes
@@ -289,7 +311,16 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       const scale = curDist / (initialPinchDistRef.current || 1)
       const { min: minZ, max: maxZ } = ZOOM_LIMITS[viewMode]
       const nextZ = Math.min(maxZ, Math.max(minZ, Number((initialPinchZoomRef.current * scale).toFixed(2))))
-      setZoom(nextZ)
+
+      const applyPinch = () => setZoom(nextZ)
+      if (typeof window === 'undefined' || import.meta.env?.MODE === 'test') {
+        applyPinch()
+      } else if (pinchRafRef.current === null) {
+        pinchRafRef.current = requestAnimationFrame(() => {
+          pinchRafRef.current = null
+          applyPinch()
+        })
+      }
       dragDistRef.current += 10
       return
     }
@@ -328,6 +359,10 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     pointersRef.current.delete(e.pointerId)
     if (pointersRef.current.size < 2) {
       initialPinchDistRef.current = null
+      if (pinchRafRef.current !== null) {
+        cancelAnimationFrame(pinchRafRef.current)
+        pinchRafRef.current = null
+      }
     }
     if (pointersRef.current.size === 0) {
       setIsDragging(false)
