@@ -18,8 +18,16 @@
 ## Архитектура и паритет:
 
 - **два движка (паритет обязателен)**: физика, геометрия ISL, Дейкстра и диагностика сбоев дублированы в Python (`backend/app/core/`) и TypeScript (`frontend/src/lib/orbit.ts`);
-- **Offline First**: фронт работает автономно на GitHub Pages без бэкенда;
+- **Offline First**: фронт работает автономно на GitHub Pages и GitVerse Pages без бэкенда;
 - **эталон**: `reference/geometry.py`. Проверка: `test_geometry.py` и `parity.test.ts`.
+
+## Синхронизация и деплой (GitHub и GitVerse):
+
+- **основной репозиторий**: GitHub (`origin`) `p4ulbr4dl3y/cosmo-constellation-sim`;
+- **зеркало хакатона**: GitVerse (`gitverse`) `hackrus.experts/kosmo-nizni_dreamteam_40_52`;
+- **автосинхронизация**: `.github/workflows/sync-gitverse.yml` зеркалит все коммиты и теги в GitVerse через секрет `GITVERSE_TOKEN`, синхронизируя ветки `main` и `master`;
+- **деплой на GitVerse Pages**: `.gitverse/workflows/deploy.yml` собирает фронтенд и публикует артефакт через официальные экшены `gitverse/upload-pages-artifact@v1.0.0` и `gitverse/deploy-pages@v1.0.0`;
+- **ручной пуш в GitVerse**: `git push gitverse main` и `git push gitverse main:master`.
 
 ## Инженерные правила
 
