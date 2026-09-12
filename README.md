@@ -1,12 +1,16 @@
 # <img src="frontend/public/favicon.svg" width="28" height="28" align="center" alt="Logo" /> Созвездие: ЦУП
 
-Инженерный центр управления спутниковой группировкой и оценки доступности связи в рамках второго кейса КосмоХакатона 2026.
+Инженерный центр управления спутниковой группировкой и оценки доступности связи в рамках КосмоХакатона 2026.
 
 [**Демо**](https://state3407.space/cosmo/) · [**Зеркало**](https://p4ulbr4dl3y.github.io/cosmo-constellation-sim/)
 
 <p align="center">
-  <img src="docs/assets/frontend_verified.png" width="49%" alt="2D ЦУП Мониторинг" />
-  <img src="docs/assets/globe_3d.png" width="49%" alt="3D Ортографический глобус" />
+  <a href="docs/assets/frontend_verified.png">
+    <img src="docs/assets/frontend_verified.png" width="49%" alt="2D ЦУП Мониторинг" />
+  </a>
+  <a href="docs/assets/globe_3d.png">
+    <img src="docs/assets/globe_3d.png" width="49%" alt="3D Ортографический глобус" />
+  </a>
 </p>
 
 ## Возможности:
@@ -17,12 +21,31 @@
 - стандарты данных и интерфейс командной строки: полная поддержка формата сценариев `cosmo-A-1.0`, экспорт результатов в `cosmo-A-result-1.0`, консольная утилита расчета и валидации без запуска браузера.
 
 <details>
-<summary><b>Скриншоты специализированных модулей ЦУП</b></summary>
-<br/>
+<summary><b>Скриншоты специализированных модулей ЦУП (клик для раскрытия)</b></summary>
 
-| A/B Сравнение сценариев | Аналитика и матрица рисков | Редактор группировки и отказов |
-| :---: | :---: | :---: |
-| <img src="docs/assets/ab_comparison.png" alt="A/B Сравнение" /> | <img src="docs/assets/analytics_report.png" alt="Аналитика" /> | <img src="docs/assets/config_editor.png" alt="Редактор" /> |
+#### Конфигурация и моделирование отказов
+Управление очередями запуска, углами RAAN и симуляция отказов КА:
+<p align="center">
+  <a href="docs/assets/config_editor.png">
+    <img src="docs/assets/config_editor.png" width="100%" alt="Редактор группировки" />
+  </a>
+</p>
+
+#### A/B Сравнение сценариев
+Сравнение доступности, задержек и топологии двух конфигураций созвездия:
+<p align="center">
+  <a href="docs/assets/ab_comparison.png">
+    <img src="docs/assets/ab_comparison.png" width="100%" alt="A/B Сравнение сценариев" />
+  </a>
+</p>
+
+#### Инженерная аналитика и матрица рисков
+Тепловая карта отказов, распределение причин разрыва и TCO:
+<p align="center">
+  <a href="docs/assets/analytics_report.png">
+    <img src="docs/assets/analytics_report.png" width="100%" alt="Аналитика и матрица рисков" />
+  </a>
+</p>
 
 </details>
 
