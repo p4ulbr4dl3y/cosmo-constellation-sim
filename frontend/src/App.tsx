@@ -112,35 +112,20 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 min-h-0 p-1.5 sm:p-2 flex flex-col gap-2 overflow-hidden w-full">
         {activeTab === 'monitor' && (
-          <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
-            {/* Upper Split: Map (65%) & Metrics (35%) */}
-            <div className="shrink-0 lg:shrink lg:flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-2">
-              {/* Map & Network Visualization */}
-              <div className="lg:col-span-8 h-[45vh] min-h-[280px] sm:h-[400px] lg:h-full lg:min-h-0 flex flex-col overflow-hidden rounded-md border border-[#1a2636]">
-                <NetworkMap
-                  scenario={scenario}
-                  snapshot={snapshot}
-                  selectedClientId={selectedClientId}
-                  onSelectClient={setSelectedClientId}
-                  onToggleFailure={handleToggleFailure}
-                />
-              </div>
-
-              {/* Metrics & Active Route Panel */}
-              <div className="lg:col-span-4 min-h-[300px] lg:h-full lg:min-h-0 flex flex-col overflow-hidden">
-                <MetricsPanel
-                  scenario={scenario}
-                  snapshot={snapshot}
-                  timelines={timelines}
-                  selectedClientId={selectedClientId}
-                  onSelectClient={setSelectedClientId}
-                  onToggleFailure={handleToggleFailure}
-                />
-              </div>
+          <div className="flex-1 min-h-0 flex flex-col lg:grid lg:grid-cols-12 lg:grid-rows-[1fr_auto] gap-2 overflow-y-auto overflow-x-hidden lg:overflow-hidden">
+            {/* Map & Network Visualization */}
+            <div className="order-1 lg:col-span-8 lg:row-start-1 h-[45vh] min-h-[280px] sm:h-[400px] lg:h-full lg:min-h-0 flex flex-col overflow-hidden rounded-md border border-[#1a2636] shrink-0 lg:shrink">
+              <NetworkMap
+                scenario={scenario}
+                snapshot={snapshot}
+                selectedClientId={selectedClientId}
+                onSelectClient={setSelectedClientId}
+                onToggleFailure={handleToggleFailure}
+              />
             </div>
 
-            {/* Bottom Scrubber & Gantt Availability Diagram */}
-            <div className="shrink-0">
+            {/* Scrubber & Gantt: Mobile order-2 (directly after map), Desktop row-start-2 col-span-12 */}
+            <div className="order-2 lg:order-3 lg:col-span-12 lg:row-start-2 shrink-0">
               <TimelinePlayer
                 scenario={scenario}
                 currentTime={currentTime}
@@ -148,6 +133,18 @@ export default function App() {
                 timelines={timelines}
                 selectedClientId={selectedClientId}
                 onSelectClient={setSelectedClientId}
+              />
+            </div>
+
+            {/* Metrics & Active Route Panel: Mobile order-3, Desktop row-start-1 col-span-4 */}
+            <div className="order-3 lg:order-2 lg:col-span-4 lg:row-start-1 min-h-[300px] lg:h-full lg:min-h-0 flex flex-col overflow-hidden shrink-0 lg:shrink">
+              <MetricsPanel
+                scenario={scenario}
+                snapshot={snapshot}
+                timelines={timelines}
+                selectedClientId={selectedClientId}
+                onSelectClient={setSelectedClientId}
+                onToggleFailure={handleToggleFailure}
               />
             </div>
           </div>
