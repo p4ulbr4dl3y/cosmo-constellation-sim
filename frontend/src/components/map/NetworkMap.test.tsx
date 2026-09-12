@@ -148,9 +148,9 @@ describe('NetworkMap Component', () => {
 
     expect(screen.getByText('100%')).toBeDefined()
 
-    // Zoom in to 125%
+    // Zoom in to 115%
     fireEvent.click(zoomInBtn)
-    expect(screen.getByText('125%')).toBeDefined()
+    expect(screen.getByText('115%')).toBeDefined()
 
     // Zoom out back to 100%
     fireEvent.click(zoomOutBtn)
@@ -158,7 +158,7 @@ describe('NetworkMap Component', () => {
 
     // Zoom in then reset
     fireEvent.click(zoomInBtn)
-    expect(screen.getByText('125%')).toBeDefined()
+    expect(screen.getByText('115%')).toBeDefined()
     fireEvent.click(resetBtn)
     expect(screen.getByText('100%')).toBeDefined()
   })

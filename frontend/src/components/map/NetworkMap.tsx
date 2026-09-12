@@ -127,13 +127,13 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
   const zoomIn = () => {
     const maxZ = viewMode === '2d' ? 4.0 : 3.0
-    setZoom((z) => Math.min(maxZ, Number((z + 0.25).toFixed(2))))
+    setZoom((z) => Math.min(maxZ, Number((z + 0.15).toFixed(2))))
   }
 
   const zoomOut = () => {
     const minZ = 0.5
     setZoom((z) => {
-      const nextZ = Math.max(minZ, Number((z - 0.25).toFixed(2)))
+      const nextZ = Math.max(minZ, Number((z - 0.15).toFixed(2)))
       if (nextZ <= 1.0 && viewMode === '2d') {
         setPan2d({ x: 0, y: 0 })
       }
@@ -150,7 +150,12 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       e.preventDefault()
       const minZ = 0.5
       const maxZ = viewMode === '2d' ? 4.0 : 3.0
-      const factor = e.deltaY < 0 ? 1.12 : 0.89
+
+      let dy = e.deltaY
+      if (e.deltaMode === 1) dy *= 20
+      else if (e.deltaMode === 2) dy *= 100
+      const clampedDelta = Math.max(-120, Math.min(120, dy))
+      const factor = Math.exp(-clampedDelta * 0.0015)
 
       setZoom((z) => {
         const next = Math.min(maxZ, Math.max(minZ, Number((z * factor).toFixed(2))))
