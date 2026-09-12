@@ -126,7 +126,7 @@ def main() -> None:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Запустить расчет по всем эталонным сценариям из директории 'Данные/'",
+        help="Запустить расчет по всем эталонным сценариям из директории 'data/'",
     )
     parser.add_argument(
         "--metric",
