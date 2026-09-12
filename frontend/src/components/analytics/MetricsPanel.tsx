@@ -190,7 +190,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               Терминал {selectedClient?.id || selectedClientId}
             </span>
             {selectedClient && (
-              <span className="text-[10px] text-zinc-400 font-mono truncate">
+              <span className="text-xs text-zinc-400 font-mono truncate">
                 {Math.abs(selectedClient.lat_deg).toFixed(1)}°{selectedClient.lat_deg >= 0 ? ' с.ш.' : ' ю.ш.'},{' '}
                 {Math.abs(selectedClient.lon_deg).toFixed(1)}°{selectedClient.lon_deg >= 0 ? ' в.д.' : ' з.д.'}
               </span>
@@ -212,7 +212,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 return (
                   <React.Fragment key={idx}>
                     <div
-                      className={`px-1.5 py-0.5 rounded text-[11px] font-mono border ${
+                      className={`px-1.5 py-0.5 rounded text-xs font-mono border ${
                         isFirst || isLast
                           ? 'bg-white/[0.04] border-white/10 text-zinc-300 font-medium'
                           : 'bg-white/12 border-white/20 text-white font-semibold shadow-2xs'
@@ -224,7 +224,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                     {!isLast && (
                       <div className="flex items-center text-zinc-500">
                         <ArrowRight className="w-3 h-3 text-zinc-500" />
-                        <span className="text-[8px] mx-0.5 text-zinc-400 font-mono">
+                        <span className="text-[10px] mx-0.5 text-zinc-400 font-mono">
                           {idx === 0 ? 'GSL' : idx === activeRoute.length - 2 ? 'GSL' : 'ISL'}
                         </span>
                       </div>
@@ -234,7 +234,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               })}
 
               {routeLatencyMs && (
-                <div className="basis-full sm:basis-auto sm:ml-auto min-w-0 flex justify-end text-zinc-400 text-[10px] font-mono">
+                <div className="basis-full sm:basis-auto sm:ml-auto min-w-0 flex justify-end text-zinc-400 text-xs font-mono">
                   RTT <span className="text-zinc-200 font-semibold ml-1">{routeLatencyMs} мс</span>
                 </div>
               )}
@@ -251,7 +251,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                   {diagnosis.title}
                 </span>
               </div>
-              <div className="text-[11px] text-zinc-400 leading-snug pl-3.5">
+              <div className="text-xs text-zinc-400 leading-snug pl-3.5">
                 <span className="text-zinc-500">Рекомендация: </span>
                 <span>{diagnosis.recommendation}</span>
               </div>
@@ -292,7 +292,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
 
         {/* 4. Active Satellite Telemetry / Failure Injection */}
         {primeSat ? (
-          <div className="mt-auto bg-[#070b10] border border-[#1a2636] rounded p-2 flex flex-col gap-1.5 text-[11px]">
+          <div className="mt-auto bg-[#070b10] border border-[#1a2636] rounded p-2 flex flex-col gap-1.5 text-xs">
             <div className="flex flex-wrap items-center justify-between gap-1 border-b border-[#1a2636]/60 pb-1">
               <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                 <span
@@ -301,17 +301,17 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                   }`}
                 />
                 <span className="font-semibold text-white">КА {primeSat.id}</span>
-                <span className="text-[10px] bg-white/[0.06] px-1 rounded text-zinc-300 font-mono">
+                <span className="text-xs bg-white/[0.06] px-1 rounded text-zinc-300 font-mono">
                   {primeSat.plane_id}
                 </span>
-                <span className="text-[10px] text-zinc-400 font-sans">Партия №{primeSat.launch_batch}</span>
+                <span className="text-xs text-zinc-400 font-sans">Партия №{primeSat.launch_batch}</span>
               </div>
               {primeSat.failed && (
                 <Badge variant="red" className="shrink-0">Отказ</Badge>
               )}
             </div>
 
-            <div className="flex justify-between text-[10px] text-zinc-400 font-mono">
+            <div className="flex justify-between text-xs text-zinc-400 font-mono">
               <span>
                 {Math.abs(primeSat.lat_deg).toFixed(1)}°{primeSat.lat_deg >= 0 ? ' с.ш.' : ' ю.ш.'},{' '}
                 {Math.abs(primeSat.lon_deg).toFixed(1)}°{primeSat.lon_deg >= 0 ? ' в.д.' : ' з.д.'}
@@ -341,7 +341,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             )}
           </div>
         ) : (
-          <div className="mt-auto bg-[#070b10] border border-[#1a2636]/60 rounded p-2 text-center text-[11px] text-zinc-500 font-sans min-h-[82px] flex items-center justify-center">
+          <div className="mt-auto bg-[#070b10] border border-[#1a2636]/60 rounded p-2 text-center text-xs text-zinc-500 font-sans min-h-[82px] flex items-center justify-center">
             Ожидание радиозахвата космического аппарата
           </div>
         )}

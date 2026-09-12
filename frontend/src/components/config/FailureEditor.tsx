@@ -89,7 +89,7 @@ export const FailureEditor: React.FC<FailureEditorProps> = ({
 
           <div className="flex items-center gap-1.5 text-xs">
             <div className="flex items-center bg-[#070b10] border border-[#1a2636] rounded-md px-1.5 h-7 focus-within:border-cyan-400/40">
-              <span className="text-zinc-500 text-[10px] mr-1.5 select-none font-sans">с</span>
+              <span className="text-zinc-500 text-[11px] mr-1.5 select-none font-sans">с</span>
               <input
                 type="time"
                 value={secondsToTimeInputValue(newFailStart)}
@@ -98,7 +98,7 @@ export const FailureEditor: React.FC<FailureEditorProps> = ({
               />
             </div>
             <div className="flex items-center bg-[#070b10] border border-[#1a2636] rounded-md px-1.5 h-7 focus-within:border-cyan-400/40">
-              <span className="text-zinc-500 text-[10px] mr-1.5 select-none font-sans">по</span>
+              <span className="text-zinc-500 text-[11px] mr-1.5 select-none font-sans">по</span>
               <input
                 type="time"
                 value={secondsToTimeInputValue(newFailEnd)}
@@ -124,7 +124,7 @@ export const FailureEditor: React.FC<FailureEditorProps> = ({
           {failures.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-5 px-3 rounded-md border border-dashed border-[#1a2636] bg-[#070b10]/40 text-center">
               <span className="text-zinc-300 text-xs font-medium">Штатное функционирование КА</span>
-              <span className="text-[10px] text-zinc-500 mt-0.5 font-sans">Активных отказов в симуляции нет</span>
+              <span className="text-xs text-zinc-500 mt-0.5 font-sans">Активных отказов в симуляции нет</span>
             </div>
           ) : (
             failures.map((f, idx) => (
@@ -134,10 +134,10 @@ export const FailureEditor: React.FC<FailureEditorProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <Badge variant="red">{f.satellite_id}</Badge>
-                  <span className="text-zinc-300 text-[11px]">
+                  <span className="text-zinc-300 text-xs">
                     {secondsToHHMM(f.start_s)} — {secondsToHHMM(f.end_s)}
                   </span>
-                  <span className="text-zinc-400 text-[10px]">
+                  <span className="text-zinc-400 text-[11px]">
                     ({formatDurationHuman(f.end_s - f.start_s)})
                   </span>
                 </div>
@@ -184,7 +184,7 @@ export const FailureEditor: React.FC<FailureEditorProps> = ({
 
           <div className="flex items-center gap-1.5 text-xs">
             <div className="flex items-center bg-[#070b10] border border-[#1a2636] rounded-md px-1.5 h-7 focus-within:border-cyan-400/40">
-              <span className="text-zinc-500 text-[10px] mr-1.5 select-none font-sans">с</span>
+              <span className="text-zinc-500 text-[11px] mr-1.5 select-none font-sans">с</span>
               <input
                 type="time"
                 value={secondsToTimeInputValue(newGwStart)}
@@ -193,7 +193,7 @@ export const FailureEditor: React.FC<FailureEditorProps> = ({
               />
             </div>
             <div className="flex items-center bg-[#070b10] border border-[#1a2636] rounded-md px-1.5 h-7 focus-within:border-cyan-400/40">
-              <span className="text-zinc-500 text-[10px] mr-1.5 select-none font-sans">по</span>
+              <span className="text-zinc-500 text-[11px] mr-1.5 select-none font-sans">по</span>
               <input
                 type="time"
                 value={secondsToTimeInputValue(newGwEnd)}
@@ -219,7 +219,7 @@ export const FailureEditor: React.FC<FailureEditorProps> = ({
           {gatewayOutages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-5 px-3 rounded-md border border-dashed border-[#1a2636] bg-[#070b10]/40 text-center">
               <span className="text-zinc-300 text-xs font-medium">Шлюзы доступны 24/7</span>
-              <span className="text-[10px] text-zinc-500 mt-0.5 font-sans">Окна регламентного обслуживания не назначены</span>
+              <span className="text-xs text-zinc-500 mt-0.5 font-sans">Окна регламентного обслуживания не назначены</span>
             </div>
           ) : (
             gatewayOutages.map((o, idx) => (
@@ -229,10 +229,10 @@ export const FailureEditor: React.FC<FailureEditorProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <Badge variant="amber">{o.gateway_id}</Badge>
-                  <span className="text-zinc-300 text-[11px]">
+                  <span className="text-zinc-300 text-xs">
                     {secondsToHHMM(o.start_s)} — {secondsToHHMM(o.end_s)}
                   </span>
-                  <span className="text-zinc-400 text-[10px]">
+                  <span className="text-zinc-400 text-[11px]">
                     ({formatDurationHuman(o.end_s - o.start_s)})
                   </span>
                 </div>

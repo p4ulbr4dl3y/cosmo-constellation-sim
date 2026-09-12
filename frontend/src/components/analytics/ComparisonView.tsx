@@ -148,14 +148,14 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             {variantA && (
               <button
                 onClick={() => onLoadVariantIntoEditor(variantA)}
-                className="text-[11px] text-cyan-300 hover:underline cursor-pointer font-medium"
+                className="text-xs text-cyan-300 hover:underline cursor-pointer font-medium"
               >
                 Загрузить в симулятор
               </button>
             )}
           </div>
           {variantA ? (
-            <div className="space-y-1 text-zinc-300 text-[11px]">
+            <div className="space-y-1 text-zinc-300 text-xs">
               <div className="text-white font-semibold text-xs">{variantA.meta.title}</div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Очередь запуска:</span>
@@ -197,14 +197,14 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             {variantB && (
               <button
                 onClick={() => onLoadVariantIntoEditor(variantB)}
-                className="text-[11px] text-purple-300 hover:underline cursor-pointer font-medium"
+                className="text-xs text-purple-300 hover:underline cursor-pointer font-medium"
               >
                 Загрузить в симулятор
               </button>
             )}
           </div>
           {variantB ? (
-            <div className="space-y-1 text-zinc-300 text-[11px]">
+            <div className="space-y-1 text-zinc-300 text-xs">
               <div className="text-white font-semibold text-xs">{variantB.meta.title}</div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Очередь запуска:</span>
@@ -244,7 +244,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             <span className="text-xs font-semibold text-zinc-200">
               Сводная матрица метрик
             </span>
-            <span className="text-[10px] text-cyan-400">
+            <span className="text-xs text-cyan-400">
               Порог SLA: ≥ 90.0%
             </span>
           </div>
@@ -252,7 +252,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[560px]">
               <thead>
-                <tr className="bg-[#070b10] text-zinc-400 border-b border-[#1a2636] text-[10px] sticky top-0 z-20">
+                <tr className="bg-[#070b10] text-zinc-400 border-b border-[#1a2636] text-xs sticky top-0 z-20">
                   <th className="py-2 px-3 text-left sticky left-0 bg-[#070b10] z-30">Терминал</th>
                   <th className="py-2 px-3 text-left">Параметр</th>
                   <th className="py-2 px-3 text-right text-cyan-300">Вариант A</th>
@@ -325,7 +325,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                         <td className="py-1.5 px-3 text-right font-mono tabular-nums">
                           {renderDeltaHops(mA.avg_hops, mB.avg_hops)}
                         </td>
-                        <td className="py-1.5 px-3 text-left text-zinc-600 font-mono text-[10px]">
+                        <td className="py-1.5 px-3 text-left text-zinc-600 font-mono text-xs">
                           —
                         </td>
                       </tr>

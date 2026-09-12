@@ -212,7 +212,7 @@ export const Header: React.FC<HeaderProps> = ({
           <Logo size={20} className="w-5 h-5 text-cyan-400 shrink-0" />
           <div className="items-center gap-1 text-xs hidden lg:flex">
             <span className="font-bold tracking-wider text-zinc-100 uppercase">Созвездие</span>
-            <span className="text-zinc-500 font-mono text-[11px]">//</span>
+            <span className="text-zinc-500 font-mono text-xs">//</span>
             <span className="text-zinc-300 font-semibold tracking-wide text-xs">ЦУП</span>
           </div>
         </button>
@@ -228,7 +228,7 @@ export const Header: React.FC<HeaderProps> = ({
           {isModified && (
             <Badge variant="amber" className="hidden lg:inline-flex gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              <span>изменен</span>
+              <span>Изменено</span>
             </Badge>
           )}
         </div>
@@ -263,7 +263,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               className="font-sans min-w-[76px] max-w-[130px] sm:min-w-[130px] lg:min-w-[180px] sm:max-w-[160px] lg:max-w-[220px] justify-between px-2"
             >
-              <span className="truncate text-[11px] tabular-nums">{currentPresetLabel}</span>
+              <span className="truncate text-xs tabular-nums">{currentPresetLabel}</span>
               <ChevronDown
                 className={`w-3.5 h-3.5 text-zinc-400 shrink-0 transition-transform duration-150 ml-1 ${
                   isPresetOpen ? 'rotate-180 text-white' : ''
@@ -273,7 +273,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {isPresetOpen && (
               <div className="fixed inset-x-2 top-12 sm:top-full sm:mt-1.5 sm:absolute sm:right-0 sm:left-auto sm:w-64 max-w-sm sm:max-w-none mx-auto sm:mx-0 bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
-                <div className="px-3 py-1.5 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
+                <div className="px-3 py-1.5 text-xs font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
                   Выберите сценарий
                 </div>
                 {PRESET_SCENARIOS.map((p) => {
@@ -292,7 +292,7 @@ export const Header: React.FC<HeaderProps> = ({
                           : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'
                       }`}
                     >
-                      <span className="truncate text-[11px] tabular-nums">{p.label}</span>
+                      <span className="truncate text-xs tabular-nums">{p.label}</span>
                       {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0 ml-2" />}
                     </button>
                   )
@@ -350,7 +350,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Экспорт файлов"
           >
             <Download className="w-3.5 h-3.5 shrink-0" />
-            <span className="hidden sm:inline text-[11px] font-medium">Экспорт</span>
+            <span className="hidden sm:inline text-xs font-medium">Экспорт</span>
             <ChevronDown
               className={`w-3.5 h-3.5 text-cyan-400/70 shrink-0 transition-transform duration-150 ${
                 isExportOpen ? 'rotate-180 text-cyan-200' : ''
@@ -360,7 +360,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {isExportOpen && (
             <div className="fixed inset-x-2 top-12 sm:top-full sm:mt-1.5 sm:absolute sm:right-0 sm:left-auto sm:w-60 max-w-sm sm:max-w-none mx-auto sm:mx-0 bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
-              <div className="px-3 py-1.5 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
+              <div className="px-3 py-1.5 text-xs font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
                 Экспорт данных
               </div>
               <button
@@ -373,8 +373,8 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Download className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-[12px] font-medium text-cyan-200">Результаты расчета</div>
-                  <div className="text-[10px] text-zinc-400">cosmo-A-result-1.0 (.json)</div>
+                  <div className="text-xs font-medium text-cyan-200">Результаты расчета</div>
+                  <div className="text-xs text-zinc-400">cosmo-A-result-1.0 (.json)</div>
                 </div>
               </button>
               <button
@@ -387,8 +387,8 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <FileDown className="w-4 h-4 text-zinc-400 shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-[12px] font-medium text-zinc-200">Конфиг сценария</div>
-                  <div className="text-[10px] text-zinc-400">cosmo-A-1.0 (.json)</div>
+                  <div className="text-xs font-medium text-zinc-200">Конфиг сценария</div>
+                  <div className="text-xs text-zinc-400">cosmo-A-1.0 (.json)</div>
                 </div>
               </button>
             </div>

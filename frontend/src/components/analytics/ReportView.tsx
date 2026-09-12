@@ -44,7 +44,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           {liveStats ? (
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-zinc-400 font-mono hidden sm:inline">
+              <span className="text-xs text-zinc-400 font-mono hidden sm:inline">
                 Ср: {liveStats.meanAvail}% / Мин: {liveStats.minAvail}%
               </span>
               <Badge
@@ -91,7 +91,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
             {/* Stage 1 */}
             <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                <div className="flex items-center justify-between text-xs text-zinc-400">
                   <span>Очередь 1</span>
                   <span className="text-zinc-300 font-mono">16 КА</span>
                 </div>
@@ -100,7 +100,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   <div className="bg-rose-500 h-full" style={{ width: '18.56%' }} />
                 </div>
               </div>
-              <div className="text-[10px] text-zinc-400 mt-2">
+              <div className="text-xs text-zinc-400 mt-2">
                 1 плоскость, частые разрывы
               </div>
             </div>
@@ -108,7 +108,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
             {/* Stage 2 */}
             <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                <div className="flex items-center justify-between text-xs text-zinc-400">
                   <span>Очередь 2</span>
                   <span className="text-zinc-300 font-mono">32 КА</span>
                 </div>
@@ -117,7 +117,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   <div className="bg-amber-400 h-full" style={{ width: '64.80%' }} />
                 </div>
               </div>
-              <div className="text-[10px] text-zinc-400 mt-2">
+              <div className="text-xs text-zinc-400 mt-2">
                 2 плоскости, периодические окна
               </div>
             </div>
@@ -125,7 +125,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
             {/* Stage 3 */}
             <div className="p-2.5 rounded-md bg-[#070b10] border border-[#1a2636] flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                <div className="flex items-center justify-between text-xs text-zinc-400">
                   <span>Очередь 3</span>
                   <span className="text-zinc-300 font-mono">48 КА</span>
                 </div>
@@ -134,13 +134,13 @@ export const ReportView: React.FC<ReportViewProps> = ({
                   <div className="bg-emerald-400 h-full" style={{ width: '98.10%' }} />
                 </div>
               </div>
-              <div className="text-[10px] text-emerald-400 mt-2 font-medium">
+              <div className="text-xs text-emerald-400 mt-2 font-medium">
                 3 плоскости, целевой SLA
               </div>
             </div>
           </div>
 
-          <div className="p-2 rounded-md bg-[#070b10] border border-[#1a2636]/80 text-[11px] text-zinc-300 leading-relaxed">
+          <div className="p-2 rounded-md bg-[#070b10] border border-[#1a2636]/80 text-xs text-zinc-300 leading-relaxed">
             <span className="text-zinc-100 font-semibold">Вывод орбитальной механики:</span>{' '}
             1 плоскость замыкает внутриплоскостной пояс, но суточное вращение Земли (15°/ч) уводит её из видимости пунктов на 3–5 витков. Непрерывность в Арктике гарантируют только <span className="text-zinc-100 font-semibold">3 плоскости с разносом узлов ΔΩ = 60°</span>.
           </div>
@@ -158,7 +158,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               <Badge variant="red" className="shrink-0">SPOF</Badge>
               <div className="flex-1">
                 <div className="font-semibold text-zinc-200">Одиночный шлюз Мурманск (G_MUR)</div>
-                <div className="text-zinc-400 text-[11px] mt-0.5 leading-tight">
+                <div className="text-zinc-400 text-xs mt-0.5 leading-tight">
                   100% клиентского трафика зависит от 1 станции. Плановое техокно 4ч (шаги 120..240) обнуляет доступность всей сети.
                 </div>
               </div>
@@ -168,7 +168,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               <Badge variant="amber" className="shrink-0">ISL</Badge>
               <div className="flex-1">
                 <div className="font-semibold text-zinc-200">Порог дальности ISL (сценарий 04)</div>
-                <div className="text-zinc-400 text-[11px] mt-0.5 leading-tight">
+                <div className="text-zinc-400 text-xs mt-0.5 leading-tight">
                   При лимите 2000 км доступность падает до <span className="text-amber-400 font-medium">68.29%</span> (644 шага isl_disconnected) из-за разрыва межплоскостных связей.
                 </div>
               </div>
@@ -178,7 +178,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
               <Badge variant="cyan" className="shrink-0">NODE</Badge>
               <div className="flex-1">
                 <div className="font-semibold text-zinc-200">Отказ 10 аппаратов (сценарий 03)</div>
-                <div className="text-zinc-400 text-[11px] mt-0.5 leading-tight">
+                <div className="text-zinc-400 text-xs mt-0.5 leading-tight">
                   Сетка сохраняет <span className="text-cyan-300 font-medium">80.88% доступности</span>. Алгоритм Dijkstra обходит аварии; среднее число хопов растет с 2.8 до 4.2.
                 </div>
               </div>
@@ -200,11 +200,11 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Резервный шлюз</span>
                 </div>
-                <p className="text-zinc-400 text-[11px] leading-relaxed">
+                <p className="text-zinc-400 text-xs leading-relaxed">
                   Размещение 2-го шлюза в восточном секторе (Тикси 71.6°N или Анадырь 64.7°N). Устраняет единую точку отказа (SPOF).
                 </p>
               </div>
-              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
+              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-xs">
                 <span className="text-zinc-400">Прирост SLA:</span>
                 <span className="text-emerald-400 font-bold font-mono">98.1% до 99.7%</span>
               </div>
@@ -216,11 +216,11 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Порог ISL ≥ 2800 км</span>
                 </div>
-                <p className="text-zinc-400 text-[11px] leading-relaxed">
+                <p className="text-zinc-400 text-xs leading-relaxed">
                   Энергетический потенциал межспутникового линка радио/лазер не менее 2800 км для устойчивости сетки на высоких широтах.
                 </p>
               </div>
-              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
+              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-xs">
                 <span className="text-zinc-400">Связность рёбер:</span>
                 <span className="text-cyan-300 font-bold font-mono">100% выше 60°N</span>
               </div>
@@ -232,11 +232,11 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Фазировка Walker Delta</span>
                 </div>
-                <p className="text-zinc-400 text-[11px] leading-relaxed">
+                <p className="text-zinc-400 text-xs leading-relaxed">
                   Сдвиг истинной аномалии между соседними плоскостями на ΔM = 7.5°. Исключает регулярные слепые пятна между витками.
                 </p>
               </div>
-              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
+              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-xs">
                 <span className="text-zinc-400">Слепые зоны:</span>
                 <span className="text-zinc-200 font-semibold font-sans">Исключены</span>
               </div>
@@ -248,11 +248,11 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-zinc-200 font-semibold">Кольцевой Rerouting</span>
                 </div>
-                <p className="text-zinc-400 text-[11px] leading-relaxed">
+                <p className="text-zinc-400 text-xs leading-relaxed">
                   Автоматическое замыкание трафика по кольцу плоскости при разрыве межплоскостного линка с субсекундной сходимостью.
                 </p>
               </div>
-              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-[10px]">
+              <div className="mt-2.5 pt-2 border-t border-[#1a2636]/80 flex items-center justify-between text-xs">
                 <span className="text-zinc-400">Сходимость:</span>
                 <span className="text-amber-400 font-bold font-mono">&lt; 1 с</span>
               </div>
@@ -261,7 +261,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
         </Card>
 
         {/* Section 4: Operating Envelope */}
-        <div className="bg-[#0b1017] p-2.5 rounded-md border border-[#1a2636] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 lg:col-span-2 text-[11px] text-zinc-400">
+        <div className="bg-[#0b1017] p-2.5 rounded-md border border-[#1a2636] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 lg:col-span-2 text-xs text-zinc-400">
           <div>
             <span className="text-zinc-200 font-semibold">Границы применимости модели:</span>{' '}
             Оптимизировано для широт &gt; 60°N (Арктика). Базовый расчет радиовидимости: угол места θ ≥ 10°.

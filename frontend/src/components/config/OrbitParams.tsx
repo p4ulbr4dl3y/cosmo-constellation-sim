@@ -42,7 +42,7 @@ export const OrbitParams: React.FC<OrbitParamsProps> = ({
                 }`}
               >
                 <span>Этап {stg}</span>
-                <span className={`text-[10px] ${isSelected ? 'text-zinc-300' : 'text-zinc-400'}`}>
+                <span className={`text-xs ${isSelected ? 'text-zinc-300' : 'text-zinc-400'}`}>
                   {activeSatsCount} КА
                 </span>
               </button>
@@ -59,7 +59,7 @@ export const OrbitParams: React.FC<OrbitParamsProps> = ({
 
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div>
-            <label className="text-zinc-400 text-[10px] block mb-1">
+            <label className="text-zinc-400 text-xs block mb-1">
               Дальность ISL:
             </label>
             <div className="flex gap-1.5 h-7">
@@ -81,7 +81,7 @@ export const OrbitParams: React.FC<OrbitParamsProps> = ({
           </div>
 
           <div>
-            <label className="text-zinc-400 text-[10px] block mb-1">
+            <label className="text-zinc-400 text-xs block mb-1">
               Мин. угол места:
             </label>
             <div className="flex items-center bg-[#070b10] border border-[#1a2636] rounded-md overflow-hidden h-7 focus-within:border-cyan-400/40">
@@ -134,12 +134,12 @@ export const OrbitParams: React.FC<OrbitParamsProps> = ({
                 <span className="font-bold text-cyan-300">
                   Плоскость {p.id}
                 </span>
-                <span className="text-[10px] text-zinc-400">
+                <span className="text-xs text-zinc-400">
                   {design.satellites.filter((s: Satellite) => s.plane_id === p.id).length} КА
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                 <div>
                   <div className="flex items-center justify-between text-zinc-400 mb-0.5">
                     <span>RAAN (Ω):</span>

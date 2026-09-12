@@ -73,7 +73,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
               </div>
               {showMetrics && (
                 <span
-                  className={`text-[10px] font-mono font-medium ${
+                  className={`text-xs font-mono font-medium ${
                     clientMeetsTarget ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
@@ -116,7 +116,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
               <span className="truncate">{c.id}</span>
               {showMetrics && availRatio !== undefined && (
                 <span
-                  className={`text-[9px] font-mono ${
+                  className={`text-[10px] font-mono ${
                     meetsTarget ? 'text-emerald-400' : 'text-amber-400'
                   }`}
                 >
@@ -144,7 +144,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
             <span>{c.id}</span>
             {showMetrics && availRatio !== undefined && (
               <span
-                className={`text-[10px] font-mono ${
+                className={`text-[11px] font-mono ${
                   meetsTarget ? 'text-emerald-400' : 'text-amber-400'
                 }`}
               >

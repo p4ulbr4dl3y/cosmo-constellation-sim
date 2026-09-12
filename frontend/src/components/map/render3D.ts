@@ -445,7 +445,7 @@ export function render3DGlobe(options: Render3DOptions): void {
       anchorX: p.x,
       anchorY: p.y,
       priority: isSelected ? 100 : isGateway ? 80 : 50,
-      font: isSelected ? 'bold 9px monospace' : '8px monospace',
+      font: isSelected ? 'bold 11px monospace' : '10px monospace',
       textColor: isSelected ? '#00f0ff' : isGateway ? '#7dd3fc' : '#cbd5e1',
       borderColor: isSelected
         ? '#00f0ff'
@@ -500,7 +500,7 @@ export function render3DGlobe(options: Render3DOptions): void {
         anchorX: p.x,
         anchorY: p.y,
         priority: isOnRoute ? 90 : isHovered ? 70 : 30,
-        font: isOnRoute || isHovered ? 'bold 9px monospace' : '8px monospace',
+        font: isOnRoute || isHovered ? 'bold 11px monospace' : '10px monospace',
         textColor: isOnRoute ? '#00f0ff' : isHovered ? '#ffffff' : '#94a3b8',
         borderColor: isOnRoute
           ? '#00f0ff'

@@ -100,7 +100,7 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)'
   ctx.lineWidth = 1
   ctx.fillStyle = 'rgba(148, 163, 184, 0.4)'
-  ctx.font = '9px monospace'
+  ctx.font = '10px monospace'
 
   // Step size in pixels for 30 deg
   const [x0, y0] = project2D(0, 0, width, height, zoom, pan2d)
@@ -237,7 +237,7 @@ export function render2DMap(options: Render2DOptions): void {
 
   // --- Grid and Zone Text Labels (rendered ON TOP of landmasses for 100% legibility) ---
   ctx.fillStyle = 'rgba(148, 163, 184, 0.7)'
-  ctx.font = '9px monospace'
+  ctx.font = '10px monospace'
 
   // Longitude labels
   if (stepX > 0) {
@@ -279,15 +279,15 @@ export function render2DMap(options: Render2DOptions): void {
   // Arctic circle label badge (always visible on top with dark HUD backdrop)
   if (arcticY >= wY1 - 2 && arcticY <= wY2 + 2) {
     const arcticLabel = 'СЕВЕРНЫЙ ПОЛЯРНЫЙ КРУГ // 66.5°N'
-    ctx.font = 'bold 8.5px monospace'
+    ctx.font = 'bold 10px monospace'
     const arcLabelX = Math.max(28, wX1 + 36)
     const arcLabelY = arcticY - 4
     const arcLabelW = ctx.measureText(arcticLabel).width
     ctx.fillStyle = 'rgba(7, 12, 22, 0.92)'
-    ctx.fillRect(arcLabelX - 4, arcLabelY - 8, arcLabelW + 8, 12)
+    ctx.fillRect(arcLabelX - 5, arcLabelY - 10, arcLabelW + 10, 14)
     ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)'
     ctx.lineWidth = 1
-    ctx.strokeRect(arcLabelX - 4, arcLabelY - 8, arcLabelW + 8, 12)
+    ctx.strokeRect(arcLabelX - 5, arcLabelY - 10, arcLabelW + 10, 14)
     ctx.fillStyle = '#38bdf8'
     ctx.fillText(arcticLabel, arcLabelX, arcLabelY)
   }
@@ -379,7 +379,7 @@ export function render2DMap(options: Render2DOptions): void {
         ctx.stroke()
 
         ctx.fillStyle = '#ecfdf5'
-        ctx.font = 'bold 9px monospace'
+        ctx.font = 'bold 10px monospace'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillText(`${k + 1}`, midX, midY)
@@ -443,7 +443,7 @@ export function render2DMap(options: Render2DOptions): void {
       anchorX: gx,
       anchorY: gy,
       priority: isSelected ? 100 : isGateway ? 80 : 50,
-      font: isSelected ? 'bold 10px monospace' : '9px monospace',
+      font: isSelected ? 'bold 11px monospace' : '10px monospace',
       textColor: isSelected ? '#00f0ff' : isGateway ? '#7dd3fc' : '#e2e8f0',
       borderColor: isSelected
         ? '#00f0ff'
@@ -477,7 +477,7 @@ export function render2DMap(options: Render2DOptions): void {
       ctx.stroke()
 
       ctx.fillStyle = '#ffffff'
-      ctx.font = 'bold 8px monospace'
+      ctx.font = 'bold 10px monospace'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.fillText('!', sx, sy)
@@ -521,7 +521,7 @@ export function render2DMap(options: Render2DOptions): void {
         anchorX: sx,
         anchorY: sy,
         priority: isOnRoute ? 90 : isInspected || isHovered ? 70 : 30,
-        font: isOnRoute || isInspected || isHovered ? 'bold 9px monospace' : '8px monospace',
+        font: isOnRoute || isInspected || isHovered ? 'bold 11px monospace' : '10px monospace',
         textColor: isOnRoute
           ? '#00f0ff'
           : isHovered || isInspected

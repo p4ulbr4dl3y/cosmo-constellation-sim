@@ -19,7 +19,7 @@ export function drawBadgesWithLayout(
     const px = 4
     const py = 1.5
     const w = tw + px * 2
-    const h = 13 + py * 2
+    const h = 14 + py * 2
     return {
       item,
       w,

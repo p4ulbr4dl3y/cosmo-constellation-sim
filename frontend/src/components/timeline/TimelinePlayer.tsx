@@ -326,10 +326,10 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
 
         {/* Current Time Display */}
         <div className="h-7 flex items-center gap-1 sm:gap-1.5 bg-[#070b10] border border-[#1a2636] px-2 sm:px-2.5 rounded text-xs font-mono shrink-0">
-          <span className="font-semibold text-white tracking-wider text-[11px] sm:text-xs whitespace-nowrap">
+          <span className="font-semibold text-white tracking-wider text-xs sm:text-sm whitespace-nowrap">
             {formatTime(currentTime)}
           </span>
-          <span className="text-[10px] sm:text-[11px] text-zinc-500 whitespace-nowrap">/ {formatTime(horizon_s)}</span>
+          <span className="text-xs text-zinc-500 whitespace-nowrap">/ {formatTime(horizon_s)}</span>
         </div>
       </div>
 
@@ -390,7 +390,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                         : 'translateX(-50%)',
                   }}
                 >
-                  <span className="font-mono text-[9px] text-zinc-400 leading-none">{label}</span>
+                  <span className="font-mono text-[10px] text-zinc-400 leading-none">{label}</span>
                   <div className="w-px h-1 bg-white/20 mt-auto" />
                 </div>
               )
@@ -425,7 +425,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-zinc-400 font-sans shrink-0">
+        <div className="flex items-center gap-2.5 sm:gap-3 text-xs text-zinc-400 font-sans shrink-0">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
             Связь
@@ -445,15 +445,15 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             : tooltipData.x
         return (
           <div
-            className="fixed z-50 pointer-events-none bg-[#070b10] text-zinc-100 text-[11px] px-2.5 py-1.5 rounded-md border border-[#1a2636] shadow-2xl transform -translate-x-1/2 -translate-y-full mb-1 flex flex-col gap-0.5"
+            className="fixed z-50 pointer-events-none bg-[#070b10] text-zinc-100 text-xs px-2.5 py-1.5 rounded-md border border-[#1a2636] shadow-2xl transform -translate-x-1/2 -translate-y-full mb-1 flex flex-col gap-0.5"
             style={{ left: clampedX, top: tooltipData.y }}
           >
-            <div className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400 font-medium">
+            <div className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-400 font-medium">
               <span className="text-sky-300 font-semibold">{tooltipData.clientId}</span>
               <span className="text-zinc-600">·</span>
               <span className="text-zinc-200">{formatTime(tooltipData.slot.t_s)}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] font-mono whitespace-nowrap">
+            <div className="flex items-center gap-1.5 text-xs font-mono whitespace-nowrap">
               {tooltipData.slot.hasPath ? (
                 <>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
