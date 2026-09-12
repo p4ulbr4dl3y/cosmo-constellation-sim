@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle } from './Card'
 import { StatCard } from './StatCard'
 import { SegmentedControl } from './SegmentedControl'
 import { ClientSelector } from './ClientSelector'
+import { Logo } from './Logo'
 
 describe('UI Primitives (Server Rendered Strings)', () => {
   describe('Badge', () => {
@@ -169,6 +170,22 @@ describe('UI Primitives (Server Rendered Strings)', () => {
       )
       expect(html).toContain('grid grid-cols-3')
       expect(html).toContain('C65')
+    })
+  })
+
+  describe('Logo', () => {
+    it('renders svg with default size and classes', () => {
+      const html = renderToString(<Logo className="w-5 h-5 text-cyan-400" />)
+      expect(html).toContain('viewBox="0 0 100 100"')
+      expect(html).toContain('width="24"')
+      expect(html).toContain('height="24"')
+      expect(html).toContain('text-cyan-400')
+    })
+
+    it('renders with custom size', () => {
+      const html = renderToString(<Logo size={32} />)
+      expect(html).toContain('width="32"')
+      expect(html).toContain('height="32"')
     })
   })
 })

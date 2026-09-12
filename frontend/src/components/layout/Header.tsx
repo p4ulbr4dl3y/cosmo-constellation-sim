@@ -10,7 +10,7 @@ import {
 import type { Scenario, ClientTimeline } from '../../types/scenario'
 import { PRESET_SCENARIOS } from '../../data/presets'
 import { exportResultFile } from '../../lib/orbit'
-import { Button, Badge, SegmentedControl } from '../ui'
+import { Button, Badge, SegmentedControl, Logo } from '../ui'
 
 interface HeaderProps {
   currentScenario: Scenario
@@ -168,8 +168,15 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="h-11 shrink-0 bg-[#0b1017] border-b border-[#1a2636] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
-      {/* Navigation Tabs */}
+      {/* Navigation Tabs & Brand */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink min-w-0 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 shrink-0 pr-1.5 sm:pr-2 border-r border-[#1a2636]" title="Созвездие — ЦУП">
+          <Logo size={20} className="w-5 h-5 text-cyan-400 shrink-0" />
+          <span className="text-xs font-semibold tracking-wider text-zinc-100 hidden xl:inline uppercase">
+            Созвездие
+          </span>
+        </div>
+
         <SegmentedControl
           options={tabOptions}
           value={activeTab}
