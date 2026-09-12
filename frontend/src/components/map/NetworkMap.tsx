@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getGroundPositions } from '../../lib/orbit'
 import { MapControls } from './MapControls'
 import { MapSatelliteHUD } from './MapSatelliteHUD'
@@ -167,68 +167,48 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     }
   }, [viewMode])
 
-  // Handle canvas mouse drag (3D rotation or 2D pan)
-  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    setIsDragging(true)
-    dragStartRef.current = { x: e.clientX, y: e.clientY }
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch {}
-  }
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map())
+  const initialPinchDistRef = useRef<number | null>(null)
+  const initialPinchZoomRef = useRef<number>(1)
+  const dragDistRef = useRef<number>(0)
 
-  const handleMouseMove = (
-    e: React.PointerEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>
-  ) => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const rect = canvas.getBoundingClientRect()
-    const mouseX = e.clientX - rect.left
-    const mouseY = e.clientY - rect.top
+  // Listen to devicePixelRatio changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dpr)`)
+    const handleDpr = () => {
+      setViewportSize((prev) => ({ ...prev }))
+    }
+    mq.addEventListener?.('change', handleDpr)
+    return () => mq.removeEventListener?.('change', handleDpr)
+  }, [])
 
-    if (isDragging) {
-      const dx = e.clientX - dragStartRef.current.x
-      const dy = e.clientY - dragStartRef.current.y
-      dragStartRef.current = { x: e.clientX, y: e.clientY }
+  const findHitNode = useCallback(
+    (mouseX: number, mouseY: number): HoveredNodeInfo | null => {
+      const canvas = canvasRef.current
+      if (!canvas) return null
+      const width = viewportSize.width || canvas.clientWidth || 800
+      const height = viewportSize.height || canvas.clientHeight || 600
 
-      if (viewMode === '3d') {
-        setGlobeRotY((prev) => prev + dx * 0.008)
-        setGlobeRotX((prev) => Math.max(-1.45, Math.min(1.45, prev + dy * 0.008)))
-      } else {
-        if (zoom > 1.0) {
-          const w = canvas.clientWidth
-          const h = canvas.clientHeight
-          setPan2d((prev) => clampPan2D({ x: prev.x + dx, y: prev.y + dy }, zoom, w, h))
+      // Check ground stations (hit radius 16px)
+      for (const g of groundPositions) {
+        let px = 0,
+          py = 0,
+          vis = true
+        if (viewMode === '2d') {
+          ;[px, py] = project2D(g.lon_deg, g.lat_deg, width, height, zoom, pan2d)
+        } else {
+          const p = project3D(g.x, g.y, g.z, 1.0, width, height, globeRotX, globeRotY, zoom)
+          px = p.x
+          py = p.y
+          vis = p.depth > 0
+        }
+        if (vis && Math.hypot(mouseX - px, mouseY - py) < 16) {
+          return { id: g.id, type: 'ground', x: px, y: py }
         }
       }
-      return
-    }
 
-    // Hit test satellites or ground stations
-    const width = viewportSize.width || canvas.clientWidth || 800
-    const height = viewportSize.height || canvas.clientHeight || 600
-    let hit: HoveredNodeInfo | null = null
-
-    // Check ground stations
-    for (const g of groundPositions) {
-      let px = 0,
-        py = 0,
-        vis = true
-      if (viewMode === '2d') {
-        ;[px, py] = project2D(g.lon_deg, g.lat_deg, width, height, zoom, pan2d)
-      } else {
-        const p = project3D(g.x, g.y, g.z, 1.0, width, height, globeRotX, globeRotY, zoom)
-        px = p.x
-        py = p.y
-        vis = p.depth > 0
-      }
-      if (vis && Math.hypot(mouseX - px, mouseY - py) < 14) {
-        hit = { id: g.id, type: 'ground', x: px, y: py }
-        break
-      }
-    }
-
-    // Check satellites
-    if (!hit) {
+      // Check satellites (hit radius 14px)
       for (const s of snapshot.satellites) {
         if (!showUnlaunched && !s.active && !s.failed) continue
         let px = 0,
@@ -252,13 +232,80 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           py = p.y
           vis = p.visible
         }
-        if (vis && Math.hypot(mouseX - px, mouseY - py) < 12) {
-          hit = { id: s.id, type: 'sat', x: px, y: py }
-          break
+        if (vis && Math.hypot(mouseX - px, mouseY - py) < 14) {
+          return { id: s.id, type: 'sat', x: px, y: py }
         }
       }
+      return null
+    },
+    [viewportSize, groundPositions, viewMode, zoom, pan2d, globeRotX, globeRotY, snapshot.satellites, showUnlaunched]
+  )
+
+  // Handle canvas pointer drag (3D rotation or 2D pan), pinch-to-zoom, and tap
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    dragStartRef.current = { x: e.clientX, y: e.clientY }
+    dragDistRef.current = 0
+    setIsDragging(true)
+
+    if (pointersRef.current.size === 2) {
+      const pts = Array.from(pointersRef.current.values())
+      initialPinchDistRef.current = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y)
+      initialPinchZoomRef.current = zoom
     }
 
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {}
+  }
+
+  const handleMouseMove = (
+    e: React.PointerEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>
+  ) => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const rect = canvas.getBoundingClientRect()
+    const mouseX = e.clientX - rect.left
+    const mouseY = e.clientY - rect.top
+
+    if ('pointerId' in e && pointersRef.current.has(e.pointerId)) {
+      pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    }
+
+    // Pinch-to-zoom when two touch pointers are active
+    if (pointersRef.current.size === 2 && initialPinchDistRef.current) {
+      const pts = Array.from(pointersRef.current.values())
+      const curDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y)
+      const scale = curDist / (initialPinchDistRef.current || 1)
+      const minZ = viewMode === '2d' ? 1.0 : 0.8
+      const maxZ = viewMode === '2d' ? 4.0 : 3.0
+      const nextZ = Math.min(maxZ, Math.max(minZ, Number((initialPinchZoomRef.current * scale).toFixed(2))))
+      setZoom(nextZ)
+      dragDistRef.current += 10
+      return
+    }
+
+    if (isDragging) {
+      const dx = e.clientX - dragStartRef.current.x
+      const dy = e.clientY - dragStartRef.current.y
+      dragDistRef.current += Math.hypot(dx, dy)
+      dragStartRef.current = { x: e.clientX, y: e.clientY }
+
+      if (viewMode === '3d') {
+        setGlobeRotY((prev) => prev + dx * 0.008)
+        setGlobeRotX((prev) => Math.max(-1.45, Math.min(1.45, prev + dy * 0.008)))
+      } else {
+        if (zoom > 1.0) {
+          const w = canvas.clientWidth
+          const h = canvas.clientHeight
+          setPan2d((prev) => clampPan2D({ x: prev.x + dx, y: prev.y + dy }, zoom, w, h))
+        }
+      }
+      return
+    }
+
+    // Hit test satellites or ground stations on mouse move
+    const hit = findHitNode(mouseX, mouseY)
     setHoveredNode((prev) => {
       if (!prev && !hit) return prev
       if (prev && hit && prev.id === hit.id && prev.type === hit.type && Math.abs(prev.x - hit.x) < 0.5 && Math.abs(prev.y - hit.y) < 0.5) {
@@ -269,18 +316,48 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   }
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    setIsDragging(false)
+    pointersRef.current.delete(e.pointerId)
+    if (pointersRef.current.size < 2) {
+      initialPinchDistRef.current = null
+    }
+    if (pointersRef.current.size === 0) {
+      setIsDragging(false)
+    }
+
     try {
       e.currentTarget.releasePointerCapture(e.pointerId)
     } catch {}
+
+    // Tap selection on touch devices if finger barely moved (< 6px)
+    if (dragDistRef.current < 6 && canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect()
+      const clickX = e.clientX - rect.left
+      const clickY = e.clientY - rect.top
+      const hit = findHitNode(clickX, clickY) || hoveredNode
+      if (hit) {
+        if (hit.type === 'sat') {
+          setInspectedSatId(hit.id)
+        } else if (hit.type === 'ground') {
+          const site = groundPositions.find((g) => g.id === hit.id)
+          if (site && site.role === 'client') {
+            onSelectClient(site.id)
+          }
+        }
+      }
+    }
   }
 
-  const handleCanvasClick = () => {
-    if (hoveredNode) {
-      if (hoveredNode.type === 'sat') {
-        setInspectedSatId(hoveredNode.id)
-      } else if (hoveredNode.type === 'ground') {
-        const site = groundPositions.find((g) => g.id === hoveredNode.id)
+  const handleCanvasClick = (e?: React.MouseEvent<HTMLCanvasElement>) => {
+    let hit = hoveredNode
+    if (!hit && e && canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect()
+      hit = findHitNode(e.clientX - rect.left, e.clientY - rect.top)
+    }
+    if (hit) {
+      if (hit.type === 'sat') {
+        setInspectedSatId(hit.id)
+      } else if (hit.type === 'ground') {
+        const site = groundPositions.find((g) => g.id === hit.id)
         if (site && site.role === 'client') {
           onSelectClient(site.id)
         }
@@ -429,7 +506,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           onPointerCancel={handlePointerUp}
           onMouseLeave={() => setIsDragging(false)}
           onClick={handleCanvasClick}
-          className={`w-full h-full block ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+          className={`w-full h-full block touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         />
 
         <MapTooltip hoveredNode={hoveredNode} />

@@ -30,7 +30,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
   }, [timelines, currentScenario?.environment.target_availability])
 
   return (
-    <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
+    <div className="flex flex-col gap-2 font-sans text-xs max-w-[1500px] mx-auto w-full">
       {/* 1. Header & Quick Context */}
       <div className="bg-[#0b1017] px-3 py-2 rounded-md border border-[#1a2636] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2 flex-wrap">
@@ -44,7 +44,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           {liveStats ? (
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-zinc-400 font-mono hidden md:inline">
+              <span className="text-[11px] text-zinc-400 font-mono hidden sm:inline">
                 Ср: {liveStats.meanAvail}% / Мин: {liveStats.minAvail}%
               </span>
               <Badge
@@ -266,8 +266,8 @@ export const ReportView: React.FC<ReportViewProps> = ({
             <span className="text-zinc-200 font-semibold">Границы применимости модели:</span>{' '}
             Оптимизировано для широт &gt; 60°N (Арктика). Базовый расчет радиовидимости: угол места θ ≥ 10°.
           </div>
-          <div className="shrink-0">
-            <Badge variant="neutral">Схема: cosmo-A-1.0 / cosmo-A-result-1.0</Badge>
+          <div className="shrink-0 max-w-full">
+            <Badge variant="neutral" className="max-w-full truncate">Схема: cosmo-A-1.0 / cosmo-A-result-1.0</Badge>
           </div>
         </div>
       </div>

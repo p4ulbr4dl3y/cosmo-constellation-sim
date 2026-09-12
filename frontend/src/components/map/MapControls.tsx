@@ -42,8 +42,8 @@ export const MapControls: React.FC<MapControlsProps> = ({
   const isMaxZoom = viewMode === '2d' ? zoom >= 4.0 : zoom >= 3.0
 
   return (
-    <div className="flex-shrink-0 flex items-center justify-between gap-2 bg-[#0b1017] px-2.5 py-1.5 border-b border-[#1a2636] font-sans text-xs z-10">
-      <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex-shrink-0 flex items-center justify-between gap-2 bg-[#0b1017] px-2 sm:px-2.5 py-1 sm:py-1.5 border-b border-[#1a2636] font-sans text-xs z-10 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 shrink-0">
         {/* 2D / 3D Mode Switcher */}
         <SegmentedControl
           options={[
@@ -64,7 +64,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
           size="sm"
           onClick={onFocusArctic}
           title="Сфокусировать 3D-глобус на Арктике"
-          className="h-6 px-2 text-xs"
+          className="h-7 px-2 text-xs"
         >
           <span>Арктика</span>
         </Button>
@@ -80,19 +80,19 @@ export const MapControls: React.FC<MapControlsProps> = ({
             onClick={onZoomOut}
             disabled={isMinZoom}
             title="Отдалить карту"
-            className={`w-6 h-6 p-1 ${
+            className={`w-7 h-7 p-1 ${
               isMinZoom
                 ? 'text-zinc-600 cursor-not-allowed'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer'
             }`}
           >
-            <ZoomOut className="w-3 h-3" />
+            <ZoomOut className="w-3.5 h-3.5" />
           </Button>
           <button
             type="button"
             onClick={onResetView}
             title="Сбросить масштаб и положение (100%)"
-            className={`px-1.5 py-0.5 text-[10px] min-w-[36px] text-center font-mono font-medium rounded transition-colors cursor-pointer ${
+            className={`px-1.5 py-0.5 text-[10px] sm:text-[11px] min-w-[38px] text-center font-mono font-medium rounded transition-colors cursor-pointer ${
               Math.round(zoom * 100) !== 100
                 ? 'text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10'
                 : 'text-zinc-300 hover:text-white hover:bg-white/10'
@@ -107,13 +107,13 @@ export const MapControls: React.FC<MapControlsProps> = ({
             onClick={onZoomIn}
             disabled={isMaxZoom}
             title="Приблизить карту"
-            className={`w-6 h-6 p-1 ${
+            className={`w-7 h-7 p-1 ${
               isMaxZoom
                 ? 'text-zinc-600 cursor-not-allowed'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer'
             }`}
           >
-            <ZoomIn className="w-3 h-3" />
+            <ZoomIn className="w-3.5 h-3.5" />
           </Button>
         </div>
 
@@ -125,7 +125,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
             type="button"
             onClick={onToggleIsl}
             title="Межспутниковые линии (ISL)"
-            className={`px-2 py-0.5 rounded transition-all cursor-pointer text-xs ${
+            className={`px-2 py-1 rounded transition-all cursor-pointer text-xs ${
               showIsl ? 'bg-white/20 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -136,7 +136,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
             type="button"
             onClick={onToggleGroundLinks}
             title="Линии Земля-Спутник (GSL)"
-            className={`px-2 py-0.5 rounded transition-all cursor-pointer text-xs ${
+            className={`px-2 py-1 rounded transition-all cursor-pointer text-xs ${
               showGroundLinks
                 ? 'bg-white/20 text-white font-medium'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -149,7 +149,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
             type="button"
             onClick={onToggleLabels}
             title="Номера спутников (ID)"
-            className={`px-2 py-0.5 rounded transition-all cursor-pointer text-xs ${
+            className={`px-2 py-1 rounded transition-all cursor-pointer text-xs ${
               showLabels
                 ? 'bg-white/20 text-white font-medium'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -162,7 +162,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
             type="button"
             onClick={onToggleUnlaunched}
             title="Спутники последующих этапов"
-            className={`px-2 py-0.5 rounded transition-all cursor-pointer text-xs ${
+            className={`px-2 py-1 rounded transition-all cursor-pointer text-xs ${
               showUnlaunched
                 ? 'bg-white/20 text-white font-medium'
                 : 'text-zinc-400 hover:text-zinc-200'
@@ -174,7 +174,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
       </div>
 
       {/* Orbit Plane Legend in Header */}
-      <div className="hidden sm:flex items-center gap-2 bg-[#070b10] px-2 py-1 rounded border border-[#1a2636] font-mono text-[10px]">
+      <div className="flex items-center gap-1.5 sm:gap-2 bg-[#070b10] px-1.5 sm:px-2 py-1 rounded border border-[#1a2636] font-mono text-[9px] sm:text-[10px] shrink-0">
         <div className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
           <span className="text-zinc-400">P1</span>

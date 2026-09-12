@@ -218,7 +218,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
   return (
     <div className="p-2 bg-[#0b1017] border border-[#1a2636] rounded-md flex flex-col gap-1.5 select-none font-mono">
       {/* Top Row: Playback Controls & Time readout */}
-      <div className="flex items-center justify-between gap-1 sm:gap-2">
+      <div className="flex items-center justify-between gap-1 sm:gap-2 flex-wrap">
         {/* Play / Step Buttons & Speed */}
         <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
           <Button
@@ -299,7 +299,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       {/* Gantt & Timeline Scrubber Area */}
       <div className="flex gap-1.5 bg-[#070b10] p-2 rounded border border-[#1a2636]">
         {/* Left Column: Client Pills */}
-        <div className="w-12 shrink-0 flex flex-col gap-1.5 pt-5">
+        <div className="w-12 sm:w-14 shrink-0 flex flex-col gap-1.5 pt-5">
           <ClientSelector
             clients={clients}
             selectedClientId={selectedClientId}
@@ -317,7 +317,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          className="relative flex-1 flex flex-col gap-1.5 cursor-ew-resize select-none"
+          className="relative flex-1 flex flex-col gap-1.5 cursor-ew-resize select-none touch-none"
         >
           {/* Vertical Playhead Cursor spanning through ruler and all 3 Gantt bars */}
           <div
@@ -330,16 +330,19 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
 
           {/* Time Ruler */}
           <div className="relative h-3.5 w-full">
-            {timeRulerTicks.ticks.map((h) => {
+            {timeRulerTicks.ticks.map((h, idx) => {
               const pct = (h / (timeRulerTicks.totalHours || 1)) * 100
               const totalMin = Math.round(h * 60)
               const hh = Math.floor(totalMin / 60)
               const mm = totalMin % 60
               const label = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+              const isDense = idx % 2 !== 0 && h !== 0 && h !== timeRulerTicks.totalHours
               return (
                 <div
                   key={h}
-                  className="absolute top-0 bottom-0 flex flex-col items-center pointer-events-none"
+                  className={`absolute top-0 bottom-0 flex flex-col items-center pointer-events-none ${
+                    isDense ? 'hidden sm:flex' : 'flex'
+                  }`}
                   style={{
                     left: `${pct}%`,
                     transform:

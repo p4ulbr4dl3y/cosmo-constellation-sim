@@ -4,6 +4,8 @@ import {
   RotateCcw,
   ChevronDown,
   Check,
+  FileDown,
+  Download,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline } from '../../types/scenario'
 import { PRESET_SCENARIOS } from '../../data/presets'
@@ -129,14 +131,30 @@ export const Header: React.FC<HeaderProps> = ({
     value: 'monitor' | 'config' | 'compare' | 'report'
     label: React.ReactNode
   }> = [
-    { value: 'monitor', label: <span>Мониторинг</span> },
-    { value: 'config', label: <span>Конфигурация</span> },
+    {
+      value: 'monitor',
+      label: (
+        <>
+          <span className="hidden md:inline">Мониторинг</span>
+          <span className="md:hidden">Карта</span>
+        </>
+      ),
+    },
+    {
+      value: 'config',
+      label: (
+        <>
+          <span className="hidden md:inline">Конфигурация</span>
+          <span className="md:hidden">Конфиг</span>
+        </>
+      ),
+    },
     {
       value: 'compare',
       label: (
         <>
-          <span className="hidden sm:inline">A/B Сравнение</span>
-          <span className="sm:hidden">A/B</span>
+          <span className="hidden lg:inline">A/B Сравнение</span>
+          <span className="lg:hidden">A/B</span>
         </>
       ),
     },
@@ -144,8 +162,8 @@ export const Header: React.FC<HeaderProps> = ({
       value: 'report',
       label: (
         <>
-          <span className="hidden sm:inline">Аналитика & Рекомендации</span>
-          <span className="sm:hidden">Аналитика</span>
+          <span className="hidden lg:inline">Аналитика & Рекомендации</span>
+          <span className="lg:hidden">Аналитика</span>
         </>
       ),
     },
@@ -156,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
     'Пресеты...'
 
   return (
-    <header className="h-11 shrink-0 bg-[#0b1017] border-b border-[#1a2636] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
+    <header className="h-11 shrink-0 bg-[#0b1017] border-b border-[#1a2636] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30 overflow-x-auto no-scrollbar">
       {/* Navigation Tabs */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <SegmentedControl
@@ -196,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({
             variant="outline"
             size="sm"
             onClick={() => setIsPresetOpen((v) => !v)}
-            className="font-sans min-w-[130px] sm:min-w-[170px] md:min-w-[210px] max-w-[220px] justify-between"
+            className="font-sans min-w-[105px] sm:min-w-[170px] md:min-w-[210px] max-w-[140px] sm:max-w-[220px] justify-between"
           >
             <span className="truncate text-[11px] tabular-nums">{currentPresetLabel}</span>
             <ChevronDown
@@ -207,7 +225,7 @@ export const Header: React.FC<HeaderProps> = ({
           </Button>
 
           {isPresetOpen && (
-            <div className="absolute right-0 top-full mt-1.5 min-w-[220px] w-64 max-w-[calc(100vw-2rem)] bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
+            <div className="absolute right-0 top-full mt-1.5 min-w-[200px] w-64 max-w-[calc(100vw-1rem)] bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
               <div className="px-3 py-1.5 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
                 Выберите сценарий
               </div>
@@ -276,7 +294,8 @@ export const Header: React.FC<HeaderProps> = ({
           title="Экспортировать входной сценарий (cosmo-A-1.0)"
           className="px-2 sm:px-2.5"
         >
-          <span>Сценарий</span>
+          <FileDown className="w-3.5 h-3.5 sm:hidden" />
+          <span className="hidden sm:inline">Сценарий</span>
         </Button>
 
         {/* Export Result */}
@@ -288,7 +307,8 @@ export const Header: React.FC<HeaderProps> = ({
           title="Экспорт cosmo-A-result-1.0"
           className="px-2 sm:px-2.5"
         >
-          <span>Результат</span>
+          <Download className="w-3.5 h-3.5 sm:hidden" />
+          <span className="hidden sm:inline">Результат</span>
         </Button>
       </div>
     </header>

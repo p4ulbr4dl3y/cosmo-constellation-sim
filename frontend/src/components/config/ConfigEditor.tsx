@@ -171,7 +171,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
+    <div className="flex flex-col gap-2 font-sans text-xs max-w-[1500px] mx-auto w-full">
       {/* Top Action Bar */}
       <div className="bg-[#0b1017] px-3 py-2 rounded-md border border-[#1a2636] flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2">
@@ -211,7 +211,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 flex-1 min-h-0">
         {/* Left: Constellation Geometry & Planes */}
-        <div className="flex flex-col gap-2 overflow-y-auto">
+        <div className="flex flex-col gap-2 lg:overflow-y-auto">
           {/* Launch Stage & Environment */}
           <div className="bg-[#0b1017] p-3 rounded-md border border-[#1a2636] flex flex-col gap-2.5">
             <span className="text-xs font-semibold text-zinc-200">
@@ -293,7 +293,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                       step="1"
                       value={draft.environment.min_elevation_deg}
                       onChange={(e) => handleEnvChange('min_elevation_deg', Math.max(0, Math.min(45, Number(e.target.value))))}
-                      className="w-5 text-right bg-transparent text-xs font-mono font-bold text-cyan-300 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-7 text-right bg-transparent text-xs font-mono font-bold text-cyan-300 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <span className="text-zinc-400 text-xs select-none font-mono">°</span>
                   </div>
@@ -331,7 +331,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5 text-[11px]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px]">
                     <div>
                       <div className="flex items-center justify-between text-zinc-400 mb-0.5">
                         <span>RAAN (Ω):</span>
@@ -375,7 +375,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
         </div>
 
         {/* Right: Failures & Gateway Outages */}
-        <div className="flex flex-col gap-2 overflow-y-auto">
+        <div className="flex flex-col gap-2 lg:overflow-y-auto">
           {/* Satellite Outages */}
           <div className="bg-[#0b1017] p-3 rounded-md border border-[#1a2636] flex flex-col gap-2.5">
             <span className="text-xs font-semibold text-zinc-200 flex items-center justify-between">
@@ -425,7 +425,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleAddFailure}
-                className="ml-auto hover:border-cyan-400/40 hover:text-cyan-300"
+                className="w-full sm:w-auto sm:ml-auto hover:border-cyan-400/40 hover:text-cyan-300"
               >
                 <span>Добавить</span>
               </Button>
@@ -520,7 +520,7 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleAddGatewayOutage}
-                className="ml-auto hover:border-cyan-400/40 hover:text-cyan-300"
+                className="w-full sm:w-auto sm:ml-auto hover:border-cyan-400/40 hover:text-cyan-300"
               >
                 <span>Добавить</span>
               </Button>

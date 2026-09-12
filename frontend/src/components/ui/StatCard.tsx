@@ -42,7 +42,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           {badge}
         </div>
         <div className="mt-2.5 flex items-baseline justify-between gap-2">
-          <span className="text-2xl font-bold tracking-tight font-mono text-white">
+          <span className="text-xl sm:text-2xl font-bold tracking-tight font-mono text-white">
             {value}
           </span>
           {trend && (
@@ -64,12 +64,12 @@ export const StatCard: React.FC<StatCardProps> = ({
         className={`bg-[#070b10] border border-[#1a2636] rounded p-2 font-sans ${className}`}
         {...props}
       >
-        <div className="text-[9px] text-zinc-400 block mb-0.5 font-medium">
+        <div className="text-[9px] text-zinc-400 block mb-0.5 font-medium truncate">
           {label}
         </div>
-        <div className="flex items-baseline justify-between gap-1">
+        <div className="flex items-baseline justify-between gap-1 flex-wrap">
           <span className="text-xs font-bold text-zinc-100 font-mono">{value}</span>
-          {sublabel && <span className="text-[9px] text-zinc-500">{sublabel}</span>}
+          {sublabel && <span className="text-[9px] text-zinc-500 font-mono">{sublabel}</span>}
         </div>
       </div>
     )
@@ -94,7 +94,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         {badge}
       </div>
       <div className="mt-2.5 flex items-baseline justify-between gap-2">
-        <span className="text-2xl font-semibold tracking-tight font-mono text-zinc-100">
+        <span className="text-xl sm:text-2xl font-semibold tracking-tight font-mono text-zinc-100">
           {value}
         </span>
         {trend && (

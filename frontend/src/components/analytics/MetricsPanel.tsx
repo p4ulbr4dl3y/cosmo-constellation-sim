@@ -180,14 +180,14 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
       />
 
       {/* 2. Client Details & Route Card */}
-      <div className="flex-1 flex flex-col bg-[#0b1017] p-2.5 rounded-md border border-[#1a2636] gap-2 overflow-y-auto">
+      <div className="flex-1 flex flex-col bg-[#0b1017] p-2 sm:p-2.5 rounded-md border border-[#1a2636] gap-2 lg:overflow-y-auto">
         {/* Header & Gateway Status */}
-        <div className="flex items-center justify-between pb-1.5 border-b border-[#1a2636] shrink-0">
-          <span className="font-semibold text-zinc-200 text-xs">
+        <div className="flex items-center justify-between gap-1.5 pb-1.5 border-b border-[#1a2636] shrink-0">
+          <span className="font-semibold text-zinc-200 text-xs truncate min-w-0">
             {selectedClient?.id}: {selectedClient?.name?.split('(')[0]?.trim() || selectedClientId}
           </span>
           {isGatewayOutage && (
-            <Badge variant="red">Шлюз: техокно</Badge>
+            <Badge variant="red" className="shrink-0">Шлюз: техокно</Badge>
           )}
         </div>
 
@@ -224,20 +224,20 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               })}
 
               {routeLatencyMs && (
-                <div className="ml-auto text-zinc-400 text-[10px] font-mono">
-                  RTT <span className="text-zinc-200 font-semibold">{routeLatencyMs} мс</span>
+                <div className="w-full sm:w-auto sm:ml-auto flex justify-end text-zinc-400 text-[10px] font-mono">
+                  RTT <span className="text-zinc-200 font-semibold ml-1">{routeLatencyMs} мс</span>
                 </div>
               )}
             </div>
           ) : (
             <div className="rounded border border-rose-500/25 bg-rose-500/[0.03] p-2 flex flex-col justify-center gap-1 min-h-[46px]">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
                 <span className="text-rose-400 font-medium text-xs">
                   Маршрут разорван
                 </span>
                 <span className="text-zinc-600 text-xs">/</span>
-                <span className="text-zinc-300 text-xs font-medium">
+                <span className="text-zinc-300 text-xs font-medium truncate">
                   {diagnosis.title}
                 </span>
               </div>
@@ -283,10 +283,10 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
         {/* 4. Active Satellite Telemetry / Failure Injection */}
         {primeSat ? (
           <div className="mt-auto bg-[#070b10] border border-[#1a2636] rounded p-2 flex flex-col gap-1.5 text-[11px]">
-            <div className="flex items-center justify-between border-b border-[#1a2636]/60 pb-1">
-              <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-1 border-b border-[#1a2636]/60 pb-1">
+              <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                 <span
-                  className={`w-2 h-2 rounded-full ${
+                  className={`w-2 h-2 rounded-full shrink-0 ${
                     primeSat.failed ? 'bg-rose-500' : 'bg-emerald-400'
                   }`}
                 />
@@ -297,7 +297,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 <span className="text-[10px] text-zinc-400 font-sans">Партия №{primeSat.launch_batch}</span>
               </div>
               {primeSat.failed && (
-                <Badge variant="red">Отказ</Badge>
+                <Badge variant="red" className="shrink-0">Отказ</Badge>
               )}
             </div>
 
@@ -314,7 +314,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 variant={primeSat.failed ? 'accent' : 'outline'}
                 size="sm"
                 onClick={() => onToggleFailure(primeSat.id)}
-                className={`mt-1 h-7 font-sans ${
+                className={`mt-1 h-7 font-sans w-full truncate ${
                   primeSat.failed
                     ? 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/30 text-emerald-200'
                     : 'bg-rose-950/20 border-rose-500/30 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/60'

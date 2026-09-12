@@ -92,7 +92,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
   return (
     <div
       aria-label="Client Terminals"
-      className={`flex ${isVertical ? 'flex-col gap-1.5 w-14 shrink-0' : 'flex-wrap items-center gap-1.5'} ${className}`}
+      className={`flex ${isVertical ? 'flex-col gap-1.5 w-full shrink-0' : 'flex-wrap items-center gap-1.5'} ${className}`}
     >
       {clients.map((c) => {
         const isSelected = c.id === selectedClientId
@@ -107,13 +107,13 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
               aria-pressed={isSelected}
               type="button"
               onClick={() => onSelectClient(c.id)}
-              className={`h-4.5 px-1 rounded text-[10px] flex items-center justify-between border transition-all cursor-pointer ${
+              className={`h-4.5 px-1 rounded text-[10px] flex items-center justify-between border transition-all cursor-pointer overflow-hidden ${
                 isSelected
                   ? 'bg-white/15 border-white/30 text-white font-medium shadow-xs'
                   : 'bg-[#0b1017] border-[#1a2636]/80 text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <span>{c.id}</span>
+              <span className="truncate">{c.id}</span>
               {showMetrics && availRatio !== undefined && (
                 <span
                   className={`text-[9px] font-mono ${

@@ -18,7 +18,7 @@ export const MapSatelliteHUD: React.FC<MapSatelliteHUDProps> = ({
   if (!satellite) return null
 
   return (
-    <div className="absolute bottom-3 left-3 z-20 bg-[#0b1017]/95 backdrop-blur p-3 rounded-md border border-[#1a2636] max-w-xs text-xs font-mono shadow-2xl">
+    <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 z-20 bg-[#0b1017]/95 backdrop-blur p-2.5 sm:p-3 rounded-md border border-[#1a2636] max-w-[calc(100%-1rem)] sm:max-w-xs text-xs font-mono shadow-2xl">
       <div className="flex items-center justify-between gap-3 border-b border-[#1a2636] pb-1.5 mb-2">
         <div className="flex items-center gap-1.5">
           <span
@@ -40,7 +40,7 @@ export const MapSatelliteHUD: React.FC<MapSatelliteHUDProps> = ({
           onClick={onClose}
           aria-label="✕"
           title="Закрыть"
-          className="w-5 h-5 -mr-1 flex items-center justify-center rounded text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          className="w-7 h-7 -mr-1.5 flex items-center justify-center rounded text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
         >
           <X className="w-3.5 h-3.5" />
         </button>

@@ -100,7 +100,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto max-w-[1500px] mx-auto w-full">
+    <div className="flex flex-col gap-2 font-sans text-xs max-w-[1500px] mx-auto w-full">
       {/* Action Header */}
       <div className="bg-[#0b1017] px-2.5 sm:px-3 py-2 rounded-md border border-[#1a2636] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -252,8 +252,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[560px]">
               <thead>
-                <tr className="bg-[#070b10] text-zinc-400 border-b border-[#1a2636] text-[10px]">
-                  <th className="py-2 px-3 text-left">Терминал</th>
+                <tr className="bg-[#070b10] text-zinc-400 border-b border-[#1a2636] text-[10px] sticky top-0 z-20">
+                  <th className="py-2 px-3 text-left sticky left-0 bg-[#070b10] z-30">Терминал</th>
                   <th className="py-2 px-3 text-left">Параметр</th>
                   <th className="py-2 px-3 text-right text-cyan-300">Вариант A</th>
                   <th className="py-2 px-3 text-right text-purple-300">Вариант B</th>
@@ -274,7 +274,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                     <React.Fragment key={c.id}>
                       {/* Row 1: Availability */}
                       <tr className="border-b border-white/[0.04] hover:bg-white/[0.02]">
-                        <td className="py-2 px-3 font-bold text-zinc-200 border-r border-white/[0.04] align-middle" rowSpan={3}>
+                        <td className="py-2 px-3 font-bold text-zinc-200 border-r border-white/[0.04] align-middle sticky left-0 bg-[#0b1017] z-10" rowSpan={3}>
                           {c.id} ({c.lat_deg}° с.ш.)
                         </td>
                         <td className="py-1.5 px-3 text-zinc-300">
