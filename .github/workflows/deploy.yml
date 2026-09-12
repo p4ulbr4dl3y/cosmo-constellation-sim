@@ -33,6 +33,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+          cache-dependency-glob: 'backend/pyproject.toml'
 
       - name: Install dependencies
         working-directory: ./backend
@@ -94,12 +95,13 @@ jobs:
           path: frontend/dist
           retention-days: 1
 
-  deploy:
-    name: Deploy to Pages & VPS
-    needs: [backend-checks, frontend-checks]
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    needs: [frontend-checks]
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+    continue-on-error: true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -114,17 +116,37 @@ jobs:
 
       - name: Setup GitHub Pages
         id: setup_pages
+        continue-on-error: true
         uses: actions/configure-pages@v4
+        with:
+          enablement: true
 
       - name: Upload Pages Artifact
         id: upload_pages
+        if: steps.setup_pages.outcome == 'success'
         uses: actions/upload-pages-artifact@v3
         with:
           path: './frontend/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
+        if: steps.upload_pages.outcome == 'success'
         uses: actions/deploy-pages@v4
+
+  deploy-vps:
+    name: Deploy to VPS
+    needs: [backend-checks, frontend-checks]
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
 
       - name: Deploy to VPS
         env:
