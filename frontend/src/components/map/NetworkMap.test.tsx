@@ -279,4 +279,22 @@ describe('NetworkMap Component', () => {
     fireEvent.click(closeBtn)
     expect(screen.queryByText('СТАТУС:')).toBeNull()
   })
+
+  it('renders compact controls and hides legend on mobile breakpoints', () => {
+    const { container } = render(
+      <NetworkMap
+        scenario={mockScenario}
+        snapshot={mockSnapshot}
+        selectedClientId="C65"
+        onSelectClient={vi.fn()}
+        onToggleFailure={vi.fn()}
+      />
+    )
+
+    // Legend container has hidden md:flex for responsive mobile hiding
+    const legend = container.querySelector('.hidden.md\\:flex')
+    expect(legend).toBeDefined()
+    expect(legend?.textContent).toContain('P1')
+    expect(legend?.textContent).toContain('ОТКАЗ')
+  })
 })
