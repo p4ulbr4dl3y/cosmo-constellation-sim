@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react'
 import {
   ArrowRight,
+  ZapOff,
+  RotateCcw,
 } from 'lucide-react'
 import type { Scenario, Snapshot, ClientTimeline } from '../../types/scenario'
 import { StatCard, Badge, Button, ClientSelector } from '../ui'
@@ -319,18 +321,22 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
             {onToggleFailure && (
               <Button
                 type="button"
-                variant={primeSat.failed ? 'accent' : 'outline'}
+                variant={primeSat.failed ? 'success' : 'danger'}
                 size="sm"
                 onClick={() => onToggleFailure(primeSat.id)}
-                className={`mt-1 h-7 font-sans w-full truncate ${
-                  primeSat.failed
-                    ? 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/30 text-emerald-200'
-                    : 'bg-rose-950/20 border-rose-500/30 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/60'
-                }`}
+                className="mt-1 w-full font-sans"
               >
-                <span>
-                  {primeSat.failed ? 'Восстановить связь' : 'Имитировать отказ КА'}
-                </span>
+                {primeSat.failed ? (
+                  <>
+                    <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+                    <span>Восстановить связь</span>
+                  </>
+                ) : (
+                  <>
+                    <ZapOff className="w-3.5 h-3.5 shrink-0" />
+                    <span>Имитировать отказ КА</span>
+                  </>
+                )}
               </Button>
             )}
           </div>

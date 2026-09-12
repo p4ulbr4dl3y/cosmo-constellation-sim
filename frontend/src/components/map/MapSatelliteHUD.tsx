@@ -1,6 +1,7 @@
 import React from 'react'
-import { X } from 'lucide-react'
+import { X, RotateCcw, ZapOff } from 'lucide-react'
 import type { SatelliteSnapshot } from '../../types/scenario'
+import { Button } from '../ui'
 
 export interface MapSatelliteHUDProps {
   satellite: SatelliteSnapshot | null
@@ -80,16 +81,25 @@ export const MapSatelliteHUD: React.FC<MapSatelliteHUDProps> = ({
 
       {/* Action button */}
       <div className="mt-2 pt-2 border-t border-[#1a2636]">
-        <button
+        <Button
+          type="button"
+          variant={satellite.failed ? 'success' : 'danger'}
+          size="sm"
           onClick={() => onToggleFailure(satellite.id)}
-          className={`w-full h-7 px-2 rounded text-xs font-mono font-medium flex items-center justify-center transition-all cursor-pointer border ${
-              satellite.failed
-                ? 'bg-emerald-600/30 hover:bg-emerald-600/50 border-emerald-500/40 text-emerald-200'
-                : 'bg-rose-950/20 border-rose-500/30 text-rose-300 hover:bg-rose-500/20 hover:border-rose-500/60'
-          }`}
+          className="w-full font-sans"
         >
-          {satellite.failed ? 'Восстановить связь' : 'Имитировать отказ КА'}
-        </button>
+          {satellite.failed ? (
+            <>
+              <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+              <span>Восстановить связь</span>
+            </>
+          ) : (
+            <>
+              <ZapOff className="w-3.5 h-3.5 shrink-0" />
+              <span>Имитировать отказ КА</span>
+            </>
+          )}
+        </Button>
       </div>
     </div>
   )
