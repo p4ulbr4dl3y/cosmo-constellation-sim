@@ -1,0 +1,30 @@
+name: Sync to GitVerse
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Mirror to GitVerse
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to GitVerse
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+        run: |
+          git remote add gitverse "https://p4ulbr4dl3y:${GITVERSE_TOKEN}@gitverse.ru/hackrus.experts/kosmo-nizni_dreamteam_40_52.git"
+          git push --force gitverse "${GITHUB_REF}:${GITHUB_REF}"
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            git push --force gitverse refs/heads/main:refs/heads/master
+          fi
+          git push --tags gitverse || true
