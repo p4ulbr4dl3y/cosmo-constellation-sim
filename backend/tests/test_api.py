@@ -264,3 +264,13 @@ def test_api_report_export_fallback_and_preset_errors(
         # get_preset returns 500
         res_single = api_client.get("/api/presets/corrupted")
         assert res_single.status_code == 500
+
+
+@pytest.mark.unit
+def test_find_helpers_fallback() -> None:
+    from app.api.v1.analysis import find_recommendations_doc
+    from app.api.v1.presets import find_data_dir
+
+    with patch("pathlib.Path.exists", return_value=False):
+        assert find_recommendations_doc() is None
+        assert find_data_dir() == Path("data")

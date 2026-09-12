@@ -145,4 +145,56 @@ describe('Header', () => {
     render(<Header {...defaultProps} currentScenario={scenarioWithoutMeta as any} />)
     expect(screen.getByText('Пользовательский сценарий')).toBeDefined()
   })
+
+  it('handles reset scenario button when modified', () => {
+    const onResetScenario = vi.fn()
+    render(<Header {...defaultProps} isModified={true} onResetScenario={onResetScenario} />)
+
+    const resetBtn = screen.getByTitle('Сбросить к исходному')
+    fireEvent.click(resetBtn)
+    expect(onResetScenario).toHaveBeenCalledTimes(1)
+  })
+
+  it('handles export dropdown actions and outside click', () => {
+    window.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url')
+    window.URL.revokeObjectURL = vi.fn()
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    render(<Header {...defaultProps} />)
+
+    const exportBtn = screen.getByTitle('Экспорт файлов')
+    fireEvent.click(exportBtn)
+
+    expect(screen.getByText('Экспорт данных')).toBeDefined()
+
+    // Export results
+    const resultBtn = screen.getByText('Результаты расчета')
+    fireEvent.click(resultBtn)
+    expect(clickSpy).toHaveBeenCalled()
+
+    // Open again and export scenario
+    fireEvent.click(exportBtn)
+    const scenarioBtn = screen.getByText('Конфиг сценария')
+    fireEvent.click(scenarioBtn)
+    expect(clickSpy).toHaveBeenCalledTimes(2)
+
+    clickSpy.mockRestore()
+  })
+
+  it('allows dismissing file error banner', async () => {
+    const { container } = render(<Header {...defaultProps} />)
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement
+    const file = new File(['invalid json string'], 'corrupt.json', { type: 'application/json' })
+
+    fireEvent.change(fileInput, { target: { files: [file] } })
+
+    let dismissBtn!: HTMLElement
+    await vi.waitFor(() => {
+      dismissBtn = screen.getByText('✕')
+      expect(dismissBtn).toBeDefined()
+    })
+
+    fireEvent.click(dismissBtn)
+    expect(screen.queryByText('✕')).toBeNull()
+  })
 })

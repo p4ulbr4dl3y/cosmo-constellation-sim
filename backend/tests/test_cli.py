@@ -177,3 +177,13 @@ def test_cli_metric_distance_and_delay(tmp_path: Path) -> None:
         with pytest.raises(SystemExit) as exc:
             main()
         assert exc.value.code in (0, 1)
+
+
+@pytest.mark.unit
+def test_cli_main_entrypoint() -> None:
+    import runpy
+
+    with patch.object(sys, "argv", ["app.cli", "--help"]):
+        with pytest.raises(SystemExit) as exc:
+            runpy.run_module("app.cli", run_name="__main__")
+        assert exc.value.code == 0

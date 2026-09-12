@@ -8,6 +8,7 @@ import {
   exportResultFile,
   exportResults,
   classifyFailure,
+  validateScenario,
   FAILURE_REASON_NO_CLIENT_SAT,
   FAILURE_REASON_GATEWAY_OFFLINE,
   FAILURE_REASON_NO_GW_SAT,
@@ -1110,6 +1111,154 @@ describe('exportResultFile and exportResults', () => {
 
     const { timelines } = calculateFullTimeline(scenario)
     const exported = exportResultFile(scenario, timelines)
+    expect(exported.schema_version).toBe('cosmo-A-result-1.0')
+    expect(exported.routes.length).toBeGreaterThan(0)
+  })
+
+  it('validates gateway_outages field thoroughly', () => {
+    const validBase: Scenario = {
+      schema_version: 'cosmo-A-1.0',
+      meta: { id: 'gw_val', title: 'GW Val' },
+      environment: {
+        altitude_km: 550,
+        inclination_deg: 86.4,
+        earth_angle0_deg: 0,
+        horizon_s: 1000,
+        step_s: 100,
+        min_elevation_deg: 15,
+        isl_range_km: 3000,
+      },
+      design: {
+        launch_stage: 1,
+        planes: [{ id: 'P1', raan_deg: 0, phase_deg: 0 }],
+        satellites: [{ id: 'S01', plane_id: 'P1', slot_deg: 0, launch_batch: 1 }],
+      },
+      ground_sites: [
+        { id: 'C1', name: 'Client 1', role: 'client', lat_deg: 60, lon_deg: 30 },
+        { id: 'GW1', name: 'Gateway 1', role: 'gateway', lat_deg: 68, lon_deg: 33 },
+      ],
+      failures: [],
+      gateway_outages: [],
+    }
+
+    // Non-array
+    expect(
+      validateScenario({ ...validBase, gateway_outages: 'not-array' as any })
+    ).toContain("Поле 'gateway_outages' должно быть списком.")
+
+    // Non-object item
+    expect(
+      validateScenario({ ...validBase, gateway_outages: ['bad'] as any })
+    ).toContain("Элемент #0 в 'gateway_outages' должен быть объектом.")
+
+    // Unknown gateway_id
+    expect(
+      validateScenario({
+        ...validBase,
+        gateway_outages: [{ gateway_id: 'UNKNOWN_GW', start_s: 0, end_s: 500 }],
+      })
+    ).toContain("Период недоступности шлюза #0 ссылается на неизвестный gateway_id='UNKNOWN_GW'.")
+
+    // Non-numeric start_s or end_s
+    expect(
+      validateScenario({
+        ...validBase,
+        gateway_outages: [{ gateway_id: 'GW1', start_s: '0' as any, end_s: 500 }],
+      })
+    ).toContain("Интервал недоступности шлюза #0 должен содержать числовые start_s и end_s.")
+
+    // Invalid intervals (start >= end or end > horizon)
+    expect(
+      validateScenario({
+        ...validBase,
+        gateway_outages: [{ gateway_id: 'GW1', start_s: 500, end_s: 400 }],
+      })
+    ).toEqual(expect.arrayContaining([expect.stringContaining('имеет некорректный интервал')]))
+
+    expect(
+      validateScenario({
+        ...validBase,
+        gateway_outages: [{ gateway_id: 'GW1', start_s: 0, end_s: 2000 }], // > horizon_s 1000
+      })
+    ).toEqual(expect.arrayContaining([expect.stringContaining('имеет некорректный интервал')]))
+
+    // Missing gateway
+    expect(
+      validateScenario({
+        ...validBase,
+        ground_sites: [{ id: 'C1', name: 'Client 1', role: 'client', lat_deg: 60, lon_deg: 30 }],
+      })
+    ).toContain("В сценарии должен присутствовать хотя бы один шлюз (role='gateway').")
+
+    // Failures non-array
+    expect(
+      validateScenario({ ...validBase, failures: 'not-array' as any })
+    ).toContain("Поле 'failures' должно быть списком.")
+
+    // Failures item non-object
+    expect(
+      validateScenario({ ...validBase, failures: [null as any] })
+    ).toContain("Элемент #0 в 'failures' должен быть объектом.")
+
+    // Failures unknown satellite_id
+    expect(
+      validateScenario({
+        ...validBase,
+        failures: [{ satellite_id: 'UNKNOWN_SAT', start_s: 0, end_s: 500 }],
+      })
+    ).toContain("Отказ #0 ссылается на неизвестный satellite_id='UNKNOWN_SAT'.")
+
+    // Failures non-numeric start/end
+    expect(
+      validateScenario({
+        ...validBase,
+        failures: [{ satellite_id: 'S01', start_s: '0' as any, end_s: 500 }],
+      })
+    ).toContain("Интервал отказа #0 должен содержать числовые start_s и end_s.")
+
+    // Failures invalid intervals
+    expect(
+      validateScenario({
+        ...validBase,
+        failures: [{ satellite_id: 'S01', start_s: 600, end_s: 400 }],
+      })
+    ).toEqual(expect.arrayContaining([expect.stringContaining('имеет некорректный интервал')]))
+
+    expect(
+      validateScenario({
+        ...validBase,
+        failures: [{ satellite_id: 'S01', start_s: 0, end_s: 5000 }],
+      })
+    ).toEqual(expect.arrayContaining([expect.stringContaining('имеет некорректный интервал')]))
+  })
+
+  it('runs exportResultFile without precomputed cached routes', () => {
+    const scenario: Scenario = {
+      schema_version: 'cosmo-A-1.0',
+      meta: { id: 'sim_routes', title: 'Sim Routes' },
+      environment: {
+        altitude_km: 550,
+        inclination_deg: 86.4,
+        earth_angle0_deg: 0,
+        horizon_s: 200,
+        step_s: 100,
+        min_elevation_deg: 15,
+        isl_range_km: 3000,
+      },
+      design: {
+        launch_stage: 1,
+        planes: [{ id: 'P1', raan_deg: 0, phase_deg: 0 }],
+        satellites: [{ id: 'S01', plane_id: 'P1', slot_deg: 0, launch_batch: 1 }],
+      },
+      ground_sites: [
+        { id: 'C1', name: 'Client 1', role: 'client', lat_deg: 60, lon_deg: 30 },
+        { id: 'GW1', name: 'Gateway 1', role: 'gateway', lat_deg: 68, lon_deg: 33 },
+      ],
+      failures: [],
+      gateway_outages: [],
+    }
+
+    const exported = exportResultFile(scenario, {})
     expect(exported.schema_version).toBe('cosmo-A-result-1.0')
     expect(exported.routes.length).toBeGreaterThan(0)
   })
