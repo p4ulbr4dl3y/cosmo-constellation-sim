@@ -111,11 +111,11 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 min-h-0 p-1.5 sm:p-2 flex flex-col gap-2 overflow-hidden w-full">
         {activeTab === 'monitor' && (
-          <div className="flex-1 min-h-0 flex flex-col lg:grid lg:grid-cols-12 gap-2 overflow-y-auto lg:overflow-hidden pr-0.5">
-            {/* Left Column (8 cols on desktop): Map & Timeline Scrubber */}
-            <div className="lg:col-span-8 flex flex-col gap-2 min-h-0">
+          <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto lg:overflow-hidden pr-0.5">
+            {/* Upper Split: Map (65%) & Metrics (35%) */}
+            <div className="shrink-0 lg:shrink lg:flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-2">
               {/* Map & Network Visualization */}
-              <div className="h-[320px] sm:h-[400px] lg:flex-1 lg:h-auto min-h-[260px] lg:min-h-0 flex overflow-hidden rounded-md border border-[#1a2636]">
+              <div className="lg:col-span-8 h-[290px] sm:h-[380px] lg:h-full min-h-[250px] lg:min-h-0 flex overflow-hidden rounded-md border border-[#1a2636]">
                 <NetworkMap
                   scenario={scenario}
                   snapshot={snapshot}
@@ -125,28 +125,28 @@ export default function App() {
                 />
               </div>
 
-              {/* Scrubber & Gantt Availability Diagram */}
-              <div className="shrink-0">
-                <TimelinePlayer
+              {/* Metrics & Active Route Panel */}
+              <div className="lg:col-span-4 min-h-[300px] lg:h-full lg:min-h-0 flex flex-col overflow-hidden">
+                <MetricsPanel
                   scenario={scenario}
-                  currentTime={currentTime}
-                  onTimeChange={setCurrentTime}
+                  snapshot={snapshot}
                   timelines={timelines}
                   selectedClientId={selectedClientId}
                   onSelectClient={setSelectedClientId}
+                  onToggleFailure={handleToggleFailure}
                 />
               </div>
             </div>
 
-            {/* Right Column (4 cols on desktop): Metrics & Active Route Panel */}
-            <div className="lg:col-span-4 min-h-[300px] lg:h-full lg:min-h-0 flex flex-col overflow-hidden">
-              <MetricsPanel
+            {/* Bottom Scrubber & Gantt Availability Diagram */}
+            <div className="shrink-0">
+              <TimelinePlayer
                 scenario={scenario}
-                snapshot={snapshot}
+                currentTime={currentTime}
+                onTimeChange={setCurrentTime}
                 timelines={timelines}
                 selectedClientId={selectedClientId}
                 onSelectClient={setSelectedClientId}
-                onToggleFailure={handleToggleFailure}
               />
             </div>
           </div>

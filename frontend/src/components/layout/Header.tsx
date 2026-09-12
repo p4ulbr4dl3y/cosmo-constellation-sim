@@ -4,8 +4,6 @@ import {
   RotateCcw,
   ChevronDown,
   Check,
-  FileDown,
-  Download,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline } from '../../types/scenario'
 import { PRESET_SCENARIOS } from '../../data/presets'
@@ -131,30 +129,14 @@ export const Header: React.FC<HeaderProps> = ({
     value: 'monitor' | 'config' | 'compare' | 'report'
     label: React.ReactNode
   }> = [
-    {
-      value: 'monitor',
-      label: (
-        <>
-          <span className="hidden md:inline">Мониторинг</span>
-          <span className="md:hidden">Карта</span>
-        </>
-      ),
-    },
-    {
-      value: 'config',
-      label: (
-        <>
-          <span className="hidden md:inline">Конфигурация</span>
-          <span className="md:hidden">Конфиг</span>
-        </>
-      ),
-    },
+    { value: 'monitor', label: <span>Мониторинг</span> },
+    { value: 'config', label: <span>Конфигурация</span> },
     {
       value: 'compare',
       label: (
         <>
-          <span className="hidden lg:inline">A/B Сравнение</span>
-          <span className="lg:hidden">A/B</span>
+          <span className="hidden sm:inline">A/B Сравнение</span>
+          <span className="sm:hidden">A/B</span>
         </>
       ),
     },
@@ -162,8 +144,8 @@ export const Header: React.FC<HeaderProps> = ({
       value: 'report',
       label: (
         <>
-          <span className="hidden lg:inline">Аналитика & Рекомендации</span>
-          <span className="lg:hidden">Аналитика</span>
+          <span className="hidden sm:inline">Аналитика & Рекомендации</span>
+          <span className="sm:hidden">Аналитика</span>
         </>
       ),
     },
@@ -214,7 +196,7 @@ export const Header: React.FC<HeaderProps> = ({
             variant="outline"
             size="sm"
             onClick={() => setIsPresetOpen((v) => !v)}
-            className="font-sans min-w-[105px] sm:min-w-[170px] md:min-w-[210px] max-w-[140px] sm:max-w-[220px] justify-between"
+            className="font-sans min-w-[130px] sm:min-w-[170px] md:min-w-[210px] max-w-[220px] justify-between"
           >
             <span className="truncate text-[11px] tabular-nums">{currentPresetLabel}</span>
             <ChevronDown
@@ -294,8 +276,7 @@ export const Header: React.FC<HeaderProps> = ({
           title="Экспортировать входной сценарий (cosmo-A-1.0)"
           className="px-2 sm:px-2.5"
         >
-          <FileDown className="w-3.5 h-3.5 sm:hidden" />
-          <span className="hidden sm:inline">Сценарий</span>
+          <span>Сценарий</span>
         </Button>
 
         {/* Export Result */}
@@ -307,8 +288,7 @@ export const Header: React.FC<HeaderProps> = ({
           title="Экспорт cosmo-A-result-1.0"
           className="px-2 sm:px-2.5"
         >
-          <Download className="w-3.5 h-3.5 sm:hidden" />
-          <span className="hidden sm:inline">Результат</span>
+          <span>Результат</span>
         </Button>
       </div>
     </header>

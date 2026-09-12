@@ -92,7 +92,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
   return (
     <div
       aria-label="Client Terminals"
-      className={`flex ${isVertical ? 'flex-col gap-1.5 w-full shrink-0' : 'flex-wrap items-center gap-1.5'} ${className}`}
+      className={`flex ${isVertical ? 'flex-col gap-1.5 w-14 shrink-0' : 'flex-wrap items-center gap-1.5'} ${className}`}
     >
       {clients.map((c) => {
         const isSelected = c.id === selectedClientId
