@@ -1,10 +1,8 @@
-# <img src="frontend/public/favicon.svg" width="32" height="32" align="center" alt="Logo" /> Созвездие: ЦУП
+# <img src="frontend/public/favicon.svg" width="28" height="28" align="center" alt="Logo" /> Созвездие: ЦУП
 
-> Инженерный центр управления спутниковой группировкой и оценки доступности связи в рамках второго кейса КосмоХакатона 2026.
-> 
-> Доступные версии:
-> - рабочий сервер: [https://state3407.space/cosmo/](https://state3407.space/cosmo/);
-> - зеркало на страницах проекта: [https://p4ulbr4dl3y.github.io/cosmo-constellation-sim/](https://p4ulbr4dl3y.github.io/cosmo-constellation-sim/).
+Инженерный центр управления спутниковой группировкой и оценки доступности связи в рамках второго кейса КосмоХакатона 2026.
+
+[**Демо**](https://state3407.space/cosmo/) · [**Зеркало**](https://p4ulbr4dl3y.github.io/cosmo-constellation-sim/)
 
 ![Mission Control Dashboard](docs/assets/frontend_verified.png)
 
