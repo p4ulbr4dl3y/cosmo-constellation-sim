@@ -59,3 +59,13 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #27374d;
 }
+
+/* Hide scrollbars for smooth mobile touch carousels/toolbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

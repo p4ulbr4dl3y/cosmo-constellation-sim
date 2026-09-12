@@ -148,7 +148,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
-      const minZ = 0.5
+      const minZ = viewMode === '2d' ? 1.0 : 0.8
       const maxZ = viewMode === '2d' ? 4.0 : 3.0
 
       let dy = e.deltaY
@@ -208,12 +208,12 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           py = p.y
           vis = p.depth > 0
         }
-        if (vis && Math.hypot(mouseX - px, mouseY - py) < 16) {
+        if (vis && Math.hypot(mouseX - px, mouseY - py) < 20) {
           return { id: g.id, type: 'ground', x: px, y: py }
         }
       }
 
-      // Check satellites (hit radius 14px)
+      // Check satellites (hit radius 18px on touch / mobile)
       for (const s of snapshot.satellites) {
         if (!showUnlaunched && !s.active && !s.failed) continue
         let px = 0,
@@ -237,7 +237,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           py = p.y
           vis = p.visible
         }
-        if (vis && Math.hypot(mouseX - px, mouseY - py) < 14) {
+        if (vis && Math.hypot(mouseX - px, mouseY - py) < 18) {
           return { id: s.id, type: 'sat', x: px, y: py }
         }
       }
@@ -333,8 +333,8 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       e.currentTarget.releasePointerCapture(e.pointerId)
     } catch {}
 
-    // Tap selection on touch devices if finger barely moved (< 6px)
-    if (dragDistRef.current < 6 && canvasRef.current) {
+    // Tap selection on touch devices if finger barely moved (< 10px)
+    if (dragDistRef.current < 10 && canvasRef.current) {
       const rect = canvasRef.current.getBoundingClientRect()
       const clickX = e.clientX - rect.left
       const clickY = e.clientY - rect.top

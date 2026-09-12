@@ -202,34 +202,36 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="h-11 shrink-0 bg-[#0b1017] border-b border-[#1a2636] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
       {/* Navigation Tabs & Brand */}
-      <div className="flex items-center gap-1.5 sm:gap-2 shrink min-w-0 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink min-w-0">
         <button
           type="button"
           onClick={() => setActiveTab('monitor')}
-          className="flex items-center gap-1.5 shrink-0 pr-2 border-r border-[#1a2636] hover:opacity-80 transition-opacity text-left cursor-pointer"
+          className="flex items-center gap-1.5 shrink-0 md:pr-2 border-r-0 md:border-r border-[#1a2636] hover:opacity-80 transition-opacity text-left cursor-pointer"
           title="Созвездие: ЦУП (перейти к мониторингу)"
         >
           <Logo size={20} className="w-5 h-5 text-cyan-400 shrink-0" />
-          <div className="items-center gap-1 text-xs hidden sm:flex">
-            <span className="font-bold tracking-wider text-zinc-100 uppercase hidden lg:inline">Созвездие</span>
-            <span className="text-zinc-500 font-mono text-[11px] hidden lg:inline">//</span>
-            <span className="text-zinc-400 font-medium tracking-wide">ЦУП</span>
+          <div className="items-center gap-1 text-xs hidden lg:flex">
+            <span className="font-bold tracking-wider text-zinc-100 uppercase">Созвездие</span>
+            <span className="text-zinc-500 font-mono text-[11px]">//</span>
+            <span className="text-zinc-300 font-semibold tracking-wide text-xs">ЦУП</span>
           </div>
         </button>
 
-        <SegmentedControl
-          options={tabOptions}
-          value={activeTab}
-          onChange={setActiveTab}
-          size="md"
-        />
+        <div className="hidden md:flex items-center gap-1.5">
+          <SegmentedControl
+            options={tabOptions}
+            value={activeTab}
+            onChange={setActiveTab}
+            size="md"
+          />
 
-        {isModified && (
-          <Badge variant="amber" className="hidden md:inline-flex gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            <span>изменен</span>
-          </Badge>
-        )}
+          {isModified && (
+            <Badge variant="amber" className="hidden lg:inline-flex gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span>изменен</span>
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* File error notification */}
@@ -247,7 +249,7 @@ export const Header: React.FC<HeaderProps> = ({
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
         {/* Scenario Input Group */}
         <div className="flex items-center gap-1 sm:gap-1.5">
           {/* Preset Selector */}
@@ -259,7 +261,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setIsPresetOpen((v) => !v)
                 setIsExportOpen(false)
               }}
-              className="font-sans min-w-[90px] sm:min-w-[130px] lg:min-w-[180px] max-w-[120px] sm:max-w-[160px] lg:max-w-[220px] justify-between px-2"
+              className="font-sans min-w-[76px] max-w-[130px] sm:min-w-[130px] lg:min-w-[180px] sm:max-w-[160px] lg:max-w-[220px] justify-between px-2"
             >
               <span className="truncate text-[11px] tabular-nums">{currentPresetLabel}</span>
               <ChevronDown

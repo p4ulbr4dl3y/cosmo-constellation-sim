@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import type { Scenario } from './types/scenario'
 import { PRESET_SCENARIOS } from './data/presets'
 import { calculateSnapshot, calculateFullTimeline } from './lib/orbit'
+import { Activity, Sliders, GitCompare, BarChart3 } from 'lucide-react'
 import { Header } from './components/layout/Header'
 import { NetworkMap } from './components/map/NetworkMap'
 import { TimelinePlayer } from './components/timeline/TimelinePlayer'
@@ -115,7 +116,7 @@ export default function App() {
             {/* Upper Split: Map (65%) & Metrics (35%) */}
             <div className="shrink-0 lg:shrink lg:flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-2">
               {/* Map & Network Visualization */}
-              <div className="lg:col-span-8 h-[290px] sm:h-[380px] lg:h-full min-h-[250px] lg:min-h-0 flex overflow-hidden rounded-md border border-[#1a2636]">
+              <div className="lg:col-span-8 h-[45vh] min-h-[280px] sm:h-[400px] lg:h-full lg:min-h-0 flex flex-col overflow-hidden rounded-md border border-[#1a2636]">
                 <NetworkMap
                   scenario={scenario}
                   snapshot={snapshot}
@@ -186,6 +187,39 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* Mobile Bottom Navigation Bar (iOS / Android Ergonomic Thumb Navigation) */}
+      <nav
+        aria-label="Мобильная навигация"
+        className="md:hidden shrink-0 bg-[#0b1017] border-t border-[#1a2636] z-40 pb-[env(safe-area-inset-bottom,0px)]"
+      >
+        <div className="grid grid-cols-4 h-12">
+          {[
+            { value: 'monitor' as const, label: 'Монитор', icon: Activity },
+            { value: 'config' as const, label: 'Конфиг', icon: Sliders },
+            { value: 'compare' as const, label: 'Сравн.', icon: GitCompare },
+            { value: 'report' as const, label: 'Отчет', icon: BarChart3 },
+          ].map((tab) => {
+            const Icon = tab.icon
+            const isActive = activeTab === tab.value
+            return (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => setActiveTab(tab.value)}
+                className={`flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer select-none ${
+                  isActive
+                    ? 'text-cyan-400 font-semibold bg-cyan-500/10'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : 'text-zinc-400'}`} />
+                <span className="text-[10px] tracking-tight">{tab.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </nav>
     </div>
   )
 }

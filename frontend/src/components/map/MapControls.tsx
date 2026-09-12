@@ -42,8 +42,8 @@ export const MapControls: React.FC<MapControlsProps> = ({
   const isMaxZoom = viewMode === '2d' ? zoom >= 4.0 : zoom >= 3.0
 
   return (
-    <div className="flex-shrink-0 flex items-center justify-between gap-1 sm:gap-2 bg-[#0b1017] px-1.5 sm:px-2.5 py-1 sm:py-1.5 border-b border-[#1a2636] font-sans text-xs z-10">
-      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+    <div className="flex-shrink-0 flex items-center justify-between gap-1 sm:gap-2 bg-[#0b1017] px-1.5 sm:px-2.5 py-1 sm:py-1.5 border-b border-[#1a2636] font-sans text-xs z-10 overflow-x-auto no-scrollbar touch-pan-x">
+      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 min-w-max">
         {/* 2D / 3D Mode Switcher */}
         <SegmentedControl
           options={[
