@@ -3,6 +3,8 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
+  Play,
+  Pause,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline, TimelineSlot } from '../../types/scenario'
 import { Button, SegmentedControl, ClientSelector } from '../ui'
@@ -218,18 +220,18 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
   return (
     <div className="p-2 bg-[#0b1017] border border-[#1a2636] rounded-md flex flex-col gap-1.5 select-none font-mono">
       {/* Top Row: Playback Controls & Time readout */}
-      <div className="flex items-center justify-between gap-1 sm:gap-2 flex-wrap">
-        {/* Play / Step Buttons & Speed */}
-        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+      <div className="flex items-center justify-between gap-1 sm:gap-2">
+        {/* Play / Step Buttons */}
+        <div className="flex items-center gap-1 shrink-0">
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={() => onTimeChange(0)}
             title="В начало (00:00:00)"
-            className="h-7 w-6 sm:w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0"
+            className="h-7 w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0 p-0"
           >
-            <RotateCcw className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </Button>
 
           <Button
@@ -238,20 +240,25 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             size="icon"
             onClick={() => onTimeChange(Math.max(0, currentTime - step_s))}
             title="Шаг назад (-120с)"
-            className="h-7 w-6 sm:w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0"
+            className="h-7 w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0 p-0"
           >
-            <ChevronLeft className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+            <ChevronLeft className="w-3.5 h-3.5" />
           </Button>
 
           <Button
             type="button"
             variant={isPlaying ? 'accent' : 'primary'}
-            size="sm"
+            size="icon"
             onClick={() => setIsPlaying((v) => !v)}
+            aria-label={isPlaying ? 'Пауза' : 'Старт'}
             title={isPlaying ? 'Пауза (Пробел)' : 'Воспроизведение (Пробел)'}
-            className="h-7 px-2.5 sm:px-3 text-xs font-sans font-medium shrink-0"
+            className="h-7 w-7 shrink-0"
           >
-            <span>{isPlaying ? 'Пауза' : 'Старт'}</span>
+            {isPlaying ? (
+              <Pause className="w-3.5 h-3.5 fill-current" />
+            ) : (
+              <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+            )}
           </Button>
 
           <Button
@@ -260,19 +267,10 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             size="icon"
             onClick={() => onTimeChange(Math.min(horizon_s - step_s, currentTime + step_s))}
             title="Шаг вперед (+120с)"
-            className="h-7 w-6 sm:w-7 border border-[#1a2636] bg-white/[0.04] hover:bg-white/[0.08] shrink-0"
+            className="h-7 w-7 border border-[#1a2636] bg-white/[0.04] hover:bg-white/[0.08] shrink-0 p-0"
           >
-            <ChevronRight className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </Button>
-
-          {/* Speed Selector */}
-          <SegmentedControl
-            options={speedOptions}
-            value={playbackSpeed}
-            onChange={setPlaybackSpeed}
-            size="sm"
-            className="ml-0.5 sm:ml-1 h-7"
-          />
         </div>
 
         {/* Current Time Display */}
@@ -280,23 +278,11 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
           <span className="font-semibold text-white tracking-wider text-[11px] sm:text-xs whitespace-nowrap">
             {formatTime(currentTime)}
           </span>
-          <span className="text-[11px] text-zinc-500 hidden sm:inline">/ {formatTime(horizon_s)} UTC</span>
-        </div>
-
-        {/* Legend */}
-        <div className="hidden md:flex items-center gap-3 text-xs text-zinc-400 font-sans shrink-0">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500/80" />
-            Связь
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-rose-500" />
-            Обрыв
-          </span>
+          <span className="text-[10px] sm:text-[11px] text-zinc-500 whitespace-nowrap">/ {formatTime(horizon_s)}</span>
         </div>
       </div>
 
-      {/* Gantt & Timeline Scrubber Area */}
+      {/* Middle Area: Gantt & Timeline Scrubber Area */}
       <div className="flex gap-1.5 bg-[#070b10] p-2 rounded border border-[#1a2636]">
         {/* Left Column: Client Pills */}
         <div className="w-14 shrink-0 flex flex-col gap-1.5 pt-5">
@@ -374,6 +360,33 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         </div>
       </div>
 
+      {/* Bottom Row: Speed Selector & Legend */}
+      <div className="flex items-center justify-between gap-2 px-0.5">
+        {/* Speed Selector */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[10px] text-zinc-500 uppercase tracking-wider hidden sm:inline">Скорость:</span>
+          <SegmentedControl
+            options={speedOptions}
+            value={playbackSpeed}
+            onChange={setPlaybackSpeed}
+            size="sm"
+            className="h-7"
+          />
+        </div>
+
+        {/* Legend */}
+        <div className="flex items-center gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-zinc-400 font-sans shrink-0">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500/80" />
+            Связь
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            Обрыв
+          </span>
+        </div>
+      </div>
+
       {/* Floating Tooltip */}
       {tooltipData && (
         <div
@@ -382,7 +395,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         >
           <div className="flex items-center gap-2 font-semibold text-cyan-300 border-b border-[#1a2636] pb-1 mb-1">
             <span>{tooltipData.clientId}</span>
-            <span>{formatTime(tooltipData.slot.t_s)} UTC</span>
+            <span>{formatTime(tooltipData.slot.t_s)}</span>
           </div>
           <div className="flex items-center gap-1 text-[10px]">
             {tooltipData.slot.hasPath ? (

@@ -29,7 +29,7 @@ export function SegmentedControl<T extends string | number>({
   }[size]
 
   const itemSizeStyles = {
-    sm: 'px-1.5 py-0.5 rounded text-[11px]',
+    sm: 'px-1 sm:px-1.5 py-0.5 rounded text-[10px] sm:text-[11px]',
     md: 'px-1.5 sm:px-2.5 py-1 rounded-md text-[11px] sm:text-xs',
   }[size]
 

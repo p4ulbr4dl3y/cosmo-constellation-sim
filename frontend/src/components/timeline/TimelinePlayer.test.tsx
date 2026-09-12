@@ -94,7 +94,7 @@ describe('TimelinePlayer Component', () => {
     )
 
     expect(screen.getByText('01:00:00')).toBeDefined()
-    expect(screen.getByText('/ 24:00:00 UTC')).toBeDefined()
+    expect(screen.getByText('/ 24:00:00')).toBeDefined()
     expect(screen.getByRole('button', { name: /старт/i })).toBeDefined()
   })
 
