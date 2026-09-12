@@ -195,7 +195,7 @@ export default function App() {
             { value: 'monitor' as const, label: 'Монитор', icon: Activity },
             { value: 'config' as const, label: 'Конфиг', icon: Sliders },
             { value: 'compare' as const, label: 'Сравн.', icon: GitCompare },
-            { value: 'report' as const, label: 'Отчет', icon: BarChart3 },
+            { value: 'report' as const, label: 'Анализ', icon: BarChart3 },
           ].map((tab) => {
             const Icon = tab.icon
             const isActive = activeTab === tab.value

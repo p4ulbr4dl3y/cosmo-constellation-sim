@@ -37,7 +37,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
           <span className="font-semibold text-zinc-100 text-xs">
             Аналитический отчёт и синтез рекомендаций
           </span>
-          <Badge variant="neutral">Кейс 2 (Арктика)</Badge>
+          <Badge variant="neutral">Арктическая зона РФ</Badge>
           <Badge variant="neutral">48 КА, 3 плоскости</Badge>
         </div>
 
