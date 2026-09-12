@@ -133,3 +133,8 @@ npm run lint
 - бэкенд: Python 3.13+, FastAPI, NumPy, Pydantic, Pytest, Ruff, Uvicorn, uv;
 - фронтенд: React 19, TypeScript, Vite, Tailwind CSS, Lucide, HTML5 Canvas (нативный 2D/3D глобус без WebGL), Vitest, Oxlint, Bun;
 - архитектура: дублированный расчетный движок (Python/NumPy + TypeScript) со строгой проверкой паритета долей миллиметра.
+
+---
+
+## Перспективы развития:
+- полный переход на Rust: единое высокопроизводительное ядро с компиляцией в WebAssembly для клиента и развертыванием бэкенда на базе Axum; решение устраняет дублирование логики и обеспечивает расчет меш-сетей масштаба Starlink.
