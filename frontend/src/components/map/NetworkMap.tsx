@@ -297,7 +297,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       dragStartRef.current = { x: e.clientX, y: e.clientY }
 
       if (viewMode === '3d') {
-        setGlobeRotY((prev) => prev + dx * 0.008)
+        setGlobeRotY((prev) => prev - dx * 0.008)
         setGlobeRotX((prev) => Math.max(-1.45, Math.min(1.45, prev + dy * 0.008)))
       } else {
         if (zoom > 1.0) {

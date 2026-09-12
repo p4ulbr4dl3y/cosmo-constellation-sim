@@ -111,6 +111,28 @@ describe('Map Projection Utils', () => {
       expect(pRot.x).toBeDefined()
       expect(pRot.y).toBeDefined()
     })
+
+    it('projects East longitude to the right of West longitude (not horizontally mirrored)', () => {
+      // Facing lon = 90° E at equator: rotX = 0, rotY = 0
+      // 80° E (West of 90° E) vs 100° E (East of 90° E)
+      const latRad = 0
+      const lon80Rad = (80 * Math.PI) / 180
+      const lon100Rad = (100 * Math.PI) / 180
+
+      const gx80 = R_EARTH * Math.cos(latRad) * Math.cos(lon80Rad)
+      const gy80 = R_EARTH * Math.cos(latRad) * Math.sin(lon80Rad)
+
+      const gx100 = R_EARTH * Math.cos(latRad) * Math.cos(lon100Rad)
+      const gy100 = R_EARTH * Math.cos(latRad) * Math.sin(lon100Rad)
+
+      const proj80 = project3D(gx80, gy80, 0, 1, 800, 800, 0, 0, 1)
+      const proj100 = project3D(gx100, gy100, 0, 1, 800, 800, 0, 0, 1)
+
+      expect(proj80.visible).toBe(true)
+      expect(proj100.visible).toBe(true)
+      // East (100° E) must be to the right of West (80° E) on screen
+      expect(proj100.x).toBeGreaterThan(proj80.x)
+    })
   })
 
   describe('isSegmentVisible3D', () => {

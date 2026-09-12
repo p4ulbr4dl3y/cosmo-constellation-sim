@@ -157,7 +157,7 @@ export function render3DGlobe(options: Render3DOptions): void {
         y: y2,
         z: z2,
         depth: y2,
-        sx: cx + x2 * scale,
+        sx: cx - x2 * scale,
         sy: cy - z2 * scale,
       })
     }
@@ -197,7 +197,7 @@ export function render3DGlobe(options: Render3DOptions): void {
           ix = (ix / d) * R_EARTH
           iz = (iz / d) * R_EARTH
         }
-        fillPath.push([cx + ix * scale, cy - iz * scale])
+        fillPath.push([cx - ix * scale, cy - iz * scale])
       } else if (!currIn && nxtIn) {
         // Entering horizon: find entering point on horizon circle
         const t = curr.depth / (curr.depth - nxt.depth || 1)
@@ -212,7 +212,7 @@ export function render3DGlobe(options: Render3DOptions): void {
         if (fillPath.length > 0) {
           const lastPt = fillPath[fillPath.length - 1]
           const ang1 = Math.atan2(lastPt[1] - cy, lastPt[0] - cx)
-          const ang2 = Math.atan2(cy - iz * scale - cy, cx + ix * scale - cx)
+          const ang2 = Math.atan2(cy - iz * scale - cy, cx - ix * scale - cx)
           let diff = ang2 - ang1
           while (diff > Math.PI) diff -= 2 * Math.PI
           while (diff < -Math.PI) diff += 2 * Math.PI
@@ -222,7 +222,7 @@ export function render3DGlobe(options: Render3DOptions): void {
             fillPath.push([cx + Math.cos(a) * globeRadius, cy + Math.sin(a) * globeRadius])
           }
         } else {
-          fillPath.push([cx + ix * scale, cy - iz * scale])
+          fillPath.push([cx - ix * scale, cy - iz * scale])
         }
         fillPath.push([nxt.sx, nxt.sy])
       }
@@ -277,7 +277,7 @@ export function render3DGlobe(options: Render3DOptions): void {
           iz = (iz / d) * R_EARTH
         }
         ctx.moveTo(curr.sx, curr.sy)
-        ctx.lineTo(cx + ix * scale, cy - iz * scale)
+        ctx.lineTo(cx - ix * scale, cy - iz * scale)
       } else if (curr.depth < 0 && nxt.depth >= 0) {
         const t = curr.depth / (curr.depth - nxt.depth || 1)
         let ix = curr.x + t * (nxt.x - curr.x)
@@ -287,7 +287,7 @@ export function render3DGlobe(options: Render3DOptions): void {
           ix = (ix / d) * R_EARTH
           iz = (iz / d) * R_EARTH
         }
-        ctx.moveTo(cx + ix * scale, cy - iz * scale)
+        ctx.moveTo(cx - ix * scale, cy - iz * scale)
         ctx.lineTo(nxt.sx, nxt.sy)
       }
     }

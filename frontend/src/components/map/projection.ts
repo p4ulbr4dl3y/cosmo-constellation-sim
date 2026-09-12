@@ -79,7 +79,7 @@ export function project3D(
   const z2 = sinX * y1 + cosX * z1
 
   const scale = (globeRadius / R_EARTH) * radiusRatio
-  const screenX = cx + x2 * scale
+  const screenX = cx - x2 * scale
   const screenY = cy - z2 * scale
   const distToCenter = Math.hypot(x2, z2)
 
