@@ -150,5 +150,7 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p "$VPS_PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts
-          ssh -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "mkdir -p $TARGET_DIR"
+          ssh -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "mkdir -p $TARGET_DIR /opt/cosmo"
           rsync -avz -e "ssh -p $VPS_PORT" --delete frontend/dist/ "$VPS_USER@$VPS_HOST:$TARGET_DIR"
+          rsync -avz -e "ssh -p $VPS_PORT" --delete --exclude ".git" --exclude "node_modules" --exclude ".venv" --exclude "__pycache__" --exclude ".pytest_cache" backend data docs compose.yml "$VPS_USER@$VPS_HOST:/opt/cosmo/"
+          ssh -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "cd /opt/cosmo && BACKEND_PORT=8008 ROOT_PATH=/cosmo docker compose up -d --build backend"

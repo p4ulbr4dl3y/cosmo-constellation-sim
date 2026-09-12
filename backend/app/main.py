@@ -1,4 +1,4 @@
-from __future__ import annotations
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,6 +30,7 @@ app = FastAPI(
     ),
     version="0.1.0",
     openapi_tags=tags_metadata,
+    root_path=os.getenv("ROOT_PATH", ""),
 )
 
 # Разрешение CORS для клиентских веб-приложений

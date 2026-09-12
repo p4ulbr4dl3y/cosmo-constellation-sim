@@ -8,6 +8,7 @@ services:
       - "${BACKEND_PORT:-8000}:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - ROOT_PATH=${ROOT_PATH:-}
 
   frontend:
     build:

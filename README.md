@@ -2,7 +2,7 @@
 
 Инженерный центр управления спутниковой группировкой и оценки доступности связи в рамках КосмоХакатона 2026.
 
-[**Демо**](https://state3407.space/cosmo/) · [**Зеркало**](https://p4ulbr4dl3y.github.io/cosmo-constellation-sim/)
+[**Демо**](https://state3407.space/cosmo/) · [**Спецификация API (Swagger)**](https://state3407.space/cosmo/docs) · [**Зеркало**](https://p4ulbr4dl3y.github.io/cosmo-constellation-sim/)
 
 <p align="center">
   <a href="docs/assets/frontend_verified.png">
@@ -53,7 +53,14 @@
 
 ## Быстрый запуск
 
-### Вариант A. Запуск через Docker Compose (рекомендуемый):
+### Общедоступный стенд:
+- веб-интерфейс ЦУП: `https://state3407.space/cosmo/`;
+- спецификация API (Swagger): `https://state3407.space/cosmo/docs`;
+- проверка состояния сервиса: `https://state3407.space/cosmo/api/health`.
+
+---
+
+### Вариант A. Запуск через Docker Compose (локально):
 ```bash
 docker compose up --build -d
 ```

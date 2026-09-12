@@ -11,6 +11,7 @@ RUN uv sync --no-dev --no-install-project
 
 COPY backend/ /app/
 COPY data/ /app/data/
+COPY docs/ /app/docs/
 
 RUN uv sync --no-dev
 
