@@ -170,11 +170,13 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="h-11 shrink-0 bg-[#0b1017] border-b border-[#1a2636] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
       {/* Navigation Tabs & Brand */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink min-w-0 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-1.5 shrink-0 pr-1.5 sm:pr-2 border-r border-[#1a2636]" title="Созвездие — ЦУП">
+        <div className="flex items-center gap-1.5 shrink-0 pr-2 border-r border-[#1a2636]" title="Созвездие — ЦУП">
           <Logo size={20} className="w-5 h-5 text-cyan-400 shrink-0" />
-          <span className="text-xs font-bold tracking-wider text-zinc-100 uppercase">
-            Созвездие
-          </span>
+          <div className="flex items-center gap-1 text-xs">
+            <span className="font-bold tracking-wider text-zinc-100 uppercase">Созвездие</span>
+            <span className="text-zinc-500 font-mono text-[11px]">//</span>
+            <span className="text-zinc-400 font-medium tracking-wide">ЦУП</span>
+          </div>
         </div>
 
         <SegmentedControl
