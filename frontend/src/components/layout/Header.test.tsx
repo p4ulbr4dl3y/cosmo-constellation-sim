@@ -21,7 +21,16 @@ describe('Header', () => {
     render(<Header {...defaultProps} />)
     expect(screen.getByText('Мониторинг')).toBeDefined()
     expect(screen.getByText('Конфигурация')).toBeDefined()
-    expect(screen.getByText('A/B Сравнение')).toBeDefined()
+    expect(screen.getByText('Сравнение')).toBeDefined()
+    expect(screen.getByText('Аналитика')).toBeDefined()
+  })
+
+  it('switches to monitor tab when clicking brand logo', () => {
+    const setActiveTab = vi.fn()
+    render(<Header {...defaultProps} activeTab="config" setActiveTab={setActiveTab} />)
+    const brandButton = screen.getByTitle('Созвездие: ЦУП (перейти к мониторингу)')
+    fireEvent.click(brandButton)
+    expect(setActiveTab).toHaveBeenCalledWith('monitor')
   })
 
   it('opens custom preset dropdown on click and displays options', () => {

@@ -6,11 +6,16 @@ import {
   Check,
   FileDown,
   Download,
+  Activity,
+  Sliders,
+  GitCompare,
+  BarChart3,
 } from 'lucide-react'
 import type { Scenario, ClientTimeline } from '../../types/scenario'
 import { PRESET_SCENARIOS } from '../../data/presets'
 import { exportResultFile } from '../../lib/orbit'
 import { Button, Badge, SegmentedControl, Logo } from '../ui'
+import type { SegmentedOption } from '../ui/SegmentedControl'
 
 interface HeaderProps {
   currentScenario: Scenario
@@ -35,21 +40,28 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const exportRef = useRef<HTMLDivElement>(null)
   const [isPresetOpen, setIsPresetOpen] = useState(false)
+  const [isExportOpen, setIsExportOpen] = useState(false)
 
-  // Close dropdown on outside click or Escape
+  // Close dropdowns on outside click or Escape
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setIsPresetOpen(false)
+      }
+      if (exportRef.current && !exportRef.current.contains(target)) {
+        setIsExportOpen(false)
       }
     }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsPresetOpen(false)
+        setIsExportOpen(false)
       }
     }
-    if (isPresetOpen) {
+    if (isPresetOpen || isExportOpen) {
       document.addEventListener('mousedown', handleClickOutside)
       document.addEventListener('touchstart', handleClickOutside)
       document.addEventListener('keydown', handleKeyDown)
@@ -59,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
       document.removeEventListener('touchstart', handleClickOutside)
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isPresetOpen])
+  }, [isPresetOpen, isExportOpen])
 
   const [fileError, setFileError] = useState<string | null>(null)
 
@@ -136,27 +148,48 @@ export const Header: React.FC<HeaderProps> = ({
     URL.revokeObjectURL(url)
   }
 
-  const tabOptions: Array<{
-    value: 'monitor' | 'config' | 'compare' | 'report'
-    label: React.ReactNode
-  }> = [
-    { value: 'monitor', label: <span>Мониторинг</span> },
-    { value: 'config', label: <span>Конфигурация</span> },
+  const tabOptions: SegmentedOption<'monitor' | 'config' | 'compare' | 'report'>[] = [
     {
-      value: 'compare',
+      value: 'monitor',
+      title: 'Мониторинг',
+      icon: <Activity className="w-3.5 h-3.5 shrink-0" />,
       label: (
         <>
-          <span className="hidden lg:inline">A/B Сравнение</span>
-          <span className="lg:hidden">A/B</span>
+          <span className="hidden md:inline">Мониторинг</span>
+          <span className="md:hidden">Монит.</span>
+        </>
+      ),
+    },
+    {
+      value: 'config',
+      title: 'Конфигурация',
+      icon: <Sliders className="w-3.5 h-3.5 shrink-0" />,
+      label: (
+        <>
+          <span className="hidden md:inline">Конфигурация</span>
+          <span className="md:hidden">Конфиг</span>
+        </>
+      ),
+    },
+    {
+      value: 'compare',
+      title: 'Сравнение',
+      icon: <GitCompare className="w-3.5 h-3.5 shrink-0" />,
+      label: (
+        <>
+          <span className="hidden md:inline">Сравнение</span>
+          <span className="md:hidden">Сравн.</span>
         </>
       ),
     },
     {
       value: 'report',
+      title: 'Аналитика',
+      icon: <BarChart3 className="w-3.5 h-3.5 shrink-0" />,
       label: (
         <>
-          <span className="hidden lg:inline">Аналитика & Рекомендации</span>
-          <span className="lg:hidden">Аналитика</span>
+          <span className="hidden md:inline">Аналитика</span>
+          <span className="md:hidden">Анализ</span>
         </>
       ),
     },
@@ -170,14 +203,19 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="h-11 shrink-0 bg-[#0b1017] border-b border-[#1a2636] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
       {/* Navigation Tabs & Brand */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink min-w-0 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-1.5 shrink-0 pr-2 border-r border-[#1a2636]" title="Созвездие — ЦУП">
+        <button
+          type="button"
+          onClick={() => setActiveTab('monitor')}
+          className="flex items-center gap-1.5 shrink-0 pr-2 border-r border-[#1a2636] hover:opacity-80 transition-opacity text-left cursor-pointer"
+          title="Созвездие: ЦУП (перейти к мониторингу)"
+        >
           <Logo size={20} className="w-5 h-5 text-cyan-400 shrink-0" />
-          <div className="flex items-center gap-1 text-xs">
-            <span className="font-bold tracking-wider text-zinc-100 uppercase">Созвездие</span>
-            <span className="text-zinc-500 font-mono text-[11px]">//</span>
+          <div className="items-center gap-1 text-xs hidden sm:flex">
+            <span className="font-bold tracking-wider text-zinc-100 uppercase hidden lg:inline">Созвездие</span>
+            <span className="text-zinc-500 font-mono text-[11px] hidden lg:inline">//</span>
             <span className="text-zinc-400 font-medium tracking-wide">ЦУП</span>
           </div>
-        </div>
+        </button>
 
         <SegmentedControl
           options={tabOptions}
@@ -209,109 +247,151 @@ export const Header: React.FC<HeaderProps> = ({
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-        {/* Preset Selector */}
-        <div className="relative" ref={dropdownRef}>
+      <div className="flex items-center gap-2 shrink-0">
+        {/* Scenario Input Group */}
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          {/* Preset Selector */}
+          <div className="relative" ref={dropdownRef}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setIsPresetOpen((v) => !v)
+                setIsExportOpen(false)
+              }}
+              className="font-sans min-w-[90px] sm:min-w-[130px] lg:min-w-[180px] max-w-[120px] sm:max-w-[160px] lg:max-w-[220px] justify-between px-2"
+            >
+              <span className="truncate text-[11px] tabular-nums">{currentPresetLabel}</span>
+              <ChevronDown
+                className={`w-3.5 h-3.5 text-zinc-400 shrink-0 transition-transform duration-150 ml-1 ${
+                  isPresetOpen ? 'rotate-180 text-white' : ''
+                }`}
+              />
+            </Button>
+
+            {isPresetOpen && (
+              <div className="absolute right-0 top-full mt-1.5 min-w-[200px] w-64 max-w-[calc(100vw-1rem)] bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
+                <div className="px-3 py-1.5 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
+                  Выберите сценарий
+                </div>
+                {PRESET_SCENARIOS.map((p) => {
+                  const isSelected = p.data.meta.id === currentScenario.meta.id
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        onSelectPreset(p.data)
+                        setIsPresetOpen(false)
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs font-sans flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                        isSelected
+                          ? 'bg-cyan-500/10 text-cyan-300 font-medium'
+                          : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'
+                      }`}
+                    >
+                      <span className="truncate text-[11px] tabular-nums">{p.label}</span>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0 ml-2" />}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Load JSON */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept=".json"
+            className="hidden"
+          />
           <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            title="Загрузить JSON (cosmo-A-1.0)"
+          >
+            <Upload className="w-3.5 h-3.5" />
+          </Button>
+
+          {/* Reset */}
+          {isModified && (
+            <Button
+              type="button"
+              variant="danger"
+              size="icon"
+              onClick={onResetScenario}
+              title="Сбросить к исходному"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Subtle Divider */}
+        <div className="h-4 w-px bg-[#1a2636]" />
+
+        {/* Unified Export Dropdown */}
+        <div className="relative" ref={exportRef}>
+          <Button
+            type="button"
             variant="outline"
             size="sm"
-            onClick={() => setIsPresetOpen((v) => !v)}
-            className="font-sans min-w-[110px] sm:min-w-[140px] lg:min-w-[180px] max-w-[140px] sm:max-w-[180px] lg:max-w-[220px] justify-between"
+            onClick={() => {
+              setIsExportOpen((v) => !v)
+              setIsPresetOpen(false)
+            }}
+            className="gap-1 sm:gap-1.5 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10 hover:text-cyan-200"
+            title="Экспорт файлов"
           >
-            <span className="truncate text-[11px] tabular-nums">{currentPresetLabel}</span>
+            <Download className="w-3.5 h-3.5 shrink-0" />
+            <span className="hidden sm:inline text-[11px] font-medium">Экспорт</span>
             <ChevronDown
-              className={`w-3.5 h-3.5 text-zinc-400 shrink-0 transition-transform duration-150 ${
-                isPresetOpen ? 'rotate-180 text-white' : ''
+              className={`w-3.5 h-3.5 text-cyan-400/70 shrink-0 transition-transform duration-150 ${
+                isExportOpen ? 'rotate-180 text-cyan-200' : ''
               }`}
             />
           </Button>
 
-          {isPresetOpen && (
-            <div className="absolute right-0 top-full mt-1.5 min-w-[200px] w-64 max-w-[calc(100vw-1rem)] bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
+          {isExportOpen && (
+            <div className="absolute right-0 top-full mt-1.5 w-60 bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
               <div className="px-3 py-1.5 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
-                Выберите сценарий
+                Экспорт данных
               </div>
-              {PRESET_SCENARIOS.map((p) => {
-                const isSelected = p.data.meta.id === currentScenario.meta.id
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      onSelectPreset(p.data)
-                      setIsPresetOpen(false)
-                    }}
-                    className={`w-full text-left px-3 py-1.5 text-xs font-sans flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                      isSelected
-                        ? 'bg-cyan-500/10 text-cyan-300 font-medium'
-                        : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'
-                    }`}
-                  >
-                    <span className="truncate text-[11px] tabular-nums">{p.label}</span>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0 ml-2" />}
-                  </button>
-                )
-              })}
+              <button
+                type="button"
+                onClick={() => {
+                  handleExportResult()
+                  setIsExportOpen(false)
+                }}
+                className="w-full text-left px-3 py-2 text-xs font-sans flex items-start gap-2.5 transition-colors cursor-pointer text-zinc-200 hover:text-white hover:bg-cyan-500/10"
+              >
+                <Download className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                <div>
+                  <div className="text-[12px] font-medium text-cyan-200">Результаты расчета</div>
+                  <div className="text-[10px] text-zinc-400">cosmo-A-result-1.0 (.json)</div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleExportScenario()
+                  setIsExportOpen(false)
+                }}
+                className="w-full text-left px-3 py-2 text-xs font-sans flex items-start gap-2.5 transition-colors cursor-pointer text-zinc-300 hover:text-white hover:bg-white/[0.04]"
+              >
+                <FileDown className="w-4 h-4 text-zinc-400 shrink-0 mt-0.5" />
+                <div>
+                  <div className="text-[12px] font-medium text-zinc-200">Конфиг сценария</div>
+                  <div className="text-[10px] text-zinc-400">cosmo-A-1.0 (.json)</div>
+                </div>
+              </button>
             </div>
           )}
         </div>
-
-        {/* Load JSON */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileUpload}
-          accept=".json"
-          className="hidden"
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          onClick={() => fileInputRef.current?.click()}
-          title="Загрузить JSON (cosmo-A-1.0)"
-        >
-          <Upload className="w-3.5 h-3.5" />
-        </Button>
-
-        {/* Reset */}
-        {isModified && (
-          <Button
-            type="button"
-            variant="danger"
-            size="icon"
-            onClick={onResetScenario}
-            title="Сбросить к исходному"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </Button>
-        )}
-
-        {/* Export Scenario */}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleExportScenario}
-          title="Экспортировать входной сценарий (cosmo-A-1.0)"
-          className="px-1.5 sm:px-2.5"
-        >
-          <FileDown className="w-3.5 h-3.5 lg:hidden" />
-          <span className="hidden lg:inline">Сценарий</span>
-        </Button>
-
-        {/* Export Result */}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleExportResult}
-          title="Экспорт cosmo-A-result-1.0"
-          className="px-1.5 sm:px-2.5"
-        >
-          <Download className="w-3.5 h-3.5 lg:hidden" />
-          <span className="hidden lg:inline">Результат</span>
-        </Button>
       </div>
     </header>
   )
