@@ -8,6 +8,11 @@ import { render2DMap } from './render2D'
 import { render3DGlobe } from './render3D'
 import type { HoveredNodeInfo, MapViewMode, NetworkMapProps } from './types'
 
+const ZOOM_LIMITS = {
+  '2d': { min: 1.0, max: 4.0 },
+  '3d': { min: 0.8, max: 3.0 },
+} as const
+
 export const NetworkMap: React.FC<NetworkMapProps> = ({
   scenario,
   snapshot,
@@ -101,8 +106,9 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   // Switch view mode with appropriate zoom limits
   const handleSetViewMode = (mode: MapViewMode) => {
     setViewMode(mode)
+    const { min, max } = ZOOM_LIMITS[mode]
+    setZoom((z) => Math.min(max, Math.max(min, z)))
     if (mode === '2d') {
-      setZoom((z) => Math.max(1.0, z))
       setPan2d({ x: 0, y: 0 })
     }
   }
@@ -126,14 +132,14 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   }
 
   const zoomIn = () => {
-    const maxZ = viewMode === '2d' ? 4.0 : 3.0
-    setZoom((z) => Math.min(maxZ, Number((z + 0.15).toFixed(2))))
+    const { max } = ZOOM_LIMITS[viewMode]
+    setZoom((z) => Math.min(max, Number((z + 0.15).toFixed(2))))
   }
 
   const zoomOut = () => {
-    const minZ = 0.5
+    const { min } = ZOOM_LIMITS[viewMode]
     setZoom((z) => {
-      const nextZ = Math.max(minZ, Number((z - 0.15).toFixed(2)))
+      const nextZ = Math.max(min, Number((z - 0.15).toFixed(2)))
       if (nextZ <= 1.0 && viewMode === '2d') {
         setPan2d({ x: 0, y: 0 })
       }
@@ -148,8 +154,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
-      const minZ = viewMode === '2d' ? 1.0 : 0.8
-      const maxZ = viewMode === '2d' ? 4.0 : 3.0
+      const { min: minZ, max: maxZ } = ZOOM_LIMITS[viewMode]
 
       let dy = e.deltaY
       if (e.deltaMode === 1) dy *= 20
@@ -282,8 +287,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
       const pts = Array.from(pointersRef.current.values())
       const curDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y)
       const scale = curDist / (initialPinchDistRef.current || 1)
-      const minZ = viewMode === '2d' ? 1.0 : 0.8
-      const maxZ = viewMode === '2d' ? 4.0 : 3.0
+      const { min: minZ, max: maxZ } = ZOOM_LIMITS[viewMode]
       const nextZ = Math.min(maxZ, Math.max(minZ, Number((initialPinchZoomRef.current * scale).toFixed(2))))
       setZoom(nextZ)
       dragDistRef.current += 10

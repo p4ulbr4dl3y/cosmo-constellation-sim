@@ -163,6 +163,35 @@ describe('NetworkMap Component', () => {
     expect(screen.getByText('100%')).toBeDefined()
   })
 
+  it('clamps zoom to 300% when switching from 400% 2D to 3D mode', () => {
+    const onSelectClient = vi.fn()
+    const onToggleFailure = vi.fn()
+
+    render(
+      <NetworkMap
+        scenario={mockScenario}
+        snapshot={mockSnapshot}
+        selectedClientId="C65"
+        onSelectClient={onSelectClient}
+        onToggleFailure={onToggleFailure}
+      />
+    )
+
+    const zoomInBtn = screen.getByTitle('Приблизить карту')
+    const btn3D = screen.getByRole('button', { name: '3D' })
+
+    // Zoom in multiple times in 2D up to 400%
+    for (let i = 0; i < 30; i++) {
+      fireEvent.click(zoomInBtn)
+    }
+    expect(screen.getByText('400%')).toBeDefined()
+
+    // Switch to 3D
+    fireEvent.click(btn3D)
+    // Zoom must be clamped to 300% in 3D
+    expect(screen.getByText('300%')).toBeDefined()
+  })
+
   it('handles canvas pointer dragging and interactions', () => {
     const onSelectClient = vi.fn()
     const onToggleFailure = vi.fn()
