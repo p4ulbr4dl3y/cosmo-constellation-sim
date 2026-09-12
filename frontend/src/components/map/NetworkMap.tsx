@@ -482,7 +482,19 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   }, [inspectedSatId, snapshot.edges])
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-[#06090e] select-none overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full flex flex-col bg-[#06090e] select-none overflow-hidden">
+      <canvas
+        ref={canvasRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handleMouseMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onMouseLeave={() => setIsDragging(false)}
+        onClick={handleCanvasClick}
+        className={`w-full h-full block touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      />
+
+      {/* Floating HUD Controls */}
       <MapControls
         viewMode={viewMode}
         onSetViewMode={handleSetViewMode}
@@ -501,28 +513,14 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
         onToggleUnlaunched={() => setShowUnlaunched((v) => !v)}
       />
 
-      {/* Main Canvas Viewport Area */}
-      <div ref={containerRef} className="relative flex-1 w-full min-h-0 overflow-hidden">
-        <canvas
-          ref={canvasRef}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handleMouseMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          onMouseLeave={() => setIsDragging(false)}
-          onClick={handleCanvasClick}
-          className={`w-full h-full block touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        />
+      <MapTooltip hoveredNode={hoveredNode} />
 
-        <MapTooltip hoveredNode={hoveredNode} />
-
-        <MapSatelliteHUD
-          satellite={inspectedSat}
-          islDegree={inspectedSatDegree}
-          onClose={() => setInspectedSatId(null)}
-          onToggleFailure={onToggleFailure}
-        />
-      </div>
+      <MapSatelliteHUD
+        satellite={inspectedSat}
+        islDegree={inspectedSatDegree}
+        onClose={() => setInspectedSatId(null)}
+        onToggleFailure={onToggleFailure}
+      />
     </div>
   )
 }

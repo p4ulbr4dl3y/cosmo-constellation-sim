@@ -272,7 +272,7 @@ export const Header: React.FC<HeaderProps> = ({
             </Button>
 
             {isPresetOpen && (
-              <div className="absolute right-0 top-full mt-1.5 min-w-[200px] w-64 max-w-[calc(100vw-1rem)] bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
+              <div className="fixed inset-x-2 top-12 sm:top-full sm:mt-1.5 sm:absolute sm:right-0 sm:left-auto sm:w-64 max-w-sm sm:max-w-none mx-auto sm:mx-0 bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
                 <div className="px-3 py-1.5 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
                   Выберите сценарий
                 </div>
@@ -359,7 +359,7 @@ export const Header: React.FC<HeaderProps> = ({
           </Button>
 
           {isExportOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-60 bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
+            <div className="fixed inset-x-2 top-12 sm:top-full sm:mt-1.5 sm:absolute sm:right-0 sm:left-auto sm:w-60 max-w-sm sm:max-w-none mx-auto sm:mx-0 bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
               <div className="px-3 py-1.5 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
                 Экспорт данных
               </div>

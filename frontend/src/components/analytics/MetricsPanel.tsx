@@ -167,7 +167,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
   const primeSat = primeSatId ? snapshot.satellites.find((s) => s.id === primeSatId) : null
 
   return (
-    <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto">
+    <div className="h-full flex flex-col gap-2 font-sans text-xs overflow-y-auto overflow-x-hidden">
       {/* 1. Client Switcher Header */}
       <ClientSelector
         clients={clients}
@@ -180,7 +180,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
       />
 
       {/* 2. Client Details & Route Card */}
-      <div className="flex-1 flex flex-col bg-[#0b1017] p-2 sm:p-2.5 rounded-md border border-[#1a2636] gap-2 lg:overflow-y-auto">
+      <div className="flex-1 flex flex-col bg-[#0b1017] p-2 sm:p-2.5 rounded-md border border-[#1a2636] gap-2 lg:overflow-y-auto lg:overflow-x-hidden overflow-x-hidden">
         {/* Header & Gateway Status */}
         <div className="flex items-center justify-between gap-1.5 pb-1.5 border-b border-[#1a2636] shrink-0">
           <span className="font-semibold text-zinc-200 text-xs truncate min-w-0">
@@ -224,7 +224,7 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
               })}
 
               {routeLatencyMs && (
-                <div className="w-full sm:w-auto sm:ml-auto flex justify-end text-zinc-400 text-[10px] font-mono">
+                <div className="basis-full sm:basis-auto sm:ml-auto min-w-0 flex justify-end text-zinc-400 text-[10px] font-mono">
                   RTT <span className="text-zinc-200 font-semibold ml-1">{routeLatencyMs} мс</span>
                 </div>
               )}
