@@ -72,4 +72,27 @@ describe('Header', () => {
     fireEvent.mouseDown(screen.getByTestId('outside'))
     expect(screen.queryByText('Выберите сценарий')).toBeNull()
   })
+
+  it('closes dropdown on touch outside or Escape key', () => {
+    render(
+      <div>
+        <div data-testid="touch-outside">Outside</div>
+        <Header {...defaultProps} />
+      </div>
+    )
+
+    const trigger = screen.getByText(PRESET_SCENARIOS[0].label)
+
+    // Touch outside
+    fireEvent.click(trigger)
+    expect(screen.getByText('Выберите сценарий')).toBeDefined()
+    fireEvent.touchStart(screen.getByTestId('touch-outside'))
+    expect(screen.queryByText('Выберите сценарий')).toBeNull()
+
+    // Escape key
+    fireEvent.click(trigger)
+    expect(screen.getByText('Выберите сценарий')).toBeDefined()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByText('Выберите сценарий')).toBeNull()
+  })
 })
