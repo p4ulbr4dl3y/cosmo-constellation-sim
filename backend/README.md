@@ -23,7 +23,7 @@ uv sync
 cd backend
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-Спецификация Swagger доступна по адресу:
+Интерактивная спецификация API доступна по адресу:
 `http://localhost:8000/docs`
 
 ### Запуск проверок качества кода

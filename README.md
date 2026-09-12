@@ -2,7 +2,7 @@
 
 Инженерный центр управления спутниковой группировкой и оценки доступности связи в рамках КосмоХакатона 2026.
 
-[**Демо**](https://state3407.space/cosmo/) · [**Спецификация API (Swagger)**](https://state3407.space/cosmo/docs) · [**Зеркало**](https://p4ulbr4dl3y.github.io/cosmo-constellation-sim/)
+[**Демо**](https://state3407.space/cosmo/) · [**Спецификация API**](https://state3407.space/cosmo/docs) · [**Зеркало**](https://p4ulbr4dl3y.github.io/cosmo-constellation-sim/)
 
 <p align="center">
   <a href="docs/assets/frontend_verified.png">
@@ -55,7 +55,7 @@
 
 ### Общедоступный стенд:
 - веб-интерфейс ЦУП: `https://state3407.space/cosmo/`;
-- спецификация API (Swagger): `https://state3407.space/cosmo/docs`;
+- спецификация API: `https://state3407.space/cosmo/docs`;
 - проверка состояния сервиса: `https://state3407.space/cosmo/api/health`.
 
 ---
@@ -65,7 +65,7 @@
 docker compose up --build -d
 ```
 - веб-интерфейс: `http://localhost:3000`;
-- спецификация API (Swagger): `http://localhost:3000/docs`;
+- спецификация API: `http://localhost:3000/docs`;
 - проверка состояния сервиса: `http://localhost:8000/api/health`.
 
 ---
@@ -91,7 +91,7 @@ cd backend
 uv sync
 uv run uvicorn app.main:app --reload --port 8000
 ```
-API доступен по адресу `http://127.0.0.1:8000` (спецификация Swagger: `http://127.0.0.1:8000/docs`).
+API доступен по адресу `http://127.0.0.1:8000` (спецификация API: `http://127.0.0.1:8000/docs`).
 
 Запуск набора тестов:
 ```bash
