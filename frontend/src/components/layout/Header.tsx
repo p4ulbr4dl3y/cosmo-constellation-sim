@@ -190,16 +190,15 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Actions */}
       <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-        {/* Custom Preset Dropdown */}
+        {/* Preset Selector */}
         <div className="relative" ref={dropdownRef}>
           <Button
-            type="button"
-            variant={isPresetOpen ? 'primary' : 'outline'}
+            variant="outline"
             size="sm"
-            onClick={() => setIsPresetOpen(!isPresetOpen)}
-            className="font-sans max-w-[130px] sm:max-w-[180px] md:max-w-[220px] justify-between"
+            onClick={() => setIsPresetOpen((v) => !v)}
+            className="font-sans min-w-[130px] sm:min-w-[170px] md:min-w-[210px] max-w-[220px] justify-between"
           >
-            <span className="truncate text-[11px]">{currentPresetLabel}</span>
+            <span className="truncate text-[11px] tabular-nums">{currentPresetLabel}</span>
             <ChevronDown
               className={`w-3.5 h-3.5 text-zinc-400 shrink-0 transition-transform duration-150 ${
                 isPresetOpen ? 'rotate-180 text-white' : ''
@@ -208,8 +207,8 @@ export const Header: React.FC<HeaderProps> = ({
           </Button>
 
           {isPresetOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-64 bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
-              <div className="px-2.5 py-1 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
+            <div className="absolute right-0 top-full mt-1.5 min-w-[220px] w-64 max-w-[calc(100vw-2rem)] bg-[#0b1017] border border-[#1a2636] rounded-md shadow-2xl py-1 z-50 backdrop-blur-md">
+              <div className="px-3 py-1.5 text-[11px] font-sans text-zinc-400 font-medium border-b border-[#1a2636] mb-1">
                 Выберите сценарий
               </div>
               {PRESET_SCENARIOS.map((p) => {
@@ -222,21 +221,14 @@ export const Header: React.FC<HeaderProps> = ({
                       onSelectPreset(p.data)
                       setIsPresetOpen(false)
                     }}
-                    className={`w-full text-left px-2.5 py-1.5 text-xs font-sans flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                    className={`w-full text-left px-3 py-1.5 text-xs font-sans flex items-center justify-between gap-2 transition-colors cursor-pointer ${
                       isSelected
-                        ? 'bg-white/[0.08] text-white font-medium'
+                        ? 'bg-cyan-500/10 text-cyan-300 font-medium'
                         : 'text-zinc-300 hover:text-white hover:bg-white/[0.04]'
                     }`}
                   >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                          isSelected ? 'bg-cyan-400' : 'bg-transparent'
-                        }`}
-                      />
-                      <span className="truncate text-[11px]">{p.label}</span>
-                    </div>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />}
+                    <span className="truncate text-[11px] tabular-nums">{p.label}</span>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0 ml-2" />}
                   </button>
                 )
               })}

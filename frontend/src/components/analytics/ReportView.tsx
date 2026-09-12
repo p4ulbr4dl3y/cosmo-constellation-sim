@@ -84,7 +84,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
         <Card className="flex flex-col gap-2">
           <CardHeader>
             <CardTitle>1. Динамика этапов развёртывания</CardTitle>
-            <span className="text-[10px] text-zinc-400 font-mono">720 шагов / 24 ч</span>
+            <Badge variant="neutral">720 шагов / 24 ч</Badge>
           </CardHeader>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
