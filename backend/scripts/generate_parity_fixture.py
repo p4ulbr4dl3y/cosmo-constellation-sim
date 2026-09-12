@@ -17,9 +17,7 @@ from app.core.simulator import run_simulation  # noqa: E402
 
 def main() -> None:
     root_dir = Path(__file__).resolve().parents[2]
-    baseline_path = root_dir / "data" / "01_input_baseline.json"
-    if not baseline_path.exists():
-        baseline_path = root_dir / "data" / "01_full_constellation.json"
+    baseline_path = root_dir / "data" / "01_full_constellation.json"
 
     scenario = json.loads(baseline_path.read_text(encoding="utf-8"))
     out_path = root_dir / "frontend" / "src" / "lib" / "__fixtures__" / "parity_fixture.json"

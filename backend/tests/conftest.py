@@ -51,15 +51,7 @@ def resolve_preset_path(name: str) -> Path:
 
 @pytest.fixture(scope="session")
 def baseline_scenario_path() -> Path:
-    """Path to ../data/01_input_baseline.json."""
-    candidates = [
-        Path("../data/01_input_baseline.json").resolve(),
-        Path(__file__).resolve().parents[2] / "data" / "01_input_baseline.json",
-        Path(__file__).resolve().parents[2] / "data" / "01_full_constellation.json",
-    ]
-    for c in candidates:
-        if c.exists() and c.is_file():
-            return c
+    """Path to ../data/01_full_constellation.json."""
     return resolve_preset_path("01_full_constellation.json")
 
 
