@@ -1,6 +1,6 @@
-# Cosmo Constellation Simulator
+# <img src="frontend/public/favicon.svg" width="32" height="32" align="center" alt="Logo" /> Cosmo Constellation Simulator
 
-> Веб-сервис для проектирования устойчивой спутниковой группировки и оценки доступности связи в северных районах (КосмоХакатон 2026, Кейс 2).
+> **Созвездие // ЦУП** — Веб-сервис для проектирования устойчивой спутниковой группировки и оценки доступности связи в северных районах (КосмоХакатон 2026, Кейс 2).
 > 
 > **Live Demo**: [https://state3407.space/cosmo/](https://state3407.space/cosmo/) (зеркало: [https://state3407.space/cosmo-constellation-sim/](https://state3407.space/cosmo-constellation-sim/))
 
