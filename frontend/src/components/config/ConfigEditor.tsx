@@ -255,15 +255,15 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                 <label className="text-zinc-400 text-[10px] block mb-1">
                   Дальность ISL:
                 </label>
-                <div className="flex gap-1.5">
+                <div className="flex gap-1.5 h-7">
                   {[2000, 3000].map((val) => (
                     <button
                       key={val}
                       onClick={() => handleEnvChange('isl_range_km', val)}
-                      className={`flex-1 py-1 px-1.5 rounded-md text-xs font-bold border transition-colors cursor-pointer ${
+                      className={`flex-1 h-full flex items-center justify-center rounded-md text-xs font-mono font-medium border transition-colors cursor-pointer ${
                         draft.environment.isl_range_km === val
-                        ? 'bg-white/15 border-white/30 text-white'
-                        : 'bg-[#070b10] border-[#1a2636] text-zinc-400 hover:text-zinc-200'
+                          ? 'bg-white/15 border-white/30 text-white shadow-sm'
+                          : 'bg-[#070b10] border-[#1a2636] text-zinc-400 hover:text-zinc-200'
                       }`}
                     >
                       {val} км
@@ -280,12 +280,12 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                   <button
                     type="button"
                     onClick={() => handleEnvChange('min_elevation_deg', Math.max(0, draft.environment.min_elevation_deg - 1))}
-                    className="px-2.5 h-full text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer text-xs font-mono select-none"
+                    className="w-7 h-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer text-xs font-mono select-none"
                     title="Уменьшить"
                   >
                     −
                   </button>
-                  <div className="flex-1 flex items-center justify-center">
+                  <div className="flex-1 flex items-center justify-center gap-0.5">
                     <input
                       type="number"
                       min="0"
@@ -293,14 +293,14 @@ export const ConfigEditor: React.FC<ConfigEditorProps> = ({
                       step="1"
                       value={draft.environment.min_elevation_deg}
                       onChange={(e) => handleEnvChange('min_elevation_deg', Math.max(0, Math.min(45, Number(e.target.value))))}
-                      className="w-8 bg-transparent text-center text-xs font-mono font-bold text-cyan-300 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="w-5 text-right bg-transparent text-xs font-mono font-bold text-cyan-300 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
-                    <span className="text-zinc-500 text-xs select-none font-mono">°</span>
+                    <span className="text-zinc-400 text-xs select-none font-mono">°</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleEnvChange('min_elevation_deg', Math.min(45, draft.environment.min_elevation_deg + 1))}
-                    className="px-2.5 h-full text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer text-xs font-mono select-none"
+                    className="w-7 h-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer text-xs font-mono select-none"
                     title="Увеличить"
                   >
                     +
