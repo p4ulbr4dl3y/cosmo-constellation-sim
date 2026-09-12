@@ -1,5 +1,5 @@
 import React from 'react'
-import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
+import { ZoomIn, ZoomOut } from 'lucide-react'
 import type { MapViewMode } from './types'
 import { SegmentedControl, Button } from '../ui'
 
@@ -88,9 +88,18 @@ export const MapControls: React.FC<MapControlsProps> = ({
           >
             <ZoomOut className="w-3 h-3" />
           </Button>
-          <span className="px-1 text-[10px] text-zinc-300 min-w-[32px] text-center font-mono font-medium">
+          <button
+            type="button"
+            onClick={onResetView}
+            title="Сбросить масштаб и положение (100%)"
+            className={`px-1.5 py-0.5 text-[10px] min-w-[36px] text-center font-mono font-medium rounded transition-colors cursor-pointer ${
+              Math.round(zoom * 100) !== 100
+                ? 'text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10'
+                : 'text-zinc-300 hover:text-white hover:bg-white/10'
+            }`}
+          >
             {Math.round(zoom * 100)}%
-          </span>
+          </button>
           <Button
             type="button"
             variant="ghost"
@@ -105,16 +114,6 @@ export const MapControls: React.FC<MapControlsProps> = ({
             }`}
           >
             <ZoomIn className="w-3 h-3" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={onResetView}
-            title="Сбросить масштаб и положение (100%)"
-            className="w-6 h-6 p-1 hover:bg-white/10 text-zinc-400 hover:text-white"
-          >
-            <RotateCcw className="w-3 h-3" />
           </Button>
         </div>
 
