@@ -183,9 +183,17 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
       <div className="flex-1 flex flex-col bg-[#0b1017] p-2 sm:p-2.5 rounded-md border border-[#1a2636] gap-2 lg:overflow-y-auto lg:overflow-x-hidden overflow-x-hidden">
         {/* Header & Gateway Status */}
         <div className="flex items-center justify-between gap-1.5 pb-1.5 border-b border-[#1a2636] shrink-0">
-          <span className="font-semibold text-zinc-200 text-xs truncate min-w-0">
-            {selectedClient?.id}: {selectedClient?.name?.split('(')[0]?.trim() || selectedClientId}
-          </span>
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span className="font-semibold text-zinc-100 text-xs shrink-0">
+              Терминал {selectedClient?.id || selectedClientId}
+            </span>
+            {selectedClient && (
+              <span className="text-[10px] text-zinc-400 font-mono truncate">
+                {Math.abs(selectedClient.lat_deg).toFixed(1)}°{selectedClient.lat_deg >= 0 ? ' с.ш.' : ' ю.ш.'},{' '}
+                {Math.abs(selectedClient.lon_deg).toFixed(1)}°{selectedClient.lon_deg >= 0 ? ' в.д.' : ' з.д.'}
+              </span>
+            )}
+          </div>
           {isGatewayOutage && (
             <Badge variant="red" className="shrink-0">Шлюз: техокно</Badge>
           )}
