@@ -117,7 +117,8 @@ export const Header: React.FC<HeaderProps> = ({
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${currentScenario.meta.id}_result.json`
+      const fileId = currentScenario.meta?.id || 'scenario'
+      a.download = `${fileId}_result.json`
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {
@@ -135,7 +136,8 @@ export const Header: React.FC<HeaderProps> = ({
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${currentScenario.meta.id}_scenario.json`
+    const fileId = currentScenario.meta?.id || 'scenario'
+    a.download = `${fileId}_scenario.json`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -188,8 +190,10 @@ export const Header: React.FC<HeaderProps> = ({
   ]
 
   const currentPresetLabel =
-    PRESET_SCENARIOS.find((p) => p.data.meta.id === currentScenario.meta.id)?.label ||
-    'Пресеты...'
+    (currentScenario.meta?.id &&
+      PRESET_SCENARIOS.find((p) => p.data.meta?.id === currentScenario.meta?.id)?.label) ||
+    currentScenario.meta?.title ||
+    'Пользовательский сценарий'
 
   return (
     <header className="h-11 shrink-0 bg-[#0b1017] border-b border-[#1a2636] px-2 sm:px-3 flex items-center justify-between gap-1 sm:gap-2 select-none relative z-30">
@@ -269,7 +273,7 @@ export const Header: React.FC<HeaderProps> = ({
                   Выберите сценарий
                 </div>
                 {PRESET_SCENARIOS.map((p) => {
-                  const isSelected = p.data.meta.id === currentScenario.meta.id
+                  const isSelected = !!currentScenario.meta?.id && p.data.meta?.id === currentScenario.meta?.id
                   return (
                     <button
                       key={p.id}

@@ -74,9 +74,10 @@ export interface Design {
  */
 export interface Scenario {
   schema_version: 'cosmo-A-1.0'
-  meta: {
-    id: string
-    title: string
+  meta?: {
+    id?: string
+    title?: string
+    [key: string]: any
   }
   environment: Environment
   design: Design

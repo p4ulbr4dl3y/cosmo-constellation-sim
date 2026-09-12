@@ -156,7 +156,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           </div>
           {variantA ? (
             <div className="space-y-1 text-zinc-300 text-xs">
-              <div className="text-white font-semibold text-xs">{variantA.meta.title}</div>
+              <div className="text-white font-semibold text-xs">{variantA.meta?.title || variantA.meta?.id || 'Сценарий A'}</div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Очередь запуска:</span>
                 <span className={stageDiff ? 'text-cyan-300 font-semibold' : 'text-zinc-200'}>
@@ -205,7 +205,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           </div>
           {variantB ? (
             <div className="space-y-1 text-zinc-300 text-xs">
-              <div className="text-white font-semibold text-xs">{variantB.meta.title}</div>
+              <div className="text-white font-semibold text-xs">{variantB.meta?.title || variantB.meta?.id || 'Сценарий B'}</div>
               <div className="flex justify-between items-center text-zinc-400">
                 <span>Очередь запуска:</span>
                 <span className={stageDiff ? 'text-purple-300 font-semibold' : 'text-zinc-200'}>

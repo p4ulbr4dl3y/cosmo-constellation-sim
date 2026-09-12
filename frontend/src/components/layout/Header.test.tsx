@@ -137,4 +137,12 @@ describe('Header', () => {
     })
     expect(onLoadCustomJson).not.toHaveBeenCalled()
   })
+
+  it('renders and handles scenario without meta property', () => {
+    const scenarioWithoutMeta = { ...mockScenario }
+    delete (scenarioWithoutMeta as any).meta
+
+    render(<Header {...defaultProps} currentScenario={scenarioWithoutMeta as any} />)
+    expect(screen.getByText('Пользовательский сценарий')).toBeDefined()
+  })
 })

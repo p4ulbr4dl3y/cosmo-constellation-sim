@@ -17,7 +17,7 @@ describe('Scenario Presets Configuration', () => {
   it('verifies all presets adhere to cosmo-A-1.0 schema structure', () => {
     for (const preset of PRESET_SCENARIOS) {
       expect(preset.data.schema_version).toBe('cosmo-A-1.0')
-      expect(preset.data.meta.id).toBeDefined()
+      expect(preset.data.meta?.id).toBeDefined()
       expect(preset.data.environment.altitude_km).toBe(550)
       expect(preset.data.environment.inclination_deg).toBe(87)
       expect(preset.data.design.satellites.length).toBeGreaterThan(0)

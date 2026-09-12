@@ -180,7 +180,7 @@ export function validateScenario(s: unknown): string[] {
         }
         const sid = sat.id
         if (!sid || typeof sid !== 'string') {
-          errors.push(`Спутник #{idx} имеет некорректный id: ${sid}`)
+          errors.push(`Спутник #${idx} имеет некорректный id: ${sid}`)
         } else if (satIds.has(sid)) {
           errors.push(`Дублирующийся идентификатор спутника: '${sid}'.`)
         } else {
