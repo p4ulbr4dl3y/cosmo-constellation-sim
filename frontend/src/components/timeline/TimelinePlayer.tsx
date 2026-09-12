@@ -27,6 +27,12 @@ interface ClientGanttStripProps {
   onMouseLeave: () => void
 }
 
+interface GanttSegment {
+  hasPath: boolean
+  startIdx: number
+  length: number
+}
+
 const ClientGanttStrip = React.memo(function ClientGanttStrip({
   clientId,
   slots,
@@ -34,27 +40,72 @@ const ClientGanttStrip = React.memo(function ClientGanttStrip({
   onMouseMove,
   onMouseLeave,
 }: ClientGanttStripProps) {
-  const slotWidth = totalSlots > 0 ? `${100 / totalSlots}%` : '0%'
+  const segments = useMemo(() => {
+    if (!slots || slots.length === 0 || totalSlots <= 0) return []
+    const res: GanttSegment[] = []
+    let cur: GanttSegment = {
+      hasPath: Boolean(slots[0].hasPath),
+      startIdx: 0,
+      length: 1,
+    }
+    for (let i = 1; i < slots.length; i++) {
+      const hp = Boolean(slots[i].hasPath)
+      if (hp === cur.hasPath) {
+        cur.length++
+      } else {
+        res.push(cur)
+        cur = { hasPath: hp, startIdx: i, length: 1 }
+      }
+    }
+    res.push(cur)
+    return res
+  }, [slots, totalSlots])
+
   return (
     <div
       onMouseMove={(e) => onMouseMove(e, clientId)}
       onMouseLeave={onMouseLeave}
-      className="relative w-full h-4.5 bg-[#0b1017] rounded-xs overflow-hidden flex border border-[#1a2636]/60"
+      className="relative w-full h-6 bg-[#070b10] rounded-xs overflow-hidden border border-[#1a2636]/70"
     >
-      {slots?.map((slot, idx) => (
-        <div
-          key={idx}
-          style={{ width: slotWidth }}
-          className={`h-full ${
-            slot.hasPath
-              ? 'bg-emerald-600/40 hover:bg-emerald-500/60'
-              : 'bg-rose-500 hover:bg-rose-400'
-          }`}
-        />
-      ))}
+      {segments.map((seg, idx) => {
+        const leftPct = (seg.startIdx / totalSlots) * 100
+        const widthPct = (seg.length / totalSlots) * 100
+        return (
+          <div
+            key={idx}
+            style={{
+              left: `${leftPct}%`,
+              width: `${widthPct}%`,
+              minWidth: !seg.hasPath ? '2px' : undefined,
+            }}
+            className={`absolute top-0 bottom-0 pointer-events-none ${
+              seg.hasPath
+                ? 'bg-emerald-600/35 border-t border-emerald-400/40'
+                : 'bg-rose-500 shadow-[0_0_4px_rgba(244,63,94,0.6)] z-1'
+            }`}
+          />
+        )
+      })}
     </div>
   )
 })
+
+function formatOutageReason(reason?: string): string {
+  if (!reason) return 'нет пути'
+  if (reason.includes('no_client_satellite') || reason.includes('Нет спутников над')) {
+    return 'вне видимости'
+  }
+  if (reason.includes('gateway_offline') || reason.includes('Шлюз отключен')) {
+    return 'шлюз отключен'
+  }
+  if (reason.includes('no_gateway_satellite') || reason.includes('над шлюзом')) {
+    return 'нет КА над шлюзом'
+  }
+  if (reason.includes('isl_disconnected') || reason.includes('рассоединен')) {
+    return 'меш-сеть разорвана'
+  }
+  return reason
+}
 
 export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
   scenario,
@@ -229,7 +280,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             size="icon"
             onClick={() => onTimeChange(0)}
             title="В начало (00:00:00)"
-            className="h-7 w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0 p-0"
+            className="h-7 w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0 p-0 touch-manipulation"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </Button>
@@ -240,7 +291,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             size="icon"
             onClick={() => onTimeChange(Math.max(0, currentTime - step_s))}
             title="Шаг назад (-120с)"
-            className="h-7 w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0 p-0"
+            className="h-7 w-7 border border-[#1a2636] bg-white/5 hover:bg-white/10 shrink-0 p-0 touch-manipulation"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
           </Button>
@@ -252,7 +303,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             onClick={() => setIsPlaying((v) => !v)}
             aria-label={isPlaying ? 'Пауза' : 'Старт'}
             title={isPlaying ? 'Пауза (Пробел)' : 'Воспроизведение (Пробел)'}
-            className="h-7 w-7 shrink-0"
+            className="h-7 w-7 shrink-0 touch-manipulation"
           >
             {isPlaying ? (
               <Pause className="w-3.5 h-3.5 fill-current" />
@@ -267,7 +318,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             size="icon"
             onClick={() => onTimeChange(Math.min(horizon_s - step_s, currentTime + step_s))}
             title="Шаг вперед (+120с)"
-            className="h-7 w-7 border border-[#1a2636] bg-white/[0.04] hover:bg-white/[0.08] shrink-0 p-0"
+            className="h-7 w-7 border border-[#1a2636] bg-white/[0.04] hover:bg-white/[0.08] shrink-0 p-0 touch-manipulation"
           >
             <ChevronRight className="w-3.5 h-3.5" />
           </Button>
@@ -285,7 +336,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       {/* Middle Area: Gantt & Timeline Scrubber Area */}
       <div className="flex gap-1.5 bg-[#070b10] p-2 rounded border border-[#1a2636]">
         {/* Left Column: Client Pills */}
-        <div className="w-14 shrink-0 flex flex-col gap-1.5 pt-5">
+        <div className="w-12 sm:w-14 shrink-0 flex flex-col gap-1.5 pt-[22px]">
           <ClientSelector
             clients={clients}
             selectedClientId={selectedClientId}
@@ -307,15 +358,15 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         >
           {/* Vertical Playhead Cursor spanning through ruler and all 3 Gantt bars */}
           <div
-            className="absolute top-0 bottom-0 w-px bg-sky-400 pointer-events-none z-20"
+            className="absolute top-4 bottom-0 w-px bg-sky-400 pointer-events-none z-20"
             style={{ left: `${playheadPercent}%` }}
           >
-            {/* Precision top needle marker */}
-            <div className="w-2 h-2 -translate-x-[3.5px] -translate-y-0.5 rotate-45 bg-sky-400" />
+            {/* Precision top needle marker below text line */}
+            <div className="w-2 h-2 -translate-x-[3.5px] -translate-y-1 rotate-45 bg-sky-400 shadow-[0_0_4px_rgba(56,189,248,0.75)]" />
           </div>
 
           {/* Time Ruler */}
-          <div className="relative h-3.5 w-full">
+          <div className="relative h-4 w-full">
             {timeRulerTicks.ticks.map((h, idx) => {
               const pct = (h / (timeRulerTicks.totalHours || 1)) * 100
               const totalMin = Math.round(h * 60)
@@ -339,7 +390,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
                         : 'translateX(-50%)',
                   }}
                 >
-                  <span className="font-mono text-[9px] text-zinc-400">{label}</span>
+                  <span className="font-mono text-[9px] text-zinc-400 leading-none">{label}</span>
                   <div className="w-px h-1 bg-white/20 mt-auto" />
                 </div>
               )
@@ -363,8 +414,7 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       {/* Bottom Row: Speed Selector & Legend */}
       <div className="flex items-center justify-between gap-2 px-0.5">
         {/* Speed Selector */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <span className="text-[10px] text-zinc-500 uppercase tracking-wider hidden sm:inline">Скорость:</span>
+        <div className="flex items-center shrink-0">
           <SegmentedControl
             options={speedOptions}
             value={playbackSpeed}
@@ -377,11 +427,11 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
         {/* Legend */}
         <div className="flex items-center gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-zinc-400 font-sans shrink-0">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500/80" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
             Связь
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_4px_rgba(244,63,94,0.6)]" />
             Обрыв
           </span>
         </div>
@@ -395,22 +445,29 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
             : tooltipData.x
         return (
           <div
-            className="fixed z-50 pointer-events-none bg-[#0b1017] text-zinc-100 text-[11px] px-2.5 py-1.5 rounded border border-[#1a2636] shadow-xl transform -translate-x-1/2 -translate-y-full"
+            className="fixed z-50 pointer-events-none bg-[#070b10] text-zinc-100 text-[11px] px-2.5 py-1.5 rounded-md border border-[#1a2636] shadow-2xl transform -translate-x-1/2 -translate-y-full mb-1 flex flex-col gap-0.5"
             style={{ left: clampedX, top: tooltipData.y }}
           >
-            <div className="flex items-center gap-2 font-semibold text-sky-300 border-b border-[#1a2636] pb-1 mb-1">
-              <span>{tooltipData.clientId}</span>
-              <span>{formatTime(tooltipData.slot.t_s)}</span>
+            <div className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400 font-medium">
+              <span className="text-sky-300 font-semibold">{tooltipData.clientId}</span>
+              <span className="text-zinc-600">·</span>
+              <span className="text-zinc-200">{formatTime(tooltipData.slot.t_s)}</span>
             </div>
-            <div className="flex items-center gap-1 text-[10px]">
+            <div className="flex items-center gap-1.5 text-[11px] font-mono whitespace-nowrap">
               {tooltipData.slot.hasPath ? (
-                <span className="text-emerald-400 font-semibold">
-                  Связь активна (Хопов: {tooltipData.slot.hops})
-                </span>
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                  <span className="text-emerald-400 font-semibold">
+                    Доступно · {tooltipData.slot.hops} {tooltipData.slot.hops === 1 ? 'хоп' : 'хопа'}
+                  </span>
+                </>
               ) : (
-                <span className="text-rose-400 font-semibold">
-                  Обрыв: {tooltipData.slot.reason || 'Нет пути'}
-                </span>
+                <>
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_4px_rgba(244,63,94,0.6)] shrink-0" />
+                  <span className="text-rose-400 font-semibold">
+                    Обрыв: {formatOutageReason(tooltipData.slot.reason)}
+                  </span>
+                </>
               )}
             </div>
           </div>

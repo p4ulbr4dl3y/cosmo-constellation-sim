@@ -322,7 +322,7 @@ describe('TimelinePlayer Component', () => {
     )
 
     // Select the first client's Gantt row container inside the timeline
-    const ganttRow = container.querySelector('.cursor-ew-resize .h-4\\.5') as HTMLElement
+    const ganttRow = container.querySelector('.cursor-ew-resize .h-6') as HTMLElement
     expect(ganttRow).not.toBeNull()
 
     // 720 slots across 720px -> each slot = 1px
@@ -340,14 +340,14 @@ describe('TimelinePlayer Component', () => {
 
     // Hover slot 0 (even index, hasPath: true)
     fireEvent.mouseMove(ganttRow, { clientX: 0.5 })
-    expect(screen.getByText('Связь активна (Хопов: 2)')).toBeDefined()
+    expect(screen.getByText(/Доступно · 2 хопа/)).toBeDefined()
 
     // Hover slot 1 (odd index, hasPath: false)
     fireEvent.mouseMove(ganttRow, { clientX: 1.5 })
-    expect(screen.getByText(/Обрыв: no_client_satellite/)).toBeDefined()
+    expect(screen.getByText(/Обрыв: вне видимости/)).toBeDefined()
 
     // Mouse leave removes tooltip
     fireEvent.mouseLeave(ganttRow)
-    expect(screen.queryByText(/Связь активна/)).toBeNull()
+    expect(screen.queryByText(/Доступно/)).toBeNull()
   })
 })
