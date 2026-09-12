@@ -18,7 +18,9 @@
 
 ## Архитектура и паритет:
 - два движка (паритет обязателен): физика, геометрия ISL, Дейкстра и диагностика сбоев дублированы в Python (`backend/app/core/`) и TypeScript (`frontend/src/lib/orbit.ts`);
-- Offline First: фронтенд работает автономно на GitHub Pages и GitVerse Pages без бэкенда;
+- бэкенд: `core/` - чистая математика (NumPy, без FastAPI и I/O); `api/` - тонкие роуты и Pydantic валидация; CLI вызывает только `core/`;
+- фронтенд: `lib/orbit.ts` - чистый движок без React/DOM (паритет с `core/`); `components/` - только UI и Canvas-рендер;
+- Offline First: фронтенд и пресеты (`data/presets/`) работают автономно на GitHub/GitVerse Pages без бэкенда;
 - эталон: `reference/geometry.py`. Проверка: `test_geometry.py` и `parity.test.ts`.
 
 ## Синхронизация и деплой (GitHub и GitVerse):
