@@ -172,7 +172,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-1.5 sm:gap-2 shrink min-w-0 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-1.5 shrink-0 pr-1.5 sm:pr-2 border-r border-[#1a2636]" title="Созвездие — ЦУП">
           <Logo size={20} className="w-5 h-5 text-cyan-400 shrink-0" />
-          <span className="text-xs font-semibold tracking-wider text-zinc-100 hidden xl:inline uppercase">
+          <span className="text-xs font-bold tracking-wider text-zinc-100 uppercase">
             Созвездие
           </span>
         </div>
