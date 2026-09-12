@@ -1,4 +1,5 @@
 import React from 'react'
+import { X } from 'lucide-react'
 import type { SatelliteSnapshot } from '../../types/scenario'
 
 export interface MapSatelliteHUDProps {
@@ -35,10 +36,13 @@ export const MapSatelliteHUD: React.FC<MapSatelliteHUDProps> = ({
           </span>
         </div>
         <button
+          type="button"
           onClick={onClose}
-          className="text-zinc-500 hover:text-white text-sm leading-none px-1 cursor-pointer"
+          aria-label="✕"
+          title="Закрыть"
+          className="w-5 h-5 -mr-1 flex items-center justify-center rounded text-zinc-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
         >
-          ✕
+          <X className="w-3.5 h-3.5" />
         </button>
       </div>
 
