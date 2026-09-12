@@ -2,22 +2,25 @@ name: Deploy to GitVerse Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: gitverse-deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   backend-checks:
     name: Backend Lint & Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
       - name: Install uv
         run: |
@@ -36,9 +39,9 @@ jobs:
         working-directory: ./backend
         run: uv run ruff format --check
 
-      - name: Run Pytest with Coverage
+      - name: Run Pytest
         working-directory: ./backend
-        run: uv run pytest --cov=app --cov-report=term
+        run: uv run pytest
 
       - name: Verify Parity Fixture Up-to-date
         working-directory: ./backend
@@ -49,9 +52,9 @@ jobs:
   frontend-checks:
     name: Frontend Lint & Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -81,15 +84,16 @@ jobs:
     needs: [backend-checks, frontend-checks]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    continue-on-error: true
+    timeout-minutes: 10
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         working-directory: ./frontend

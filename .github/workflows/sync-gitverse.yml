@@ -2,19 +2,17 @@ name: Sync to GitVerse
 
 on:
   push:
-    branches:
-      - '**'
-    tags:
-      - '**'
+    branches: ['**']
+    tags: ['**']
   workflow_dispatch:
 
 jobs:
   sync:
     name: Mirror to GitVerse
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -22,9 +20,14 @@ jobs:
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
         run: |
-          git remote add gitverse "https://p4ulbr4dl3y:${GITVERSE_TOKEN}@gitverse.ru/hackrus.experts/kosmo-nizni_dreamteam_40_52.git"
-          git push --force gitverse "${GITHUB_REF}:${GITHUB_REF}"
-          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-            git push --force gitverse refs/heads/main:refs/heads/master
+          if [ -z "$GITVERSE_TOKEN" ]; then
+            echo "GITVERSE_TOKEN missing. Skip mirror."
+            exit 0
           fi
-          git push --tags gitverse || true
+          AUTH_HEADER="Authorization: Basic $(echo -n "p4ulbr4dl3y:${GITVERSE_TOKEN}" | base64)"
+          git -c "http.extraheader=${AUTH_HEADER}" remote add gitverse "https://gitverse.ru/hackrus.experts/kosmo-nizni_dreamteam_40_52.git"
+          git -c "http.extraheader=${AUTH_HEADER}" push --force gitverse "${GITHUB_REF}:${GITHUB_REF}"
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            git -c "http.extraheader=${AUTH_HEADER}" push --force gitverse refs/heads/main:refs/heads/master
+          fi
+          git -c "http.extraheader=${AUTH_HEADER}" push --tags gitverse || true
