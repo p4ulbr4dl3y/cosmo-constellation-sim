@@ -19,7 +19,7 @@ export const MapTooltip: React.FC<MapTooltipProps> = ({ hoveredNode }) => {
       }}
       className="pointer-events-none absolute z-30 rounded bg-[#0b1017]/95 px-2 py-1 font-mono text-[10px] text-zinc-200 shadow-md border border-[#1a2636] backdrop-blur whitespace-nowrap"
     >
-      <span className="font-semibold text-cyan-400">
+      <span className="font-semibold text-sky-400">
         {hoveredNode.type === 'sat' ? `КА ${hoveredNode.id}` : `Наземный пункт ${hoveredNode.id}`}
       </span>
     </div>

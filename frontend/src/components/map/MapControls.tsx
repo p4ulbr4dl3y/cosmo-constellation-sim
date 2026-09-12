@@ -81,7 +81,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
               type="button"
               onClick={onToggleIsl}
               title="Межспутниковые линии (ISL)"
-              className={`px-1 sm:px-2 py-0.5 rounded transition-all cursor-pointer text-[10px] sm:text-xs ${
+              className={`h-6 sm:h-7 px-1.5 sm:px-2 flex items-center justify-center rounded transition-all cursor-pointer text-[10px] sm:text-xs ${
                 showIsl ? 'bg-white/20 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -92,7 +92,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
               type="button"
               onClick={onToggleGroundLinks}
               title="Линии Земля-Спутник (GSL)"
-              className={`px-1 sm:px-2 py-0.5 rounded transition-all cursor-pointer text-[10px] sm:text-xs ${
+              className={`h-6 sm:h-7 px-1.5 sm:px-2 flex items-center justify-center rounded transition-all cursor-pointer text-[10px] sm:text-xs ${
                 showGroundLinks
                   ? 'bg-white/20 text-white font-medium'
                   : 'text-zinc-400 hover:text-zinc-200'
@@ -105,7 +105,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
               type="button"
               onClick={onToggleLabels}
               title="Номера спутников (ID)"
-              className={`px-1 sm:px-2 py-0.5 rounded transition-all cursor-pointer text-[10px] sm:text-xs ${
+              className={`h-6 sm:h-7 px-1.5 sm:px-2 flex items-center justify-center rounded transition-all cursor-pointer text-[10px] sm:text-xs ${
                 showLabels
                   ? 'bg-white/20 text-white font-medium'
                   : 'text-zinc-400 hover:text-zinc-200'
@@ -119,7 +119,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
               onClick={onToggleUnlaunched}
               aria-label="Резерв"
               title="Спутники последующих этапов"
-              className={`px-1 sm:px-2 py-0.5 rounded transition-all cursor-pointer text-[10px] sm:text-xs ${
+              className={`h-6 sm:h-7 px-1.5 sm:px-2 flex items-center justify-center rounded transition-all cursor-pointer text-[10px] sm:text-xs ${
                 showUnlaunched
                   ? 'bg-white/20 text-white font-medium'
                   : 'text-zinc-400 hover:text-zinc-200'
@@ -176,7 +176,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
             title="Сбросить масштаб и положение (100%)"
             className={`px-1 py-0.5 text-[10px] sm:text-[11px] min-w-[32px] sm:min-w-[38px] text-center font-mono font-medium rounded transition-colors cursor-pointer ${
               Math.round(zoom * 100) !== 100
-                ? 'text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10'
+                ? 'text-sky-400 hover:text-sky-300 hover:bg-sky-500/10'
                 : 'text-zinc-300 hover:text-white hover:bg-white/10'
             }`}
           >

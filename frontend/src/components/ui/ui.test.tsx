@@ -17,7 +17,19 @@ describe('UI Primitives (Server Rendered Strings)', () => {
     })
 
     it('renders all variant themes', () => {
-      const variants = ['cyan', 'lime', 'emerald', 'amber', 'red', 'blue', 'neutral'] as const
+      const variants = [
+        'cyan',
+        'lime',
+        'emerald',
+        'amber',
+        'red',
+        'blue',
+        'neutral',
+        'danger',
+        'success',
+        'accent',
+        'warning',
+      ] as const
       for (const v of variants) {
         const html = renderToString(<Badge variant={v}>{`Variant ${v}`}</Badge>)
         expect(html).toContain(`Variant ${v}`)
@@ -157,6 +169,7 @@ describe('UI Primitives (Server Rendered Strings)', () => {
         />
       )
       expect(html).toContain('flex-col')
+      expect(html).toContain('h-6')
     })
 
     it('renders grid variant', () => {

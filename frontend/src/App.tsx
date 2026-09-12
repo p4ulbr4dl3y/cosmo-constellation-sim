@@ -206,11 +206,11 @@ export default function App() {
                 onClick={() => setActiveTab(tab.value)}
                 className={`flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer select-none ${
                   isActive
-                    ? 'text-cyan-400 font-semibold bg-cyan-500/10'
+                    ? 'text-sky-400 font-semibold bg-sky-500/10'
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : 'text-zinc-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-sky-400' : 'text-zinc-400'}`} />
                 <span className="text-[10px] tracking-tight">{tab.label}</span>
               </button>
             )

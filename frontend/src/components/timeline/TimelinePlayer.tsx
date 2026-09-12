@@ -388,28 +388,34 @@ export const TimelinePlayer: React.FC<TimelinePlayerProps> = ({
       </div>
 
       {/* Floating Tooltip */}
-      {tooltipData && (
-        <div
-          className="fixed z-50 pointer-events-none bg-[#0b1017] text-zinc-100 text-[11px] px-2.5 py-1.5 rounded border border-[#1a2636] shadow-xl transform -translate-x-1/2 -translate-y-full"
-          style={{ left: tooltipData.x, top: tooltipData.y }}
-        >
-          <div className="flex items-center gap-2 font-semibold text-cyan-300 border-b border-[#1a2636] pb-1 mb-1">
-            <span>{tooltipData.clientId}</span>
-            <span>{formatTime(tooltipData.slot.t_s)}</span>
+      {tooltipData && (() => {
+        const clampedX =
+          typeof window !== 'undefined'
+            ? Math.max(90, Math.min(window.innerWidth - 90, tooltipData.x))
+            : tooltipData.x
+        return (
+          <div
+            className="fixed z-50 pointer-events-none bg-[#0b1017] text-zinc-100 text-[11px] px-2.5 py-1.5 rounded border border-[#1a2636] shadow-xl transform -translate-x-1/2 -translate-y-full"
+            style={{ left: clampedX, top: tooltipData.y }}
+          >
+            <div className="flex items-center gap-2 font-semibold text-sky-300 border-b border-[#1a2636] pb-1 mb-1">
+              <span>{tooltipData.clientId}</span>
+              <span>{formatTime(tooltipData.slot.t_s)}</span>
+            </div>
+            <div className="flex items-center gap-1 text-[10px]">
+              {tooltipData.slot.hasPath ? (
+                <span className="text-emerald-400 font-semibold">
+                  Связь активна (Хопов: {tooltipData.slot.hops})
+                </span>
+              ) : (
+                <span className="text-rose-400 font-semibold">
+                  Обрыв: {tooltipData.slot.reason || 'Нет пути'}
+                </span>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-1 text-[10px]">
-            {tooltipData.slot.hasPath ? (
-              <span className="text-emerald-400 font-semibold">
-                Связь активна (Хопов: {tooltipData.slot.hops})
-              </span>
-            ) : (
-              <span className="text-rose-400 font-semibold">
-                Обрыв: {tooltipData.slot.reason || 'Нет пути'}
-              </span>
-            )}
-          </div>
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

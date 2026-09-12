@@ -107,7 +107,7 @@ export const ClientSelector: React.FC<ClientSelectorProps> = ({
               aria-pressed={isSelected}
               type="button"
               onClick={() => onSelectClient(c.id)}
-              className={`h-4.5 px-1 rounded text-[10px] flex items-center justify-between border transition-all cursor-pointer overflow-hidden ${
+              className={`h-6 px-1 rounded text-[10px] flex items-center justify-between border transition-all cursor-pointer overflow-hidden ${
                 isSelected
                   ? 'bg-white/15 border-white/30 text-white font-medium shadow-xs'
                   : 'bg-[#0b1017] border-[#1a2636]/80 text-zinc-400 hover:text-zinc-200'

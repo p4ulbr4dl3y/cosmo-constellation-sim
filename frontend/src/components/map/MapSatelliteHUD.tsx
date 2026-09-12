@@ -32,7 +32,7 @@ export const MapSatelliteHUD: React.FC<MapSatelliteHUDProps> = ({
             }`}
           />
           <span className="font-semibold text-xs text-white">КА {satellite.id}</span>
-          <span className="text-[10px] bg-[#070b10] text-zinc-400 border border-[#1a2636] px-1.5 py-0.2 rounded">
+          <span className="text-[10px] bg-[#070b10] text-zinc-400 border border-[#1a2636] px-1.5 py-0.5 rounded">
             {satellite.plane_id}
           </span>
         </div>
@@ -75,7 +75,7 @@ export const MapSatelliteHUD: React.FC<MapSatelliteHUDProps> = ({
         </div>
         <div className="flex justify-between">
           <span className="text-zinc-400">Связи (ISL):</span>
-          <span className="text-cyan-400 font-bold">{islDegree} линков</span>
+          <span className="text-sky-400 font-bold">{islDegree} линков</span>
         </div>
       </div>
 
