@@ -14,7 +14,16 @@ def export_result(
     summary: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
-    Format simulation output in compliance with cosmo-A-result-1.0 schema.
+    Формирование итогового отчета моделирования по схеме cosmo-A-result-1.0.
+
+    Параметры:
+    - scenario: параметры исходного сценария моделирования;
+    - metric: критерий оптимизации маршрута ('hops' или 'distance');
+    - routes: рассчитанные маршруты на каждом временном шаге;
+    - client_metrics: поклиентские показатели качества связи;
+    - summary: агрегированные показатели доступности группировки.
+
+    Возвращает словарь результата, готовый для сериализации в JSON.
     """
     if routes is None:
         sim = run_simulation(scenario, metric=metric, include_timeline=False)
@@ -22,7 +31,7 @@ def export_result(
         client_metrics = sim["client_metrics"]
         summary = sim["summary"]
 
-    # Filter client_metrics to lightweight summary without large timelines for export
+    # Удаление детальных временных шкал для компактного экспорта
     clean_metrics: dict[str, Any] = {}
     if client_metrics:
         for cid, m in client_metrics.items():

@@ -12,7 +12,7 @@ router = APIRouter(tags=["presets"])
 
 
 def find_data_dir() -> Path:
-    """Locate 'data' (or fallback 'Данные') directory across environments."""
+    """Поиск директории эталонных сценариев 'data' или 'Данные'."""
     names = ["data", "Данные"]
     candidates = []
     for name in names:
@@ -34,9 +34,10 @@ def find_data_dir() -> Path:
 @router.get(
     "/presets",
     response_model=list[PresetSummary],
-    summary="List available scenario presets",
+    summary="Получение списка доступных пресетов сценариев",
 )
 def get_presets() -> list[PresetSummary]:
+    """Возвращает метаданные и параметры доступных файлов сценариев."""
     data_dir = find_data_dir()
     if not data_dir.exists():
         return []
@@ -76,8 +77,9 @@ def get_presets() -> list[PresetSummary]:
     return summaries
 
 
-@router.get("/presets/{name}", summary="Get scenario preset JSON by name")
+@router.get("/presets/{name}", summary="Получение конфигурации пресета по имени файла")
 def get_preset(name: str) -> dict[str, Any]:
+    """Возвращает полное содержимое сценария в формате JSON."""
     data_dir = find_data_dir()
     filename = name if name.endswith(".json") else f"{name}.json"
     preset_path = data_dir / filename

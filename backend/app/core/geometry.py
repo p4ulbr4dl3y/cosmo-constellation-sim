@@ -7,20 +7,27 @@ from app.core.constants import EARTH_OMEGA, EARTH_RADIUS_KM, EARTH_MU
 
 
 def finite(x: object) -> bool:
+    """Проверка, является ли значение конечным числом."""
     return isinstance(x, (int, float)) and (not isinstance(x, bool)) and math.isfinite(x)
 
 
 def compute_positions(s: dict, t_s: float) -> tuple[list[str], np.ndarray, np.ndarray]:
     """
-    Return satellite IDs, model inertial positions [km], Earth-fixed positions [km].
-    Faithful to reference geometry.py.
+    Вычисление координат спутников на момент времени t_s.
+
+    Возвращает кортеж:
+    - список идентификаторов спутников;
+    - массив координат в инерциальной системе ECI [км];
+    - массив координат во вращающейся геоцентрической системе ECEF [км].
     """
     e, d = (s["environment"], s["design"])
     pmap = {p["id"]: p for p in d["planes"]}
     r = EARTH_RADIUS_KM + float(e["altitude_km"])
+    # Среднее движение на круговой орбите радиуса r
     n = math.sqrt(EARTH_MU / r**3)
     inc = math.radians(float(e["inclination_deg"]))
 
+    # Аргумент широты спутников: фазирование внутри плоскости и движение по орбите за время t_s
     u = np.array(
         [
             math.radians(float(x["slot_deg"]) + float(pmap[x["plane_id"]]["phase_deg"])) + n * t_s
@@ -34,6 +41,7 @@ def compute_positions(s: dict, t_s: float) -> tuple[list[str], np.ndarray, np.nd
     )
 
     cu, su, co, so = np.cos(u), np.sin(u), np.cos(om), np.sin(om)
+    # Координаты спутников в инерциальной системе ECI
     xyz = r * np.stack(
         (
             co * cu - so * su * math.cos(inc),
@@ -43,6 +51,7 @@ def compute_positions(s: dict, t_s: float) -> tuple[list[str], np.ndarray, np.nd
         axis=1,
     )
 
+    # Вращение Земли вокруг оси Z: переход от инерциальной ECI к геоцентрической ECEF
     th = math.radians(float(e["earth_angle0_deg"])) + EARTH_OMEGA * t_s
     c, ss = math.cos(th), math.sin(th)
     rot = np.array([[c, -ss, 0.0], [ss, c, 0.0], [0.0, 0.0, 1.0]], dtype=np.float64)
@@ -52,7 +61,7 @@ def compute_positions(s: dict, t_s: float) -> tuple[list[str], np.ndarray, np.nd
 
 
 def ground_position(g: dict) -> np.ndarray:
-    """Earth-fixed Cartesian position of a ground site [km]."""
+    """Вычисление декартовых координат наземного пункта в системе ECEF [км]."""
     lat, lon = math.radians(float(g["lat_deg"])), math.radians(float(g["lon_deg"]))
     return EARTH_RADIUS_KM * np.array(
         [math.cos(lat) * math.cos(lon), math.cos(lat) * math.sin(lon), math.sin(lat)],
@@ -62,7 +71,12 @@ def ground_position(g: dict) -> np.ndarray:
 
 def ecef_to_geodetic(xyz: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Convert spherical Earth-fixed ECEF coordinates [km] to (lat_deg, lon_deg, alt_km).
+    Преобразование координат ECEF [км] в геодезические величины.
+
+    Возвращает кортеж:
+    - широта в градусах;
+    - долгота в градусах;
+    - высота над поверхностью Земли в километрах.
     """
     x, y, z = xyz[:, 0], xyz[:, 1], xyz[:, 2]
     hypot_xy = np.hypot(x, y)
@@ -75,9 +89,13 @@ def ecef_to_geodetic(xyz: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarra
 
 def snapshot(s: dict, t_s: float, fast_edges_only: bool = False) -> dict:
     """
-    Calculate single time frame: satellite positions, active state, ISL and ground edges, elevations.
-    Edges are potential bidirectional contacts; ground nodes cannot relay traffic.
-    Matches Расчетный модуль/geometry.py snapshot format.
+    Расчет состояния группировки в момент времени t_s.
+
+    Определяет:
+    - пространственное положение и признак активности спутников;
+    - ребра межспутниковых линий связи с проверкой дальности и затенения Землей;
+    - видимость и углы места относительно наземных станций;
+    - ребра связи между наземными пунктами и спутниками.
     """
     e, d = (s["environment"], s["design"])
     ids, inertial, xyz = compute_positions(s, t_s)
@@ -91,12 +109,11 @@ def snapshot(s: dict, t_s: float, fast_edges_only: bool = False) -> dict:
         dtype=bool,
     )
 
-    # Inter-satellite links (ISL)
+    # Межспутниковые линии связи
     n_sats = len(ids)
     edges: list[list[str | float]] = []
     if n_sats > 1:
         i, j = np.triu_indices(n_sats, 1)
-        # Pre-filter by active status
         both_active = active[i] & active[j]
         i_cand = i[both_active]
         j_cand = j[both_active]
@@ -112,6 +129,7 @@ def snapshot(s: dict, t_s: float, fast_edges_only: bool = False) -> dict:
                 delta_sub = delta[range_ok]
                 denom_sub = denom[range_ok]
                 dist_sub = np.sqrt(denom_sub)
+                # Проекция центра Земли на отрезок между спутниками для проверки затенения
                 lam = np.clip(
                     -np.sum(xyz[i_sub] * delta_sub, axis=1) / np.maximum(denom_sub, 1e-12),
                     0.0,
@@ -122,7 +140,7 @@ def snapshot(s: dict, t_s: float, fast_edges_only: bool = False) -> dict:
                 for a, b, dd in zip(i_sub[ok], j_sub[ok], dist_sub[ok]):
                     edges.append([ids[a], ids[b], float(dd)])
 
-    # Ground stations links
+    # Линии связи с наземными станциями
     elevations: dict[str, dict[str, float]] = {}
     active_indices = np.where(active)[0]
     min_elev = float(e["min_elevation_deg"])
@@ -132,7 +150,7 @@ def snapshot(s: dict, t_s: float, fast_edges_only: bool = False) -> dict:
         gp = ground_position(g)
         dif = xyz - gp
         dl = np.linalg.norm(dif, axis=1)
-        # clip dot product for numerical stability
+        # Ограничение скалярного произведения для численной устойчивости
         dot = np.clip(dif @ (gp / EARTH_RADIUS_KM) / dl, -1.0, 1.0)
         el = np.degrees(np.arcsin(dot))
 

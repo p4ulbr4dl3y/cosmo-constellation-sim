@@ -19,14 +19,23 @@ from app.models.schemas import (
 router = APIRouter(tags=["simulation"])
 
 
-@router.post("/validate", response_model=ValidateResponse, summary="Validate scenario body")
+@router.post(
+    "/validate",
+    response_model=ValidateResponse,
+    summary="Валидация структуры и физических параметров сценария",
+)
 def validate(scenario: dict[str, Any]) -> ValidateResponse:
+    """Выполняет проверку сценария на соответствие схеме cosmo-A-1.0 и физическим ограничениям."""
     errors = validate_scenario(scenario)
     return ValidateResponse(valid=len(errors) == 0, errors=errors)
 
 
-@router.post("/simulate", summary="Run full time-horizon simulation")
+@router.post(
+    "/simulate",
+    summary="Моделирование доступности группировки по временному горизонту",
+)
 def simulate(req: SimulateRequest) -> dict[str, Any]:
+    """Запускает расчет динамики группировки, маршрутизации и метрик SLA по всем временным шагам."""
     errors = validate_scenario(req.scenario)
     if errors:
         raise HTTPException(
@@ -42,8 +51,12 @@ def simulate(req: SimulateRequest) -> dict[str, Any]:
     return result
 
 
-@router.post("/snapshot", summary="Compute single time snapshot for visualizer/map")
+@router.post(
+    "/snapshot",
+    summary="Расчет мгновенного состояния группировки для визуализации",
+)
 def compute_snapshot(req: SnapshotRequest) -> dict[str, Any]:
+    """Вычисляет пространственные координаты ECEF, топологию графа и маршруты клиентов в момент времени t_s."""
     scenario = req.scenario
     t_s = float(req.t_s)
     metric = req.routing_metric
@@ -68,14 +81,14 @@ def compute_snapshot(req: SnapshotRequest) -> dict[str, Any]:
     cur_gw_outages = {f["gateway_id"] for f in gw_outages if f["start_s"] <= t_s < f["end_s"]}
     online_gateways = {gid for gid in all_gw_set if gid not in cur_gw_outages}
 
-    # Gateway sat visibility
+    # Проверка видимости космических аппаратов для активных шлюзовых станций
     gw_has_sat = False
     for gid in online_gateways:
         if any(nxt not in all_gw_set for nxt, _ in adj.get(gid, [])):
             gw_has_sat = True
             break
 
-    # Ground sites with Cartesian and online status
+    # Расчет пространственных координат ECEF и статуса доступности наземных пунктов
     ground_sites_out = []
     for g in ground:
         gid = g["id"]
@@ -96,7 +109,7 @@ def compute_snapshot(req: SnapshotRequest) -> dict[str, Any]:
             }
         )
 
-    # Client routes and statuses
+    # Расчет маршрутов Дейкстры и причин отсутствия связности для клиентов
     client_routes: dict[str, Any] = {}
     clients_connected = 0
 
@@ -144,7 +157,7 @@ def compute_snapshot(req: SnapshotRequest) -> dict[str, Any]:
                 "failure_reason": fail_desc,
             }
 
-    # Typed edges for visualization
+    # Классификация ребер графа на межспутниковые линии ISL и каналы связи с Землей
     typed_edges = []
     sat_ids_set = {s["id"] for s in snap["satellites"]}
     for u, v, d in snap["edges"]:
@@ -182,8 +195,12 @@ def compute_snapshot(req: SnapshotRequest) -> dict[str, Any]:
     }
 
 
-@router.post("/export", summary="Export result in cosmo-A-result-1.0 format")
+@router.post(
+    "/export",
+    summary="Экспорт результатов моделирования в формате cosmo-A-result-1.0",
+)
 def export(req: ExportRequest) -> dict[str, Any]:
+    """Формирует итоговый документ результатов моделирования сценария."""
     errors = validate_scenario(req.scenario)
     if errors:
         raise HTTPException(

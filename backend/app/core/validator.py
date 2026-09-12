@@ -7,27 +7,37 @@ from app.core.constants import SCHEMA_VERSION_INPUT
 
 
 def is_finite_number(x: Any) -> bool:
+    """Проверка, является ли значение конечным числом."""
     return isinstance(x, (int, float)) and (not isinstance(x, bool)) and math.isfinite(x)
 
 
 def validate_scenario(s: dict[str, Any]) -> list[str]:
     """
-    Validate scenario against cosmo-A-1.0 specifications.
-    Returns list of human-readable error messages. Empty list = valid scenario.
+    Валидация сценария на соответствие спецификации cosmo-A-1.0.
+
+    Выполняет проверки:
+    - корректность структуры разделов и типов данных;
+    - допустимость диапазонов высоты, наклонения и дальности межспутниковой связи;
+    - согласованность временной сетки и шага моделирования;
+    - корректность орбитального построения и очередей запуска;
+    - уникальность идентификаторов объектов и наличие клиентов и шлюзов;
+    - непротиворечивость временных интервалов отказов и отключений.
+
+    Возвращает список сообщений об ошибках. Пустой список означает успешную валидацию.
     """
     errors: list[str] = []
 
     if not isinstance(s, dict):
         return ["Сценарий должен быть объектом JSON (словарём)."]
 
-    # 1. schema_version
+    # 1. Проверка версии схемы
     version = s.get("schema_version")
     if version != SCHEMA_VERSION_INPUT:
         errors.append(
             f"Неподдерживаемая версия схемы: '{version}'. Ожидается '{SCHEMA_VERSION_INPUT}'."
         )
 
-    # 2. environment
+    # 2. Параметры среды и временной сетки
     env = s.get("environment")
     if not isinstance(env, dict):
         errors.append("Отсутствует обязательный раздел 'environment' (параметры среды и расчета).")
@@ -106,7 +116,7 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
                     f"Целевая доступность target_availability={env['target_availability']} должна быть в диапазоне [0.0, 1.0]."
                 )
 
-    # 3. design
+    # 3. Конфигурация орбитальной группировки
     design = s.get("design")
     plane_ids: set[str] = set()
     sat_ids: set[str] = set()
@@ -177,7 +187,7 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
                         f"Спутник '{sid}' имеет некорректный slot_deg={slot}. Ожидается число."
                     )
 
-    # 4. ground_sites
+    # 4. Наземные пункты
     ground = s.get("ground_sites")
     ground_ids: set[str] = set()
     has_client = False
@@ -233,7 +243,7 @@ def validate_scenario(s: dict[str, Any]) -> list[str]:
         if not has_gateway:
             errors.append("В сценарии должен присутствовать хотя бы один шлюз (role='gateway').")
 
-    # 5. failures & gateway_outages
+    # 5. Отказы спутников и периоды недоступности шлюзов
     max_h = env.get("horizon_s", 172800) if isinstance(env.get("horizon_s"), int) else 172800
 
     failures = s.get("failures", [])

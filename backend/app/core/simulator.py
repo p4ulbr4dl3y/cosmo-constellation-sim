@@ -16,8 +16,14 @@ def run_simulation(
     include_timeline: bool = True,
 ) -> dict[str, Any]:
     """
-    Run full time-horizon simulation on scenario.
-    Returns complete metrics, outage timelines, and failure breakdown.
+    Моделирование работы спутниковой группировки на заданном временном горизонте.
+
+    Параметры:
+    - scenario: параметры орбитального построения, среды и наземного сегмента;
+    - metric: критерий оптимизации маршрута ('hops' или 'distance');
+    - include_timeline: флаг включения детальной временной шкалы по шагам расчета.
+
+    Возвращает словарь с агрегированными метриками доступности, интервалами сбоев и маршрутами.
     """
     env = scenario["environment"]
     step_s = int(env["step_s"])
@@ -33,7 +39,7 @@ def run_simulation(
     time_steps = list(range(0, horizon_s, step_s))
     total_steps = len(time_steps)
 
-    # Per-client accumulators
+    # Накопители статистики по клиентским пунктам
     client_data: dict[str, dict[str, Any]] = {
         cid: {
             "steps_with_path": 0,
@@ -62,11 +68,11 @@ def run_simulation(
         snap = snapshot(scenario, t_s, fast_edges_only=True)
         adj = build_adjacency(snap["edges"])
 
-        # Online gateways at this time step
+        # Доступные наземные шлюзы на текущем временном шаге t_s
         cur_gw_outages = {f["gateway_id"] for f in gw_outages if f["start_s"] <= t_s < f["end_s"]}
         online_gateways = {gid for gid in all_gw_set if gid not in cur_gw_outages}
 
-        # Any active satellite visible to any online gateway?
+        # Наличие хотя бы одного видимого спутника над работающими шлюзами
         gw_has_sat = False
         for gid in online_gateways:
             if any(nxt not in all_gw_set for nxt, _ in adj.get(gid, [])):
@@ -109,7 +115,7 @@ def run_simulation(
                 cdata["hops_list"].append(hops)
                 cdata["distance_list"].append(total_dist)
 
-                # Close ongoing outage interval if one was active
+                # Фиксация окончания текущего интервала недоступности
                 if cdata["current_outage_steps"] > 0:
                     outage_dur = cdata["current_outage_steps"] * step_s
                     cdata["outage_intervals"].append(
@@ -169,7 +175,7 @@ def run_simulation(
                         }
                     )
 
-    # Close any trailing outage interval at horizon_s
+    # Закрытие незавершенного интервала недоступности на границе горизонта расчета
     for cid in clients:
         cdata = client_data[cid]
         if cdata["current_outage_steps"] > 0:
@@ -183,7 +189,7 @@ def run_simulation(
                 }
             )
 
-    # Format final metrics
+    # Расчет итоговых показателей доступности и задержек
     client_metrics: dict[str, Any] = {}
     total_avail_pct = 0.0
     min_avail_pct = 100.0

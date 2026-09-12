@@ -14,6 +14,7 @@ router = APIRouter(tags=["analysis"])
 
 
 def find_recommendations_doc() -> Path | None:
+    """Поиск файла инженерного отчета с рекомендациями по развертыванию."""
     candidates = [
         Path.cwd() / "docs" / "RECOMMENDATIONS.md",
         Path.cwd().parent / "docs" / "RECOMMENDATIONS.md",
@@ -30,8 +31,9 @@ def find_recommendations_doc() -> Path | None:
     return None
 
 
-@router.post("/compare", summary="Compare two scenarios")
+@router.post("/compare", summary="Сравнительный анализ двух сценариев группировки")
 def compare(req: CompareRequest) -> dict[str, Any]:
+    """Сравнивает доступность и маршрутные метрики двух сценариев."""
     errors_a = validate_scenario(req.scenario_a)
     if errors_a:
         raise HTTPException(
@@ -62,9 +64,10 @@ def compare(req: CompareRequest) -> dict[str, Any]:
 @router.api_route(
     "/recommendations",
     methods=["GET", "POST"],
-    summary="Get constellation design recommendations and SLA analysis",
+    summary="Получение инженерных рекомендаций и анализа устойчивости",
 )
 def get_recommendations() -> dict[str, Any]:
+    """Возвращает аналитическую сводку по очередям развертывания, узким местам и рекомендациям."""
     return {
         "status": "success",
         "target_sla": 0.90,
@@ -144,9 +147,10 @@ def get_recommendations() -> dict[str, Any]:
 @router.api_route(
     "/report/export",
     methods=["GET", "POST"],
-    summary="Export engineering report text in markdown",
+    summary="Экспорт текста инженерного отчета в формате Markdown",
 )
 def export_report(format: str = "json") -> Any:
+    """Экспортирует инженерный отчет в текстовом формате Markdown или JSON."""
     doc_path = find_recommendations_doc()
     markdown_text = ""
     if doc_path and doc_path.exists():

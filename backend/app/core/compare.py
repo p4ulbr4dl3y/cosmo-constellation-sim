@@ -6,10 +6,12 @@ from app.core.simulator import run_simulation
 
 
 def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
-    """Find differences in environment and design between scenario A and B."""
+    """
+    Поиск различий в параметрах среды, орбитального построения и отказов между сценариями A и B.
+    """
     diffs: list[dict[str, Any]] = []
 
-    # Environment
+    # Параметры среды
     env_a = a.get("environment", {})
     env_b = b.get("environment", {})
     for k in sorted(set(env_a.keys()) | set(env_b.keys())):
@@ -24,7 +26,7 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
                 }
             )
 
-    # Design launch stage
+    # Очередь развертывания группировки
     des_a = a.get("design", {})
     des_b = b.get("design", {})
     if des_a.get("launch_stage") != des_b.get("launch_stage"):
@@ -36,7 +38,7 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
             }
         )
 
-    # Planes count and parameters
+    # Параметры орбитальных плоскостей
     planes_a = {p["id"]: p for p in des_a.get("planes", [])}
     planes_b = {p["id"]: p for p in des_b.get("planes", [])}
     for pid in sorted(set(planes_a.keys()) | set(planes_b.keys())):
@@ -51,7 +53,7 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
                 }
             )
 
-    # Satellites count & configuration
+    # Количество и конфигурация спутников
     sats_a = len(des_a.get("satellites", []))
     sats_b = len(des_b.get("satellites", []))
     if sats_a != sats_b:
@@ -71,7 +73,7 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
             }
         )
 
-    # Ground sites
+    # Наземные пункты
     gs_a = {g["id"]: g for g in a.get("ground_sites", []) if isinstance(g, dict) and "id" in g}
     gs_b = {g["id"]: g for g in b.get("ground_sites", []) if isinstance(g, dict) and "id" in g}
     for gid in sorted(set(gs_a.keys()) | set(gs_b.keys())):
@@ -86,7 +88,7 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
                 }
             )
 
-    # Failures count & configuration
+    # Отказы спутников
     fails_a = len(a.get("failures", []))
     fails_b = len(b.get("failures", []))
     if fails_a != fails_b:
@@ -106,7 +108,7 @@ def diff_scenario_parameters(a: dict[str, Any], b: dict[str, Any]) -> dict[str, 
             }
         )
 
-    # Gateway outages count & configuration
+    # Периоды недоступности наземных шлюзов
     gw_a = len(a.get("gateway_outages", []))
     gw_b = len(b.get("gateway_outages", []))
     if gw_a != gw_b:
@@ -134,7 +136,15 @@ def compare_scenarios(
     scenario_b: dict[str, Any],
     metric: RoutingMetric = "hops",
 ) -> dict[str, Any]:
-    """Run simulations on A and B and provide comparative delta analysis."""
+    """
+    Сравнительное моделирование сценариев A и B с расчетом дельты характеристик.
+
+    Возвращает словарь:
+    - различия входных параметров;
+    - сводная разница показателей доступности;
+    - детальное поклиентское сопоставление метрик;
+    - инженерное заключение.
+    """
     sim_a = run_simulation(scenario_a, metric=metric, include_timeline=False)
     sim_b = run_simulation(scenario_b, metric=metric, include_timeline=False)
 
@@ -181,7 +191,7 @@ def compare_scenarios(
     avg_delta = round(sum_b["average_availability_pct"] - sum_a["average_availability_pct"], 2)
     min_delta = round(sum_b["min_availability_pct"] - sum_a["min_availability_pct"], 2)
 
-    # Engineering recommendation
+    # Формирование инженерного заключения
     notes = []
     if avg_delta > 0:
         notes.append(f"Вариант B превосходит вариант A по средней доступности на +{avg_delta}%.")

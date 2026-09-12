@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 import math
 
+# Средний радиус Земли в километрах.
 EARTH_RADIUS_KM: float = 6371.0
+# Гравитационный параметр Земли mu, км^3 / с^2.
 EARTH_MU: float = 398600.435507
+# Угловая скорость суточного вращения Земли, рад / с.
 EARTH_OMEGA: float = 2.0 * math.pi / 86164.09054
 
 SCHEMA_VERSION_INPUT: str = "cosmo-A-1.0"

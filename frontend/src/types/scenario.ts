@@ -1,9 +1,15 @@
+/**
+ * Орбитальная плоскость спутниковой группировки.
+ */
 export interface Plane {
   id: string
   raan_deg: number
   phase_deg: number
 }
 
+/**
+ * Космический аппарат созвездия.
+ */
 export interface Satellite {
   id: string
   plane_id: string
@@ -11,6 +17,9 @@ export interface Satellite {
   launch_batch: number
 }
 
+/**
+ * Наземный пункт связи (клиентский терминал или базовый шлюз).
+ */
 export interface GroundSite {
   id: string
   name: string
@@ -19,18 +28,27 @@ export interface GroundSite {
   lon_deg: number
 }
 
+/**
+ * Временной интервал отказа космического аппарата.
+ */
 export interface Failure {
   satellite_id: string
   start_s: number
   end_s: number
 }
 
+/**
+ * Временной интервал отключения или техобслуживания наземного шлюза.
+ */
 export interface GatewayOutage {
   gateway_id: string
   start_s: number
   end_s: number
 }
 
+/**
+ * Параметры внешней среды и баллистической конфигурации созвездия.
+ */
 export interface Environment {
   altitude_km: number
   inclination_deg: number
@@ -42,12 +60,18 @@ export interface Environment {
   target_availability?: number
 }
 
+/**
+ * Конфигурация орбитального построения созвездия.
+ */
 export interface Design {
   launch_stage: number
   planes: Plane[]
   satellites: Satellite[]
 }
 
+/**
+ * Полное описание сценария моделирования спутниковой группировки (схема cosmo-A-1.0).
+ */
 export interface Scenario {
   schema_version: 'cosmo-A-1.0'
   meta: {
@@ -61,6 +85,9 @@ export interface Scenario {
   gateway_outages: GatewayOutage[]
 }
 
+/**
+ * Мгновенное расчетное состояние космического аппарата.
+ */
 export interface SatelliteSnapshot {
   id: string
   plane_id: string
@@ -74,16 +101,22 @@ export interface SatelliteSnapshot {
   launch_batch: number
 }
 
+/**
+ * Мгновенный снимок состояния созвездия и сетевой топологии на расчетную секунду t_s.
+ */
 export interface Snapshot {
   t_s: number
   satellites: SatelliteSnapshot[]
-  edges: [string, string, number][] // [node1, node2, dist_km]
-  elevations: Record<string, Record<string, number>> // siteId -> satId -> deg
-  routes: Record<string, string[]> // clientId -> [clientId, sat..., gatewayId]
-  outageReasons: Record<string, string> // clientId -> reason if no route
-  outageCodes?: Record<string, string> // clientId -> failure code (no_client_satellite, etc.)
+  edges: [string, string, number][] // Ребра графа: [узел1, узел2, расстояние_км]
+  elevations: Record<string, Record<string, number>> // Углы места: пункт -> спутник -> градусы
+  routes: Record<string, string[]> // Маршруты: клиент -> последовательность узлов связи
+  outageReasons: Record<string, string> // Текстовая причина отсутствия связи
+  outageCodes?: Record<string, string> // Код причины сбоя связи
 }
 
+/**
+ * Итоговые агрегированные показатели качества связи для клиента.
+ */
 export interface ClientMetrics {
   client_id: string
   name: string
@@ -96,12 +129,18 @@ export interface ClientMetrics {
   visible_slots: number
 }
 
+/**
+ * Запись маршрута доставки пакетов для клиента на момент времени t_s.
+ */
 export interface RouteRecord {
   t_s: number
   client_id: string
   path: string[]
 }
 
+/**
+ * Результаты моделирования функционирования группировки (схема cosmo-A-result-1.0).
+ */
 export interface ResultExport {
   schema_version: 'cosmo-A-result-1.0'
   meta: {
@@ -122,6 +161,9 @@ export interface ResultExport {
   }
 }
 
+/**
+ * Состояние доступности канала связи в отдельном дискретном интервале времени.
+ */
 export interface TimelineSlot {
   t_s: number
   hasPath: boolean
@@ -132,6 +174,9 @@ export interface TimelineSlot {
   failureCode?: string
 }
 
+/**
+ * Временная шкала клиента со всеми расчетными интервалами и сводными метриками.
+ */
 export interface ClientTimeline {
   clientId: string
   name: string

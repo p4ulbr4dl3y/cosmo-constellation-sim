@@ -14,6 +14,7 @@ from app.core.validator import validate_scenario
 
 
 def print_table(scenario_name: str, result: dict[str, Any], target_sla: float) -> None:
+    """Выводит форматированную таблицу доступности связи по клиентам и статистику сбоев."""
     metrics = result.get("client_metrics", {})
     summary = result.get("summary", {})
     total_steps = result.get("total_steps", 0)
@@ -61,7 +62,7 @@ def print_table(scenario_name: str, result: dict[str, Any], target_sla: float) -
         for k, label in labels.items():
             cnt = total_failures.get(k, 0)
             if cnt > 0:
-                print(f"  • {label:<42}: {cnt} шагов ({cnt * step_s} с)")
+                print(f"  - {label:<42}: {cnt} шагов ({cnt * step_s} с)")
     print("=" * 82 + "\n")
 
 
@@ -70,6 +71,7 @@ def process_scenario(
     metric: RoutingMetric = "hops",
     export_path: Path | None = None,
 ) -> bool:
+    """Выполняет загрузку, валидацию и моделирование переданного сценария."""
     if not path.exists():
         print(f"Ошибка: файл '{path}' не найден.", file=sys.stderr)
         return False
@@ -111,8 +113,9 @@ def process_scenario(
 
 
 def main() -> None:
+    """Консольный интерфейс для запуска моделирования и анализа доступности созвездия."""
     parser = argparse.ArgumentParser(
-        description="Cosmo Constellation Simulator CLI — расчет орбитальной доступности (КосмоХакатон 2026)"
+        description="Cosmo Constellation Simulator CLI - расчет орбитальной доступности (КосмоХакатон 2026)"
     )
     parser.add_argument(
         "--scenario",
@@ -130,7 +133,7 @@ def main() -> None:
         "-m",
         choices=["hops", "distance", "delay"],
         default="hops",
-        help="Метрика маршрутизации: hops (минимальное число хопов) или distance/delay (минимальное геометрическое расстояние/задержка)",
+        help="Критерий маршрутизации: hops - минимальное число хопов; distance/delay - минимальное расстояние.",
     )
     parser.add_argument(
         "--export",
