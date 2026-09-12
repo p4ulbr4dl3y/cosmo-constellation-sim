@@ -113,7 +113,6 @@ export function render2DMap(options: Render2DOptions): void {
   if (stepX > 0) {
     const kMinX = Math.floor((0 - x0) / stepX) - 1
     const kMaxX = Math.ceil((width - x0) / stepX) + 1
-    const labelY = Math.min(height - 6, Math.max(16, wY2 - 4))
     for (let k = kMinX; k <= kMaxX; k++) {
       const x = x0 + k * stepX
       if (x < -1 || x > width + 1) continue
@@ -121,12 +120,6 @@ export function render2DMap(options: Render2DOptions): void {
       ctx.moveTo(x, 0)
       ctx.lineTo(x, height)
       ctx.stroke()
-
-      const normLon = ((k * 30) % 360 + 540) % 360 - 180
-      // Label meridians within the world boundary
-      if (x >= wX1 - 2 && x <= wX2 + 2) {
-        ctx.fillText(`${normLon}°`, x + 3, labelY)
-      }
     }
   }
 
@@ -143,14 +136,6 @@ export function render2DMap(options: Render2DOptions): void {
       ctx.moveTo(0, y)
       ctx.lineTo(width, y)
       ctx.stroke()
-
-      const lat = k * 30
-      if (lat >= -80 && lat <= 80 && y >= wY1 - 2 && y <= wY2 + 2) {
-        const latLabel = lat > 0 ? `${lat}°N` : `${Math.abs(lat)}°S`
-        if (y >= 10 && y <= height - 5) {
-          ctx.fillText(latLabel, Math.max(8, wX1 + 6), y - 3)
-        }
-      }
     }
   }
 
@@ -161,9 +146,6 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.moveTo(0, y0)
   ctx.lineTo(width, y0)
   ctx.stroke()
-  if (y0 >= 10 && y0 <= height - 5 && y0 >= wY1 && y0 <= wY2) {
-    ctx.fillText('0°', Math.max(8, wX1 + 6), y0 - 3)
-  }
 
   // Northern Sea Route / Arctic Operation Zone (65°N - 85°N, 30°E - 180°E)
   const [nsrX1, nsrY2] = project2D(30, 65, width, height, zoom, pan2d)
@@ -183,19 +165,6 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.lineTo(width, arcticY)
   ctx.stroke()
   ctx.setLineDash([])
-
-  // Arctic circle label
-  const arcticLabel = 'СЕВЕРНЫЙ ПОЛЯРНЫЙ КРУГ // 66.5°N'
-  ctx.font = 'bold 8.5px monospace'
-  const arcLabelX = Math.max(28, wX1 + 36)
-  const arcLabelY = arcticY - 4
-  const arcLabelW = ctx.measureText(arcticLabel).width
-  ctx.fillStyle = 'rgba(7, 12, 22, 0.75)'
-  ctx.fillRect(arcLabelX - 4, arcLabelY - 8, arcLabelW + 8, 11)
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)'
-  ctx.strokeRect(arcLabelX - 4, arcLabelY - 8, arcLabelW + 8, 11)
-  ctx.fillStyle = 'rgba(56, 189, 248, 0.85)'
-  ctx.fillText(arcticLabel, arcLabelX, arcLabelY)
 
   // Draw Landmasses strictly inside world bounds
   ctx.save()
@@ -265,6 +234,63 @@ export function render2DMap(options: Render2DOptions): void {
   ctx.lineTo(wX2, wY2)
   ctx.lineTo(wX2, wY2 - cornerLen)
   ctx.stroke()
+
+  // --- Grid and Zone Text Labels (rendered ON TOP of landmasses for 100% legibility) ---
+  ctx.fillStyle = 'rgba(148, 163, 184, 0.7)'
+  ctx.font = '9px monospace'
+
+  // Longitude labels
+  if (stepX > 0) {
+    const kMinX = Math.floor((0 - x0) / stepX) - 1
+    const kMaxX = Math.ceil((width - x0) / stepX) + 1
+    const labelY = Math.min(height - 6, Math.max(16, wY2 - 4))
+    for (let k = kMinX; k <= kMaxX; k++) {
+      const x = x0 + k * stepX
+      if (x >= wX1 - 2 && x <= wX2 + 2) {
+        const normLon = ((k * 30) % 360 + 540) % 360 - 180
+        ctx.fillText(`${normLon}°`, x + 3, labelY)
+      }
+    }
+  }
+
+  // Latitude labels
+  if (stepY > 0) {
+    const kMinY = Math.floor((y0 - height) / stepY) - 1
+    const kMaxY = Math.ceil((y0 - 0) / stepY) + 1
+    for (let k = kMinY; k <= kMaxY; k++) {
+      const y = y0 - k * stepY
+      if (k === 0) continue
+      const lat = k * 30
+      if (lat >= -80 && lat <= 80 && y >= wY1 - 2 && y <= wY2 + 2) {
+        const latLabel = lat > 0 ? `${lat}°N` : `${Math.abs(lat)}°S`
+        if (y >= 10 && y <= height - 5) {
+          ctx.fillText(latLabel, Math.max(8, wX1 + 6), y - 3)
+        }
+      }
+    }
+  }
+
+  // Equator label
+  if (y0 >= 10 && y0 <= height - 5 && y0 >= wY1 && y0 <= wY2) {
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.85)'
+    ctx.fillText('0°', Math.max(8, wX1 + 6), y0 - 3)
+  }
+
+  // Arctic circle label badge (always visible on top with dark HUD backdrop)
+  if (arcticY >= wY1 - 2 && arcticY <= wY2 + 2) {
+    const arcticLabel = 'СЕВЕРНЫЙ ПОЛЯРНЫЙ КРУГ // 66.5°N'
+    ctx.font = 'bold 8.5px monospace'
+    const arcLabelX = Math.max(28, wX1 + 36)
+    const arcLabelY = arcticY - 4
+    const arcLabelW = ctx.measureText(arcticLabel).width
+    ctx.fillStyle = 'rgba(7, 12, 22, 0.92)'
+    ctx.fillRect(arcLabelX - 4, arcLabelY - 8, arcLabelW + 8, 12)
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)'
+    ctx.lineWidth = 1
+    ctx.strokeRect(arcLabelX - 4, arcLabelY - 8, arcLabelW + 8, 12)
+    ctx.fillStyle = '#38bdf8'
+    ctx.fillText(arcticLabel, arcLabelX, arcLabelY)
+  }
 
   // Precalculate positions
   const satPosMap = new Map<string, [number, number]>()
