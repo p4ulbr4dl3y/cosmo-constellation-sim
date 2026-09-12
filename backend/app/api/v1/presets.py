@@ -6,7 +6,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, status
 
-from app.models.schemas import PresetSummary
+from app.models.schemas import ErrorResponse, PresetSummary, Scenario
 
 router = APIRouter(tags=["presets"])
 
@@ -77,7 +77,16 @@ def get_presets() -> list[PresetSummary]:
     return summaries
 
 
-@router.get("/presets/{name}", summary="Получение конфигурации пресета по имени файла")
+@router.get(
+    "/presets/{name}",
+    response_model=Scenario | dict[str, Any],
+    summary="Получение конфигурации пресета по имени файла",
+    responses={
+        200: {"description": "Полная спецификация сценария в формате cosmo-A-1.0"},
+        404: {"model": ErrorResponse, "description": "Сценарий не найден в каталоге пресетов"},
+        500: {"model": ErrorResponse, "description": "Ошибка чтения файла сценария"},
+    },
+)
 def get_preset(name: str) -> dict[str, Any]:
     """Возвращает полное содержимое сценария в формате JSON."""
     data_dir = find_data_dir()

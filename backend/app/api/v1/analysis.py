@@ -8,7 +8,13 @@ from fastapi.responses import PlainTextResponse
 
 from app.core.compare import compare_scenarios
 from app.core.validator import validate_scenario
-from app.models.schemas import CompareRequest
+from app.models.schemas import (
+    CompareRequest,
+    CompareResponse,
+    ErrorResponse,
+    RecommendationsResponse,
+    ReportExportResponse,
+)
 
 router = APIRouter(tags=["analysis"])
 
@@ -31,7 +37,15 @@ def find_recommendations_doc() -> Path | None:
     return None
 
 
-@router.post("/compare", summary="Сравнительный анализ двух сценариев группировки")
+@router.post(
+    "/compare",
+    response_model=CompareResponse,
+    summary="Сравнительный анализ двух сценариев группировки",
+    responses={
+        200: {"description": "Результаты сопоставления параметров, доступности и маршрутов"},
+        422: {"model": ErrorResponse, "description": "Сценарий A или B содержит ошибки валидации"},
+    },
+)
 def compare(req: CompareRequest) -> dict[str, Any]:
     """Сравнивает доступность и маршрутные метрики двух сценариев."""
     errors_a = validate_scenario(req.scenario_a)
@@ -64,7 +78,11 @@ def compare(req: CompareRequest) -> dict[str, Any]:
 @router.api_route(
     "/recommendations",
     methods=["GET", "POST"],
+    response_model=RecommendationsResponse,
     summary="Получение инженерных рекомендаций и анализа устойчивости",
+    responses={
+        200: {"description": "Аналитическая сводка по этапам, узким местам и рекомендациям"},
+    },
 )
 def get_recommendations() -> dict[str, Any]:
     """Возвращает аналитическую сводку по очередям развертывания, узким местам и рекомендациям."""
@@ -147,7 +165,19 @@ def get_recommendations() -> dict[str, Any]:
 @router.api_route(
     "/report/export",
     methods=["GET", "POST"],
+    response_model=ReportExportResponse | str,
     summary="Экспорт текста инженерного отчета в формате Markdown",
+    responses={
+        200: {
+            "description": "Инженерный отчет в формате Markdown или структурированный JSON",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/ReportExportResponse"}
+                },
+                "text/markdown": {"schema": {"type": "string"}},
+            },
+        }
+    },
 )
 def export_report(format: str = "json") -> Any:
     """Экспортирует инженерный отчет в текстовом формате Markdown или JSON."""

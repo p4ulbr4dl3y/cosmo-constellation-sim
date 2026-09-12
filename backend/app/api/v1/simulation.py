@@ -10,9 +10,13 @@ from app.core.routing import build_adjacency, classify_failure, find_route
 from app.core.simulator import run_simulation
 from app.core.validator import validate_scenario
 from app.models.schemas import (
+    ErrorResponse,
     ExportRequest,
+    ExportResultResponse,
     SimulateRequest,
+    SimulateResponse,
     SnapshotRequest,
+    SnapshotResponse,
     ValidateResponse,
 )
 
@@ -23,6 +27,9 @@ router = APIRouter(tags=["simulation"])
     "/validate",
     response_model=ValidateResponse,
     summary="Валидация структуры и физических параметров сценария",
+    responses={
+        200: {"description": "Результаты валидации сценария (valid: true/false)"},
+    },
 )
 def validate(scenario: dict[str, Any]) -> ValidateResponse:
     """Выполняет проверку сценария на соответствие схеме cosmo-A-1.0 и физическим ограничениям."""
@@ -32,7 +39,12 @@ def validate(scenario: dict[str, Any]) -> ValidateResponse:
 
 @router.post(
     "/simulate",
+    response_model=SimulateResponse,
     summary="Моделирование доступности группировки по временному горизонту",
+    responses={
+        200: {"description": "Успешный расчет доступности и метрик SLA"},
+        422: {"model": ErrorResponse, "description": "Сценарий содержит ошибки валидации"},
+    },
 )
 def simulate(req: SimulateRequest) -> dict[str, Any]:
     """Запускает расчет динамики группировки, маршрутизации и метрик SLA по всем временным шагам."""
@@ -53,7 +65,12 @@ def simulate(req: SimulateRequest) -> dict[str, Any]:
 
 @router.post(
     "/snapshot",
+    response_model=SnapshotResponse,
     summary="Расчет мгновенного состояния группировки для визуализации",
+    responses={
+        200: {"description": "Мгновенный снимок положения КА, топологии и маршрутов"},
+        422: {"model": ErrorResponse, "description": "Сценарий содержит ошибки валидации"},
+    },
 )
 def compute_snapshot(req: SnapshotRequest) -> dict[str, Any]:
     """Вычисляет пространственные координаты ECEF, топологию графа и маршруты клиентов в момент времени t_s."""
@@ -197,7 +214,12 @@ def compute_snapshot(req: SnapshotRequest) -> dict[str, Any]:
 
 @router.post(
     "/export",
+    response_model=ExportResultResponse,
     summary="Экспорт результатов моделирования в формате cosmo-A-result-1.0",
+    responses={
+        200: {"description": "Итоговый документ результатов в стандарте cosmo-A-result-1.0"},
+        422: {"model": ErrorResponse, "description": "Сценарий содержит ошибки валидации"},
+    },
 )
 def export(req: ExportRequest) -> dict[str, Any]:
     """Формирует итоговый документ результатов моделирования сценария."""
