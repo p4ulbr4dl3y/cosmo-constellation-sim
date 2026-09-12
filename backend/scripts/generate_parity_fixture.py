@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Any
 import copy
 import json
 from pathlib import Path
@@ -212,8 +213,18 @@ def main() -> None:
         "summary_metrics": summary_metrics,
     }
 
-    out_path.write_text(json.dumps(fixture, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"Generated fixture at {out_path} ({len(json.dumps(fixture))} bytes)")
+    def round_floats(obj: Any, decimals: int = 6) -> Any:
+        if isinstance(obj, float):
+            return round(obj, decimals)
+        if isinstance(obj, dict):
+            return {k: round_floats(v, decimals) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [round_floats(v, decimals) for v in obj]
+        return obj
+
+    rounded_fixture = round_floats(fixture, decimals=6)
+    out_path.write_text(json.dumps(rounded_fixture, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"Generated fixture at {out_path} ({len(json.dumps(rounded_fixture))} bytes)")
 
 
 if __name__ == "__main__":
