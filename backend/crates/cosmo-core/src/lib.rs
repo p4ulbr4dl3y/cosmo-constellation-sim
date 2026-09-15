@@ -220,10 +220,84 @@ mod tests {
         assert!(comp.summary.delta_average_availability_pct < -50.0);
         assert!(comp.parameter_differences.iter().any(|d| d.field == "design.launch_stage"));
 
+        // Test identical comparison
+        let comp_same = compare_scenarios(&s1, &s1, RoutingMetric::Distance);
+        assert_eq!(comp_same.summary.delta_average_availability_pct, 0.0);
+        assert!(comp_same.summary.recommendation.contains("идентична"));
+
+        // Test s2 vs s1 (b > a)
+        let comp_improved = compare_scenarios(&s2, &s1, RoutingMetric::Hops);
+        assert!(comp_improved.summary.delta_average_availability_pct > 50.0);
+        assert!(comp_improved.summary.recommendation.contains("превосходит"));
+        assert!(comp_improved.summary.recommendation.contains("все пункты вышли"));
+
         let exported = export_result(&s1, RoutingMetric::Hops);
         assert_eq!(exported.schema_version, SCHEMA_VERSION_RESULT);
         assert_eq!(exported.routes.len(), 720 * 3);
         assert_eq!(exported.metrics.len(), 3);
         assert!(!exported.metrics.get("C65").unwrap().as_object().unwrap().contains_key("timeline"));
     }
+
+    #[test]
+    fn test_routing_metric_from_str_and_diff_branches() {
+        assert_eq!(RoutingMetric::from_str("hops"), RoutingMetric::Hops);
+        assert_eq!(RoutingMetric::from_str("HOPS"), RoutingMetric::Hops);
+        assert_eq!(RoutingMetric::from_str("distance"), RoutingMetric::Distance);
+        assert_eq!(RoutingMetric::from_str("other"), RoutingMetric::Distance);
+
+        let s1 = load_test_preset(include_str!("../../../../data/01_full_constellation.json"));
+        let mut s2 = s1.clone();
+
+        // Mutate s2 to trigger diff_scenario_parameters branches
+        s2.environment.altitude_km = 700.0;
+        s2.design.launch_stage = 2;
+        s2.design.planes[0].raan_deg = 45.0;
+        s2.design.satellites.pop(); // different satellites_count
+        s2.ground_sites[0].lat_deg = 70.0;
+        s2.failures.push(models::SatelliteFailure {
+            satellite_id: "SAT_101".to_string(),
+            start_s: 0.0,
+            end_s: 100.0,
+        });
+        s2.gateway_outages.push(models::GatewayOutage {
+            gateway_id: "G_MUR".to_string(),
+            start_s: 0.0,
+            end_s: 100.0,
+        });
+
+        let diffs = diff_scenario_parameters(&s1, &s2);
+        assert!(diffs.iter().any(|d| d.field.starts_with("environment.")));
+        assert!(diffs.iter().any(|d| d.field == "design.launch_stage"));
+        assert!(diffs.iter().any(|d| d.field.starts_with("design.planes")));
+        assert!(diffs.iter().any(|d| d.field == "design.satellites_count"));
+        assert!(diffs.iter().any(|d| d.field.starts_with("ground_sites")));
+        assert!(diffs.iter().any(|d| d.field == "failures_count"));
+        assert!(diffs.iter().any(|d| d.field == "gateway_outages_count"));
+
+        // Same length satellites, failures & gateway_outages but modified content
+        let mut s3 = s1.clone();
+        s3.design.satellites[0].slot_deg = 99.0;
+        s3.failures.push(models::SatelliteFailure {
+            satellite_id: "SAT_101".to_string(),
+            start_s: 0.0,
+            end_s: 100.0,
+        });
+        s3.gateway_outages.push(models::GatewayOutage {
+            gateway_id: "G_MUR".to_string(),
+            start_s: 0.0,
+            end_s: 100.0,
+        });
+
+        let diffs_sat = diff_scenario_parameters(&s1, &s3);
+        assert!(diffs_sat.iter().any(|d| d.field == "design.satellites"));
+
+        let mut s4 = s3.clone();
+        s4.failures[0].end_s = 200.0;
+        s4.gateway_outages[0].end_s = 200.0;
+
+        let diffs2 = diff_scenario_parameters(&s3, &s4);
+        assert!(diffs2.iter().any(|d| d.field == "failures"));
+        assert!(diffs2.iter().any(|d| d.field == "gateway_outages"));
+    }
 }
+

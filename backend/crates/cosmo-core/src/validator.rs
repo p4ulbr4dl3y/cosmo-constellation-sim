@@ -404,3 +404,413 @@ pub fn validate_scenario(s: &Scenario) -> Vec<String> {
     let value = serde_json::to_value(s).unwrap_or(serde_json::Value::Null);
     validate_scenario_value(&value)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    fn valid_scenario_json() -> serde_json::Value {
+        json!({
+            "schema_version": "cosmo-A-1.0",
+            "environment": {
+                "altitude_km": 600.0,
+                "inclination_deg": 80.0,
+                "earth_angle0_deg": 0.0,
+                "horizon_s": 3600,
+                "step_s": 60,
+                "min_elevation_deg": 10.0,
+                "isl_range_km": 3000.0,
+                "target_availability": 0.9
+            },
+            "design": {
+                "launch_stage": 1,
+                "planes": [
+                    { "id": "P1", "raan_deg": 0.0, "phase_deg": 0.0 }
+                ],
+                "satellites": [
+                    { "id": "SAT1", "plane_id": "P1", "launch_batch": 1, "slot_deg": 0.0 }
+                ]
+            },
+            "ground_sites": [
+                { "id": "C1", "name": "Client 1", "role": "client", "lat_deg": 65.0, "lon_deg": 40.0 },
+                { "id": "G1", "name": "Gateway 1", "role": "gateway", "lat_deg": 68.0, "lon_deg": 33.0 }
+            ],
+            "failures": [],
+            "gateway_outages": []
+        })
+    }
+
+    #[test]
+    fn test_valid_scenario_passes() {
+        let scenario_val = valid_scenario_json();
+        let errs = validate_scenario_value(&scenario_val);
+        assert!(errs.is_empty(), "Expected clean validation, got: {:?}", errs);
+    }
+
+    #[test]
+    fn test_non_object_scenario() {
+        assert!(!validate_scenario_value(&json!(42)).is_empty());
+        assert!(!validate_scenario_value(&json!("string")).is_empty());
+        assert!(!validate_scenario_value(&json!(null)).is_empty());
+        assert!(!validate_scenario_value(&json!([1, 2, 3])).is_empty());
+    }
+
+    #[test]
+    fn test_invalid_schema_version() {
+        let mut s = valid_scenario_json();
+        s["schema_version"] = json!("invalid-schema-2.0");
+        let errs = validate_scenario_value(&s);
+        assert!(errs.iter().any(|e| e.contains("Неподдерживаемая версия схемы")));
+
+        let mut s_missing = valid_scenario_json();
+        s_missing.as_object_mut().unwrap().remove("schema_version");
+        let errs_m = validate_scenario_value(&s_missing);
+        assert!(errs_m.iter().any(|e| e.contains("Неподдерживаемая версия схемы")));
+    }
+
+    #[test]
+    fn test_environment_missing_or_invalid() {
+        let mut s = valid_scenario_json();
+        s.as_object_mut().unwrap().remove("environment");
+        let errs = validate_scenario_value(&s);
+        assert!(errs.iter().any(|e| e.contains("Отсутствует обязательный раздел 'environment'")));
+
+        let mut s_not_obj = valid_scenario_json();
+        s_not_obj["environment"] = json!(123);
+        let errs_obj = validate_scenario_value(&s_not_obj);
+        assert!(errs_obj.iter().any(|e| e.contains("Отсутствует обязательный раздел 'environment'")));
+    }
+
+    #[test]
+    fn test_environment_missing_keys_and_non_finite() {
+        let mut s = valid_scenario_json();
+        s["environment"].as_object_mut().unwrap().remove("altitude_km");
+        let errs = validate_scenario_value(&s);
+        assert!(errs.iter().any(|e| e.contains("отсутствует обязательное поле 'altitude_km'")));
+
+        let mut s_non_num = valid_scenario_json();
+        s_non_num["environment"]["altitude_km"] = json!("six_hundred");
+        let errs_nn = validate_scenario_value(&s_non_num);
+        assert!(errs_nn.iter().any(|e| e.contains("должно быть конечным числом")));
+    }
+
+    #[test]
+    fn test_altitude_km_boundaries() {
+        let mut s_low = valid_scenario_json();
+        s_low["environment"]["altitude_km"] = json!(199.9);
+        assert!(!validate_scenario_value(&s_low).is_empty());
+
+        let mut s_high = valid_scenario_json();
+        s_high["environment"]["altitude_km"] = json!(1200.1);
+        assert!(!validate_scenario_value(&s_high).is_empty());
+
+        let mut s_min = valid_scenario_json();
+        s_min["environment"]["altitude_km"] = json!(200.0);
+        assert!(validate_scenario_value(&s_min).is_empty());
+
+        let mut s_max = valid_scenario_json();
+        s_max["environment"]["altitude_km"] = json!(1200.0);
+        assert!(validate_scenario_value(&s_max).is_empty());
+    }
+
+    #[test]
+    fn test_inclination_deg_boundaries() {
+        let mut s_zero = valid_scenario_json();
+        s_zero["environment"]["inclination_deg"] = json!(0.0);
+        assert!(!validate_scenario_value(&s_zero).is_empty());
+
+        let mut s_neg = valid_scenario_json();
+        s_neg["environment"]["inclination_deg"] = json!(-5.0);
+        assert!(!validate_scenario_value(&s_neg).is_empty());
+
+        let mut s_high = valid_scenario_json();
+        s_high["environment"]["inclination_deg"] = json!(180.1);
+        assert!(!validate_scenario_value(&s_high).is_empty());
+
+        let mut s_max = valid_scenario_json();
+        s_max["environment"]["inclination_deg"] = json!(180.0);
+        assert!(validate_scenario_value(&s_max).is_empty());
+    }
+
+    #[test]
+    fn test_step_s_and_horizon_s_boundaries() {
+        let mut s_step_float = valid_scenario_json();
+        s_step_float["environment"]["step_s"] = json!(60.5);
+        let errs1 = validate_scenario_value(&s_step_float);
+        assert!(errs1.iter().any(|e| e.contains("step_s должен быть целым")));
+
+        let mut s_horiz_float = valid_scenario_json();
+        s_horiz_float["environment"]["horizon_s"] = json!(3600.5);
+        let errs2 = validate_scenario_value(&s_horiz_float);
+        assert!(errs2.iter().any(|e| e.contains("horizon_s должен быть целым")));
+
+        let mut s_step_zero = valid_scenario_json();
+        s_step_zero["environment"]["step_s"] = json!(0);
+        assert!(!validate_scenario_value(&s_step_zero).is_empty());
+
+        let mut s_step_gt_horiz = valid_scenario_json();
+        s_step_gt_horiz["environment"]["step_s"] = json!(7200);
+        s_step_gt_horiz["environment"]["horizon_s"] = json!(3600);
+        assert!(!validate_scenario_value(&s_step_gt_horiz).is_empty());
+
+        let mut s_horiz_too_large = valid_scenario_json();
+        s_horiz_too_large["environment"]["horizon_s"] = json!(200000);
+        assert!(!validate_scenario_value(&s_horiz_too_large).is_empty());
+
+        let mut s_not_multiple = valid_scenario_json();
+        s_not_multiple["environment"]["step_s"] = json!(7);
+        s_not_multiple["environment"]["horizon_s"] = json!(100);
+        let errs3 = validate_scenario_value(&s_not_multiple);
+        assert!(errs3.iter().any(|e| e.contains("должен быть нацело кратен")));
+    }
+
+    #[test]
+    fn test_min_elevation_deg_boundaries() {
+        let mut s_neg = valid_scenario_json();
+        s_neg["environment"]["min_elevation_deg"] = json!(-0.1);
+        assert!(!validate_scenario_value(&s_neg).is_empty());
+
+        let mut s_90 = valid_scenario_json();
+        s_90["environment"]["min_elevation_deg"] = json!(90.0);
+        assert!(!validate_scenario_value(&s_90).is_empty());
+
+        let mut s_valid = valid_scenario_json();
+        s_valid["environment"]["min_elevation_deg"] = json!(0.0);
+        assert!(validate_scenario_value(&s_valid).is_empty());
+    }
+
+    #[test]
+    fn test_isl_range_km_boundaries() {
+        let mut s_zero = valid_scenario_json();
+        s_zero["environment"]["isl_range_km"] = json!(0.0);
+        assert!(!validate_scenario_value(&s_zero).is_empty());
+
+        let mut s_high = valid_scenario_json();
+        s_high["environment"]["isl_range_km"] = json!(10000.1);
+        assert!(!validate_scenario_value(&s_high).is_empty());
+
+        let mut s_max = valid_scenario_json();
+        s_max["environment"]["isl_range_km"] = json!(10000.0);
+        assert!(validate_scenario_value(&s_max).is_empty());
+    }
+
+    #[test]
+    fn test_target_availability_boundaries() {
+        let mut s_neg = valid_scenario_json();
+        s_neg["environment"]["target_availability"] = json!(-0.1);
+        assert!(!validate_scenario_value(&s_neg).is_empty());
+
+        let mut s_high = valid_scenario_json();
+        s_high["environment"]["target_availability"] = json!(1.1);
+        assert!(!validate_scenario_value(&s_high).is_empty());
+
+        let mut s_valid = valid_scenario_json();
+        s_valid["environment"]["target_availability"] = json!(1.0);
+        assert!(validate_scenario_value(&s_valid).is_empty());
+    }
+
+    #[test]
+    fn test_design_boundaries() {
+        let mut s_no_des = valid_scenario_json();
+        s_no_des.as_object_mut().unwrap().remove("design");
+        assert!(!validate_scenario_value(&s_no_des).is_empty());
+
+        let mut s_des_not_obj = valid_scenario_json();
+        s_des_not_obj["design"] = json!("not_obj");
+        assert!(!validate_scenario_value(&s_des_not_obj).is_empty());
+
+        let mut s_stage = valid_scenario_json();
+        s_stage["design"]["launch_stage"] = json!(4);
+        assert!(!validate_scenario_value(&s_stage).is_empty());
+
+        let mut s_no_planes = valid_scenario_json();
+        s_no_planes["design"]["planes"] = json!([]);
+        assert!(!validate_scenario_value(&s_no_planes).is_empty());
+
+        let mut s_plane_not_obj = valid_scenario_json();
+        s_plane_not_obj["design"]["planes"] = json!([123]);
+        assert!(!validate_scenario_value(&s_plane_not_obj).is_empty());
+
+        let mut s_plane_bad_id = valid_scenario_json();
+        s_plane_bad_id["design"]["planes"] = json!([{ "id": "", "raan_deg": 0.0, "phase_deg": 0.0 }]);
+        assert!(!validate_scenario_value(&s_plane_bad_id).is_empty());
+
+        let mut s_plane_dup_id = valid_scenario_json();
+        s_plane_dup_id["design"]["planes"] = json!([
+            { "id": "P1", "raan_deg": 0.0, "phase_deg": 0.0 },
+            { "id": "P1", "raan_deg": 10.0, "phase_deg": 0.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_plane_dup_id).is_empty());
+
+        let mut s_plane_bad_raan = valid_scenario_json();
+        s_plane_bad_raan["design"]["planes"] = json!([{ "id": "P1", "raan_deg": 360.0, "phase_deg": 0.0 }]);
+        assert!(!validate_scenario_value(&s_plane_bad_raan).is_empty());
+
+        let mut s_no_sats = valid_scenario_json();
+        s_no_sats["design"]["satellites"] = json!([]);
+        assert!(!validate_scenario_value(&s_no_sats).is_empty());
+
+        let mut s_sat_not_obj = valid_scenario_json();
+        s_sat_not_obj["design"]["satellites"] = json!([123]);
+        assert!(!validate_scenario_value(&s_sat_not_obj).is_empty());
+
+        let mut s_sat_bad_id = valid_scenario_json();
+        s_sat_bad_id["design"]["satellites"] = json!([{ "id": "", "plane_id": "P1", "launch_batch": 1, "slot_deg": 0.0 }]);
+        assert!(!validate_scenario_value(&s_sat_bad_id).is_empty());
+
+        let mut s_sat_dup_id = valid_scenario_json();
+        s_sat_dup_id["design"]["satellites"] = json!([
+            { "id": "SAT1", "plane_id": "P1", "launch_batch": 1, "slot_deg": 0.0 },
+            { "id": "SAT1", "plane_id": "P1", "launch_batch": 1, "slot_deg": 10.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_sat_dup_id).is_empty());
+
+        let mut s_sat_unknown_plane = valid_scenario_json();
+        s_sat_unknown_plane["design"]["satellites"] = json!([
+            { "id": "SAT1", "plane_id": "P99", "launch_batch": 1, "slot_deg": 0.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_sat_unknown_plane).is_empty());
+
+        let mut s_sat_bad_batch = valid_scenario_json();
+        s_sat_bad_batch["design"]["satellites"] = json!([
+            { "id": "SAT1", "plane_id": "P1", "launch_batch": 5, "slot_deg": 0.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_sat_bad_batch).is_empty());
+
+        let mut s_sat_bad_slot = valid_scenario_json();
+        s_sat_bad_slot["design"]["satellites"] = json!([
+            { "id": "SAT1", "plane_id": "P1", "launch_batch": 1, "slot_deg": "invalid" }
+        ]);
+        assert!(!validate_scenario_value(&s_sat_bad_slot).is_empty());
+    }
+
+    #[test]
+    fn test_ground_sites_boundaries() {
+        let mut s_no_gs = valid_scenario_json();
+        s_no_gs.as_object_mut().unwrap().remove("ground_sites");
+        assert!(!validate_scenario_value(&s_no_gs).is_empty());
+
+        let mut s_gs_not_obj = valid_scenario_json();
+        s_gs_not_obj["ground_sites"] = json!([123]);
+        assert!(!validate_scenario_value(&s_gs_not_obj).is_empty());
+
+        let mut s_gs_bad_id = valid_scenario_json();
+        s_gs_bad_id["ground_sites"] = json!([
+            { "id": "", "role": "client", "lat_deg": 0.0, "lon_deg": 0.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_gs_bad_id).is_empty());
+
+        let mut s_gs_dup_id = valid_scenario_json();
+        s_gs_dup_id["ground_sites"] = json!([
+            { "id": "C1", "role": "client", "lat_deg": 0.0, "lon_deg": 0.0 },
+            { "id": "C1", "role": "gateway", "lat_deg": 1.0, "lon_deg": 1.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_gs_dup_id).is_empty());
+
+        let mut s_gs_same_sat_id = valid_scenario_json();
+        s_gs_same_sat_id["ground_sites"] = json!([
+            { "id": "SAT1", "role": "client", "lat_deg": 0.0, "lon_deg": 0.0 },
+            { "id": "G1", "role": "gateway", "lat_deg": 1.0, "lon_deg": 1.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_gs_same_sat_id).is_empty());
+
+        let mut s_gs_bad_role = valid_scenario_json();
+        s_gs_bad_role["ground_sites"] = json!([
+            { "id": "C1", "role": "unknown_role", "lat_deg": 0.0, "lon_deg": 0.0 },
+            { "id": "G1", "role": "gateway", "lat_deg": 1.0, "lon_deg": 1.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_gs_bad_role).is_empty());
+
+        let mut s_gs_bad_lat = valid_scenario_json();
+        s_gs_bad_lat["ground_sites"] = json!([
+            { "id": "C1", "role": "client", "lat_deg": 95.0, "lon_deg": 0.0 },
+            { "id": "G1", "role": "gateway", "lat_deg": 1.0, "lon_deg": 1.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_gs_bad_lat).is_empty());
+
+        let mut s_gs_bad_lon = valid_scenario_json();
+        s_gs_bad_lon["ground_sites"] = json!([
+            { "id": "C1", "role": "client", "lat_deg": 0.0, "lon_deg": 185.0 },
+            { "id": "G1", "role": "gateway", "lat_deg": 1.0, "lon_deg": 1.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_gs_bad_lon).is_empty());
+
+        let mut s_no_client = valid_scenario_json();
+        s_no_client["ground_sites"] = json!([
+            { "id": "G1", "role": "gateway", "lat_deg": 0.0, "lon_deg": 0.0 }
+        ]);
+        let errs_no_c = validate_scenario_value(&s_no_client);
+        assert!(errs_no_c.iter().any(|e| e.contains("role='client'")));
+
+        let mut s_no_gw = valid_scenario_json();
+        s_no_gw["ground_sites"] = json!([
+            { "id": "C1", "role": "client", "lat_deg": 0.0, "lon_deg": 0.0 }
+        ]);
+        let errs_no_g = validate_scenario_value(&s_no_gw);
+        assert!(errs_no_g.iter().any(|e| e.contains("role='gateway'")));
+    }
+
+    #[test]
+    fn test_failures_and_gateway_outages_boundaries() {
+        let mut s_fail_not_arr = valid_scenario_json();
+        s_fail_not_arr["failures"] = json!("not_an_array");
+        assert!(!validate_scenario_value(&s_fail_not_arr).is_empty());
+
+        let mut s_fail_item_not_obj = valid_scenario_json();
+        s_fail_item_not_obj["failures"] = json!([123]);
+        assert!(!validate_scenario_value(&s_fail_item_not_obj).is_empty());
+
+        let mut s_fail_bad_sat = valid_scenario_json();
+        s_fail_bad_sat["failures"] = json!([
+            { "satellite_id": "SAT999", "start_s": 0.0, "end_s": 100.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_fail_bad_sat).is_empty());
+
+        let mut s_fail_bad_times = valid_scenario_json();
+        s_fail_bad_times["failures"] = json!([
+            { "satellite_id": "SAT1", "start_s": "abc", "end_s": 100.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_fail_bad_times).is_empty());
+
+        let mut s_fail_invalid_interval = valid_scenario_json();
+        s_fail_invalid_interval["failures"] = json!([
+            { "satellite_id": "SAT1", "start_s": 100.0, "end_s": 50.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_fail_invalid_interval).is_empty());
+
+        let mut s_gw_not_arr = valid_scenario_json();
+        s_gw_not_arr["gateway_outages"] = json!("not_an_array");
+        assert!(!validate_scenario_value(&s_gw_not_arr).is_empty());
+
+        let mut s_gw_item_not_obj = valid_scenario_json();
+        s_gw_item_not_obj["gateway_outages"] = json!([123]);
+        assert!(!validate_scenario_value(&s_gw_item_not_obj).is_empty());
+
+        let mut s_gw_bad_gw = valid_scenario_json();
+        s_gw_bad_gw["gateway_outages"] = json!([
+            { "gateway_id": "G999", "start_s": 0.0, "end_s": 100.0 }
+        ]);
+        assert!(!validate_scenario_value(&s_gw_bad_gw).is_empty());
+
+        let mut s_gw_bad_times = valid_scenario_json();
+        s_gw_bad_times["gateway_outages"] = json!([
+            { "gateway_id": "G1", "start_s": 0.0, "end_s": "xyz" }
+        ]);
+        assert!(!validate_scenario_value(&s_gw_bad_times).is_empty());
+
+        let mut s_gw_invalid_interval = valid_scenario_json();
+        s_gw_invalid_interval["gateway_outages"] = json!([
+            { "gateway_id": "G1", "start_s": 0.0, "end_s": 4000.0 } // horizon is 3600
+        ]);
+        assert!(!validate_scenario_value(&s_gw_invalid_interval).is_empty());
+    }
+
+    #[test]
+    fn test_validate_scenario_struct_helper() {
+        let s_val = valid_scenario_json();
+        let scenario: Scenario = serde_json::from_value(s_val).unwrap();
+        assert!(validate_scenario(&scenario).is_empty());
+    }
+}
+
