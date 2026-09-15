@@ -9,4 +9,8 @@ dist/
 .pytest_cache/
 .coverage
 coverage/
+target/
+backend/target/
+frontend/src/pkg/
+
 

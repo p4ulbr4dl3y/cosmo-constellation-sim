@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/cosmo-core",
+    "crates/cosmo-wasm",
+    "crates/cosmo-api",
+]
