@@ -31,7 +31,12 @@ pub fn compute_positions(
 
     for sat in &d.satellites {
         sat_ids.push(sat.id.clone());
-        let plane = pmap.get(sat.plane_id.as_str()).expect("Plane missing");
+        let dummy_plane = Plane {
+            id: sat.plane_id.clone(),
+            raan_deg: 0.0,
+            phase_deg: 0.0,
+        };
+        let plane = pmap.get(sat.plane_id.as_str()).copied().unwrap_or(&dummy_plane);
         let u = (sat.slot_deg + plane.phase_deg).to_radians() + n * t_s;
         let om = plane.raan_deg.to_radians();
 

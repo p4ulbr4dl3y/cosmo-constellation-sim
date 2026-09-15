@@ -14,7 +14,7 @@ pub use geometry::{compute_positions, ecef_to_geodetic, finite, ground_position,
 pub use models::*;
 pub use routing::{build_adjacency, classify_failure, find_route, RoutingMetric};
 pub use simulator::{run_simulation, simulate_scenario};
-pub use validator::validate_scenario;
+pub use validator::{validate_scenario, validate_scenario_value};
 
 #[cfg(test)]
 mod tests {
